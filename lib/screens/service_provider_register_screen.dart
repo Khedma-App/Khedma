@@ -194,7 +194,8 @@ class _ServiceProviderRegisterScreenState
                                 ),
                               ),
                             ),
-                            SizedBox(height: kHeight(40)),
+                                                        SizedBox(height: kHeight(40)),
+
                           ],
                         ),
                       ),

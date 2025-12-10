@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/screens/login_screen.dart';
 import 'package:khedma/screens/register_screen.dart';
+import 'package:khedma/screens/service_provider_information.dart';
 import 'package:khedma/screens/service_provider_register_screen.dart';
 import 'package:khedma/screens/welcome_screen.dart';
 
@@ -21,6 +22,8 @@ class MyApp extends StatelessWidget {
         RegisterScreen.id: (context) => RegisterScreen(),
         ServiceProviderRegisterScreen.id: (context) =>
             ServiceProviderRegisterScreen(),
+        ServiceProviderInformation.id: (context) =>
+            ServiceProviderInformation(),
       },
 
       debugShowCheckedModeBanner: false,

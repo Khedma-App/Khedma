@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/screens/service_provider_information.dart';
 import 'package:khedma/screens/service_provider_register_screen.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -159,7 +160,12 @@ class RegisterScreen extends StatelessWidget {
                               SizedBox(height: kHeight(17)),
                               // Service applicant
                               GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    ServiceProviderInformation.id,
+                                  );
+                                },
                                 child: Container(
                                   width: kWidth(250),
                                   height: kHeight(50),

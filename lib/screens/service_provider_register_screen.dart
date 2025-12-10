@@ -94,22 +94,59 @@ class _ServiceProviderRegisterScreenState
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  DropdownMenu(
+                                  Container(
                                     width: kWidth(155),
-                                    leadingIcon: Icon(Icons.arrow_drop_down),
-                                    showTrailingIcon: false,
-                                    hintText: 'النوع',
-                                    dropdownMenuEntries: [
-                                      DropdownMenuEntry(
-                                        label: 'ذكر',
-                                        value: 'ذكر',
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.orange,
+                                        width: 1,
                                       ),
-                                      DropdownMenuEntry(
-                                        label: 'أنثي',
-                                        value: 'أنثي',
+                                    ),
+                                    child: DropdownMenu(
+                                      width: kWidth(155),
+                                      menuStyle: MenuStyle(
+                                        backgroundColor:
+                                            WidgetStateProperty.all(
+                                              Colors.white,
+                                            ),
                                       ),
-                                    ],
+                                      inputDecorationTheme:
+                                          InputDecorationTheme(
+                                            border: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                            contentPadding: EdgeInsets.zero,
+                                          ),
+                                      leadingIcon: const Icon(
+                                        Icons.arrow_drop_down,
+                                      ),
+                                      showTrailingIcon: false,
+                                      hintText: 'النوع',
+
+                                      textStyle: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+
+                                      dropdownMenuEntries: const [
+                                        DropdownMenuEntry(
+                                          label: 'ذكر',
+                                          value: 'ذكر',
+                                        ),
+                                        DropdownMenuEntry(
+                                          label: 'أنثى',
+                                          value: 'أنثى',
+                                        ),
+                                      ],
+                                    ),
                                   ),
+
                                   CustomLoginTextFormField(
                                     hint: 'السن',
                                     width: kWidth(160),
@@ -122,9 +159,21 @@ class _ServiceProviderRegisterScreenState
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                ImageInput(
-                                  image: image,
-                                  onImagePicked: (file) => image = file,
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(50),
+                                    border: Border.all(
+                                      color: Colors.orange,
+                                      width: 1,
+                                    ),
+                                  ),
+
+                                  child: ImageInput(
+                                    image: image,
+                                    onImagePicked: (file) =>
+                                        setState(() => image = file),
+                                  ),
                                 ),
 
                                 //  ImageInput(
@@ -182,6 +231,7 @@ class _ServiceProviderRegisterScreenState
                                     Radius.circular(30),
                                   ),
                                 ),
+
                                 child: Center(
                                   child: Text(
                                     'متابعة',
@@ -194,8 +244,7 @@ class _ServiceProviderRegisterScreenState
                                 ),
                               ),
                             ),
-                                                        SizedBox(height: kHeight(40)),
-
+                            SizedBox(height: kHeight(40)),
                           ],
                         ),
                       ),

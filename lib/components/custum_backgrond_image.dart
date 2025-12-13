@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:khedma/core/constants.dart'
+    show kDesignHeight, kDesignWidth, kWidth, kHeight;
 
 class CustumBackgrondImage extends StatelessWidget {
   const CustumBackgrondImage({super.key});
@@ -6,8 +8,8 @@ class CustumBackgrondImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
+      width: kWidth(kDesignWidth),
+      height: kHeight(kDesignHeight),
       child: Image.asset('assets/images/bac.jpg', fit: BoxFit.cover),
     );
   }

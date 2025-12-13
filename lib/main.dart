@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/screens/recovery_flow.dart';
 import 'package:khedma/screens/login_screen.dart';
 import 'package:khedma/screens/register_screen.dart';
 import 'package:khedma/screens/service_provider_information.dart';
@@ -17,13 +18,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       routes: {
-        WelcomeScreen.id: (context) => WelcomeScreen(),
-        LoginScreen.id: (context) => LoginScreen(),
-        RegisterScreen.id: (context) => RegisterScreen(),
-        ServiceProviderRegisterScreen.id: (context) =>
-            ServiceProviderRegisterScreen(),
-        ServiceProviderInformation.id: (context) =>
-            ServiceProviderInformation(),
+        // WelcomeScreen.id: (context) => WelcomeScreen(),
+        // LoginScreen.id: (context) => LoginScreen(),
+        // RegisterScreen.id: (context) => RegisterScreen(),
+        // ServiceProviderRegisterScreen.id: (context) =>
+        //     ServiceProviderRegisterScreen(),
+        // ServiceProviderInformation.id: (context) =>
+        //     ServiceProviderInformation(),
+        RecoveryFlow.id: (context) => RecoveryFlow(),
       },
 
       debugShowCheckedModeBanner: false,
@@ -32,7 +34,7 @@ class MyApp extends StatelessWidget {
           //  context عشان اقدر اوصل للـ Builder هنا انا استخدمت
           // اللي من خلاله هقدر اجيب الطول و العرض بتاع الشاشة
           initScreenSize(context);
-          return WelcomeScreen();
+          return RecoveryFlow();
         },
       ),
     );

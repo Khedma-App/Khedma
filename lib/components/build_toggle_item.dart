@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 
 class BuildToggleItem extends StatelessWidget {
-  const BuildToggleItem({super.key, required this.text, required this.isActive, required this.onTap});
+  const BuildToggleItem({
+    super.key,
+    required this.text,
+    required this.isActive,
+    required this.onTap,
+  });
   final String text;
   final bool isActive;
   final VoidCallback onTap;
@@ -32,4 +37,4 @@ class BuildToggleItem extends StatelessWidget {
       ),
     );
   }
-  }
+}

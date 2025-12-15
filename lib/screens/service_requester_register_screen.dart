@@ -79,7 +79,9 @@ class _ServiceRequesterRegisterScreenState
                                 hint: 'كلمة المرور',
                                 width: kWidth(329),
                               ),
+
                               SizedBox(height: kHeight(20)),
+
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 31.0,
@@ -91,9 +93,10 @@ class _ServiceRequesterRegisterScreenState
                                   children: [
                                     Container(
                                       width: kWidth(155),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                      ),
+                                      height: kHeight(42),
+                                      // padding: const EdgeInsets.symmetric(
+                                      //   horizontal: 8,
+                                      // ),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(12),
@@ -124,7 +127,13 @@ class _ServiceRequesterRegisterScreenState
                                         hintText: 'النوع',
 
                                         textStyle: const TextStyle(
-                                          color: Colors.black,
+                                          color: Color.fromRGBO(
+                                            131,
+                                            131,
+                                            131,
+                                            0.5,
+                                          ),
+
                                           fontSize: 12,
                                           fontWeight: FontWeight.w900,
                                         ),

@@ -7,11 +7,12 @@ class CustomLoginTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.validator,
     this.controller,
-    this.width,
+    this.width, this.hight,
   });
 
   final String hint;
   final double? width;
+  final double? hight;
   final bool obscureText;
   final String? Function(String?)? validator;
   final TextEditingController? controller;
@@ -20,6 +21,7 @@ class CustomLoginTextFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
+      height: hight,
       decoration: const BoxDecoration(
         boxShadow: [
           BoxShadow(

@@ -67,11 +67,13 @@ class _ServiceProviderRegisterScreenState
                                 CustomLoginTextFormField(
                                   hint: 'الاســم الاخير',
                                   width: kWidth(160),
+                                  hight: kHeight(42),
                                 ),
                                 SizedBox(width: kWidth(9)),
                                 CustomLoginTextFormField(
                                   hint: 'الاســم الاول',
                                   width: kWidth(160),
+                                  hight: kHeight(42),
                                 ),
                               ],
                             ),
@@ -79,11 +81,13 @@ class _ServiceProviderRegisterScreenState
                             CustomLoginTextFormField(
                               hint: 'رقم الهاتف المحمول',
                               width: kWidth(329),
+                              hight: kHeight(42),
                             ),
                             SizedBox(height: kHeight(20)),
                             CustomLoginTextFormField(
                               hint: 'كلمة المرور',
                               width: kWidth(329),
+                              hight: kHeight(42),
                             ),
                             SizedBox(height: kHeight(20)),
                             Padding(
@@ -94,70 +98,150 @@ class _ServiceProviderRegisterScreenState
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  DropdownMenu(
+                                  Container(
                                     width: kWidth(155),
-                                    leadingIcon: Icon(Icons.arrow_drop_down),
-                                    showTrailingIcon: false,
-                                    hintText: 'النوع',
-                                    dropdownMenuEntries: [
-                                      DropdownMenuEntry(
-                                        label: 'ذكر',
-                                        value: 'ذكر',
+                                    height: kHeight(42),
+                                    padding: const EdgeInsets.only(
+                                      right: 8,
+                                      left: 8,
+                                      bottom: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.orange,
+                                        width: 1,
                                       ),
-                                      DropdownMenuEntry(
-                                        label: 'أنثي',
-                                        value: 'أنثي',
+                                    ),
+                                    child: DropdownMenu(
+                                      width: kWidth(155),
+
+                                      menuStyle: MenuStyle(
+                                        backgroundColor:
+                                            WidgetStateProperty.all(
+                                              Colors.white,
+                                            ),
                                       ),
-                                    ],
+                                      inputDecorationTheme:
+                                          InputDecorationTheme(
+                                            border: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                            contentPadding: EdgeInsets.zero,
+                                          ),
+                                      leadingIcon: const Icon(
+                                        Icons.arrow_drop_down,
+                                      ),
+                                      showTrailingIcon: false,
+                                      hintText: 'النوع',
+
+                                      textStyle: const TextStyle(
+                                        color: Color.fromRGBO(
+                                          131,
+                                          131,
+                                          131,
+                                          0.5,
+                                        ),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+
+                                      dropdownMenuEntries: const [
+                                        DropdownMenuEntry(
+                                          label: 'ذكر',
+                                          value: 'ذكر',
+                                        ),
+                                        DropdownMenuEntry(
+                                          label: 'أنثى',
+                                          value: 'أنثى',
+                                        ),
+                                      ],
+                                    ),
                                   ),
+
                                   CustomLoginTextFormField(
                                     hint: 'السن',
                                     width: kWidth(160),
+                                    hight: kHeight(42),
                                   ),
                                   // DropdownButton(items: items, onChanged: onChanged)
                                 ],
                               ),
                             ),
-                            SizedBox(height: kHeight(20)),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                ImageInput(
-                                  image: image,
-                                  onImagePicked: (file) => image = file,
-                                ),
 
-                                //  ImageInput(
-                                //   image: image,
-                                //   ),
-                                // Container(
-                                //   decoration: BoxDecoration(
-                                //     boxShadow: [
-                                //       BoxShadow(
-                                //         color: Colors.black38,
-                                //         blurRadius: 10,
-                                //         offset: Offset(0, 4),
-                                //       ),
-                                //     ],
-                                //     color: Colors.white,
-                                //     borderRadius: BorderRadius.all(
-                                //       Radius.circular(30),
-                                //     ),
-                                //   ),
-                                //   height: kHeight(140),
-                                //   width: kWidth(140),
-                                //   child: GestureDetector(
-                                //     onTap: () {},
-                                //     child: Image.asset(
-                                //       color: Colors.black,
-                                //       'assets/images/pick_image.png',
-                                //       height: kHeight(50),
-                                //       width: kWidth(50),
-                                //     ),
-                                //   ),
-                                // ),
-                                SizedBox(width: kWidth(30)),
-                              ],
+                            SizedBox(height: kHeight(20)),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 31.0,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: kWidth(155),
+                                    height: kHeight(42),
+                                    padding: const EdgeInsets.only(
+                                      right: 8,
+                                      left: 8,
+                                      bottom: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.orange,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: DropdownMenu(
+                                      width: kWidth(155),
+                              
+                                      menuStyle: MenuStyle(
+                                        backgroundColor: WidgetStateProperty.all(
+                                          Colors.white,
+                                        ),
+                                      ),
+                                      inputDecorationTheme: InputDecorationTheme(
+                                        border: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                      leadingIcon: const Icon(
+                                        Icons.arrow_drop_down,
+                                      ),
+                                      showTrailingIcon: false,
+                                      hintText: 'المحافظة',
+                              
+                                      textStyle: const TextStyle(
+                                        color: Color.fromRGBO(131, 131, 131, 0.5),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                              
+                                      dropdownMenuEntries: const [
+                                        DropdownMenuEntry(
+                                          label: 'ذكر',
+                                          value: 'ذكر',
+                                        ),
+                                        DropdownMenuEntry(
+                                          label: 'أنثى',
+                                          value: 'أنثى',
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              
+                                  ImageInput(
+                                    image: image,
+                                    onImagePicked: (file) => image = file,
+                                  ),
+                              
+                                  // SizedBox(width: kWidth(30)),
+                                ],
+                              ),
                             ),
                             //  SizedBox(width: kWidth(30)),
                             SizedBox(height: kHeight(40)),

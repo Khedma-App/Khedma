@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-var kPrimaryColor = const Color(0x80E19113);
+var kPrimaryColor = const Color(0xFFE19113);
 
 late double kScreenWidth; // to store screen width
 late double kScreenHeight; // to store screen height
@@ -30,5 +30,3 @@ double kWidth(double value) {
 double kSize(double value) {
   return kScreenWidth * (value / kDesignWidth);
 }
-
-

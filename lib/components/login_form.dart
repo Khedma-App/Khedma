@@ -35,9 +35,26 @@ class _LoginFormState extends State<LoginForm> {
             controller: passwordController,
             validator: _validatePassword,
           ),
-          SizedBox(height: kHeight(40)),
+          Padding(
+            padding: const EdgeInsets.only(right: 40.0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {},
+                child: Text(
+                  'هل نسيت كلمة المرور؟',
+                  style: TextStyle(
+                    color: Color(0xFFE19113),
+                    fontSize: kSize(14),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: kHeight(24)),
 
-          // زرار الدخول
+          // Login Button continue...
           GestureDetector(
             onTap: () {
               FocusScope.of(context).unfocus();

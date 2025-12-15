@@ -8,19 +8,19 @@ class CustomLoginTextFormField extends StatelessWidget {
     this.validator,
     this.controller,
     this.width,
-    // this.widget,
   });
 
   final String hint;
-  // final Widget? widget;
   final double? width;
   final bool obscureText;
   final String? Function(String?)? validator;
   final TextEditingController? controller;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      width: width,
+      decoration: const BoxDecoration(
         boxShadow: [
           BoxShadow(
             color: Color.fromRGBO(0, 0, 0, 0.25),
@@ -29,22 +29,23 @@ class CustomLoginTextFormField extends StatelessWidget {
           ),
         ],
       ),
-      width: width,
-      // height: height,
       child: TextFormField(
         controller: controller,
         validator: validator,
         obscureText: obscureText,
-        textAlign: TextAlign.left,
-        enabled: true,
+
+        textAlign: TextAlign
+            .right, 
         decoration: InputDecoration(
-          // helperText: ' ',
           fillColor: Colors.white,
           filled: true,
+
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
             vertical: 16,
+            horizontal: 20,
           ),
+
+          // labelText: hint,
 
           hint: Align(
             alignment: Alignment.centerRight,
@@ -60,15 +61,40 @@ class CustomLoginTextFormField extends StatelessWidget {
           alignLabelWithHint: true,
           hintTextDirection: TextDirection.rtl,
 
+          labelStyle: const TextStyle(
+            color: Color(0xFF838383),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+
+          floatingLabelStyle: const TextStyle(
+            color: Colors.orange,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Cairo',
+          ),
+
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.orange, width: 1),
+            borderSide: const BorderSide(color: Colors.orange, width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.orange, width: 1.5),
+            borderSide: const BorderSide(color: Colors.orange, width: 1.5),
           ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red, width: 1),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red, width: 1.5),
+          ),
+          errorStyle: const TextStyle(
+            color: Colors.redAccent,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
         ),
       ),
     );

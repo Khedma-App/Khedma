@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+var kPrimaryColor = const Color(0x80E19113);
+
 late double kScreenWidth; // to store screen width
 late double kScreenHeight; // to store screen height
 // دول القيم اللي هنستخدمها بعد كده في التطبيق
@@ -30,12 +32,3 @@ double kSize(double value) {
 }
 
 
-void showErrorSnackBar(String message, BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      backgroundColor: Colors.red,
-      duration: Duration(seconds: 2),
-    ),
-  );
-}

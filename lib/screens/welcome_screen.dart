@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:khedma/components/customt_login_text_form_field.dart';
 import 'package:khedma/core/constants.dart';
-import 'package:khedma/screens/login_screen.dart';
+import 'package:khedma/screens/auth_screen.dart';
 // import 'package:khedma/screens/login_screen.dart';
-import 'package:khedma/screens/register_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   WelcomeScreen({super.key});
@@ -14,26 +12,6 @@ class WelcomeScreen extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    String? validateEmail(String? value) {
-      if (value == null || value.isEmpty) {
-        return 'ادخل البريد الإلكتروني او رقم الهاتف';
-      }
-      bool isEmail = value.contains('@') && value.contains('.');
-      bool isPhone = value.length == 11 && int.tryParse(value) != null;
-
-      if (!isEmail && !isPhone) {
-        return 'الرجاء إدخال بريد إلكتروني أو رقم هاتف صحيح';
-      }
-      return null;
-    }
-
-    String? validatePassword(String? value) {
-      if (value == null || value.isEmpty) {
-        return 'ادخل كلمة المرور';
-      }
-      return null;
-    }
-
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -75,7 +53,7 @@ class WelcomeScreen extends StatelessWidget {
                     SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, LoginScreen.id);
+                        Navigator.pushNamed(context, AuthScreen.id);
                       },
                       child: Container(
                         width: kWidth(300),

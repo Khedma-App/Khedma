@@ -7,17 +7,17 @@ import 'package:khedma/components/custum_backgrond_image.dart';
 import 'package:khedma/components/image_picker.dart';
 import 'package:khedma/core/constants.dart';
 
-class ServiceProviderInformation extends StatefulWidget {
-  const ServiceProviderInformation({super.key});
+class ServiceRequesterRegisterScreen extends StatefulWidget {
+  const ServiceRequesterRegisterScreen({super.key});
   static String id = 'ServiceProviderInformation';
 
   @override
-  State<ServiceProviderInformation> createState() =>
-      _ServiceProviderInformationState();
+  State<ServiceRequesterRegisterScreen> createState() =>
+      _ServiceRequesterRegisterScreenState();
 }
 
-class _ServiceProviderInformationState
-    extends State<ServiceProviderInformation> {
+class _ServiceRequesterRegisterScreenState
+    extends State<ServiceRequesterRegisterScreen> {
   File? image;
   @override
   Widget build(BuildContext context) {

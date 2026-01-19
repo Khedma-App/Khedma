@@ -13,6 +13,7 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -53,7 +54,7 @@ class WelcomeScreen extends StatelessWidget {
                     SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, AuthScreen.id);
+                        Navigator.pushReplacementNamed(context, AuthScreen.id);
                       },
                       child: Container(
                         width: kWidth(300),

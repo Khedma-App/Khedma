@@ -17,14 +17,14 @@ class ServiceOptionsBoutton extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: kWidth(300),
+        width: kWidth(250),
         height: kHeight(50),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(50),
           border: Border.all(
             color: isSelected ? Colors.orange : Colors.orange.withOpacity(0.5),
-            width: isSelected ? 2 : 1,
+            width: isSelected ? 2 : 2,
           ),
           boxShadow: [
             BoxShadow(
@@ -43,8 +43,8 @@ class ServiceOptionsBoutton extends StatelessWidget {
               color: isSelected
                   ? Color.fromRGBO(225, 145, 19, 1)
                   : const Color(0xFF838383),
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontSize: 19,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),

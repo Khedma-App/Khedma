@@ -7,12 +7,19 @@ class CustomLoginTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.validator,
     this.controller,
-    this.width, this.hight,
+    this.width,
+    this.hight,
+    this.isCenter = false,
+    this.icon,
+    this.useEnabledColor = false,
   });
 
   final String hint;
   final double? width;
   final double? hight;
+  final Widget? icon;
+  final bool isCenter;
+  final bool useEnabledColor;
   final bool obscureText;
   final String? Function(String?)? validator;
   final TextEditingController? controller;
@@ -36,21 +43,16 @@ class CustomLoginTextFormField extends StatelessWidget {
         validator: validator,
         obscureText: obscureText,
 
-        textAlign: TextAlign
-            .right, 
+        textAlign: TextAlign.right,
         decoration: InputDecoration(
           fillColor: Colors.white,
           filled: true,
 
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 16,
-            horizontal: 20,
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
 
           // labelText: hint,
-
           hint: Align(
-            alignment: Alignment.centerRight,
+            alignment: (isCenter) ? Alignment.center : Alignment.centerRight,
             child: Text(
               hint,
               style: TextStyle(
@@ -62,7 +64,7 @@ class CustomLoginTextFormField extends StatelessWidget {
           ),
           alignLabelWithHint: true,
           hintTextDirection: TextDirection.rtl,
-
+          prefixIcon: icon,
           labelStyle: const TextStyle(
             color: Color(0xFF838383),
             fontSize: 14,
@@ -73,16 +75,18 @@ class CustomLoginTextFormField extends StatelessWidget {
             color: Colors.orange,
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            fontFamily: 'Cairo',
           ),
 
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.orange, width: 1),
+            borderSide: BorderSide(
+              color: (useEnabledColor) ? Colors.orange : Colors.transparent,
+              width: 1,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.orange, width: 1.5),
+            borderSide: const BorderSide(color: Colors.orange, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -90,7 +94,7 @@ class CustomLoginTextFormField extends StatelessWidget {
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.red, width: 1.5),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
           ),
           errorStyle: const TextStyle(
             color: Colors.redAccent,

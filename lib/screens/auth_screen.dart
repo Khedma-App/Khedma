@@ -16,6 +16,7 @@ class AuthScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => AuthCubit(),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
@@ -62,7 +63,7 @@ class AuthScreen extends StatelessWidget {
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                     top: 29,
-                                    bottom: 51,
+                                    bottom: 35,
                                   ),
 
                                   child: BlocBuilder<AuthCubit, AuthStates>(
@@ -98,7 +99,7 @@ class AuthScreen extends StatelessWidget {
                                                 ? CrossFadeState.showFirst
                                                 : CrossFadeState.showSecond,
                                             duration: const Duration(
-                                              milliseconds: 200,
+                                              milliseconds: 300,
                                             ),
                                           ),
 

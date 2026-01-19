@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/screens/auth_screen.dart';
 import 'package:khedma/screens/recovery_flow.dart';
@@ -8,6 +9,14 @@ import 'package:khedma/screens/welcome_screen.dart';
 
 void main() {
   runApp(const MyApp());
+
+  // شريط الحالة
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // لون شفاف للشريط
+      statusBarIconBrightness: Brightness.dark, // لون الأيقونات (أسود)
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -16,6 +25,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+   theme: ThemeData(
+        fontFamily: 'cairo',
+      ),
       routes: {
         WelcomeScreen.id: (context) => WelcomeScreen(),
         AuthScreen.id: (context) => const AuthScreen(),

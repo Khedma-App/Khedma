@@ -18,14 +18,14 @@ class _RegisterOptionsState extends State<RegisterOptions> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: kHeight(15)),
+        SizedBox(height: kHeight(14)),
         ServiceOptionsBoutton(
           text: 'مقدم خدمة',
           isSelected: selectedRole == 1,
           onTap: () => setState(() => selectedRole = 1),
         ),
 
-        SizedBox(height: kHeight(25)),
+        SizedBox(height: kHeight(20)),
 
         ServiceOptionsBoutton(
           text: 'طالب خدمة',
@@ -33,7 +33,7 @@ class _RegisterOptionsState extends State<RegisterOptions> {
           onTap: () => setState(() => selectedRole = 2),
         ),
 
-        SizedBox(height: kHeight(60)),
+        SizedBox(height: kHeight(55)),
 
         // Continue Button
         GestureDetector(
@@ -61,6 +61,7 @@ class _RegisterOptionsState extends State<RegisterOptions> {
           child: Container(
             height: kHeight(60),
             width: kWidth(300),
+            margin: const EdgeInsets.only(right: 20, left: 20, bottom: 16),
             decoration: const BoxDecoration(
               boxShadow: [
                 BoxShadow(
@@ -87,6 +88,4 @@ class _RegisterOptionsState extends State<RegisterOptions> {
       ],
     );
   }
-
-  
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/components/customt_login_text_form_field.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/screens/recovery_flow.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -20,13 +21,15 @@ class _LoginFormState extends State<LoginForm> {
       key: formKey,
       child: Column(
         children: [
+          SizedBox(height: kHeight(0.5)),
           CustomLoginTextFormField(
             width: kWidth(300),
             hint: 'البريد الإلكتروني او رقم الهاتف',
             controller: emailController,
-            validator: _validateEmail,
+            validator: _validatePhone,
+            useEnabledColor: true,
           ),
-          SizedBox(height: kHeight(18)),
+          SizedBox(height: kHeight(20)),
 
           CustomLoginTextFormField(
             width: kWidth(300),
@@ -34,13 +37,16 @@ class _LoginFormState extends State<LoginForm> {
             obscureText: true,
             controller: passwordController,
             validator: _validatePassword,
+            useEnabledColor: true,
           ),
           Padding(
             padding: const EdgeInsets.only(right: 40.0),
             child: Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, RecoveryFlow.id);
+                },
                 child: Text(
                   'هل نسيت كلمة المرور؟',
                   style: TextStyle(
@@ -52,7 +58,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
           ),
-          SizedBox(height: kHeight(24)),
+          SizedBox(height: kHeight(29)),
 
           // Login Button continue...
           GestureDetector(
@@ -73,6 +79,8 @@ class _LoginFormState extends State<LoginForm> {
             child: Container(
               height: kHeight(60),
               width: kWidth(300),
+              margin: const EdgeInsets.only(right: 20, left: 20, bottom: 16),
+
               decoration: const BoxDecoration(
                 boxShadow: [
                   BoxShadow(
@@ -101,17 +109,15 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  String? _validateEmail(String? value) {
+  String? _validatePhone(String? value) {
     if (value == null || value.isEmpty) {
-      return 'ادخل البريد الإلكتروني او رقم الهاتف';
+      return 'ادخل رقم الهاتف';
     }
-    bool isEmail = RegExp(
-      r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-    ).hasMatch(value);
+
     bool isPhone = RegExp(r'^[0-9]{11}$').hasMatch(value);
 
-    if (!isEmail && !isPhone) {
-      return 'الرجاء إدخال بريد إلكتروني أو رقم هاتف صحيح';
+    if (!isPhone) {
+      return 'الرجاء إدخال رقم هاتف صحيح';
     }
     return null;
   }
@@ -125,4 +131,5 @@ class _LoginFormState extends State<LoginForm> {
     }
     return null;
   }
+
 }

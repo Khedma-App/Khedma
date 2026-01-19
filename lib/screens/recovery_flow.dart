@@ -23,6 +23,8 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
     initScreenSize(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
+
       body: Stack(
         children: [
           const CustumBackgrondImage(),

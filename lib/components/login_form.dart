@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/components/customt_login_text_form_field.dart';
 import 'package:khedma/core/constants.dart';
-import 'package:khedma/screens/recovery_flow.dart';
+import 'package:khedma/screens/auth_screens/recovery_flow.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});

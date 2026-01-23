@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/components/section_item.dart';
 import 'package:khedma/core/constants.dart';
-import 'package:khedma/screens/welcome_screen.dart';
+import 'package:khedma/screens/auth_screens/welcome_screen.dart';
 
 class Sections extends StatefulWidget {
   Sections({super.key});

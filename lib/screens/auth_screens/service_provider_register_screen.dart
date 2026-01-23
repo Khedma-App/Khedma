@@ -1,9 +1,5 @@
-import 'dart:io';
-
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:khedma/components/customt_login_text_form_field.dart';
-import 'package:khedma/components/image_picker.dart';
 import 'package:khedma/core/constants.dart';
 
 class ServiceProviderRegisterScreen extends StatefulWidget {
@@ -161,14 +157,12 @@ class _ServiceProviderRegisterScreenState
                                               ],
                                             ),
                                             child: DropdownButtonFormField<String>(
-                                              value:
-                                                  selectedGender, 
+                                              initialValue: selectedGender,
                                               decoration: InputDecoration(
                                                 errorStyle: const TextStyle(
-                                                  height: 0, 
-                                                  color: Colors
-                                                      .transparent, 
-                                                  fontSize: 0, 
+                                                  height: 0,
+                                                  color: Colors.transparent,
+                                                  fontSize: 0,
                                                 ),
 
                                                 errorBorder: OutlineInputBorder(

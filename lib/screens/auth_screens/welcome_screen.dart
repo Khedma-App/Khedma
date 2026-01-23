@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
-import 'package:khedma/screens/auth_screen.dart';
+import 'package:khedma/screens/auth_screens/auth_screen.dart';
 // import 'package:khedma/screens/login_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {

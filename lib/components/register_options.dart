@@ -1,8 +1,9 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:khedma/components/service_options_boutton.dart';
 import 'package:khedma/core/constants.dart';
-import 'package:khedma/screens/service_provider_register_screen.dart';
-import 'package:khedma/screens/service_requester_register_screen.dart';
+import 'package:khedma/screens/auth_screens/service_provider_register_screen.dart';
+import 'package:khedma/screens/auth_screens/service_requester_register_screen.dart';
 
 class RegisterOptions extends StatefulWidget {
   const RegisterOptions({super.key});
@@ -40,15 +41,14 @@ class _RegisterOptionsState extends State<RegisterOptions> {
           onTap: () {
             switch (selectedRole) {
               case 0:
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "الرجاء اختيار نوع الحساب",
-                      style: TextStyle(fontFamily: 'Cairo'),
-                    ),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                AwesomeDialog(
+                  context: context,
+                  dialogType: DialogType.warning,
+                  animType: AnimType.bottomSlide,
+                  title: 'تنبيه',
+                  desc: 'الرجاء اختيار نوع الحساب',
+                  btnOkOnPress: () {},
+                ).show();
                 break;
               case 1:
                 Navigator.pushNamed(context, ServiceProviderRegisterScreen.id);

@@ -1,0 +1,129 @@
+import 'package:flutter/material.dart';
+import 'package:khedma/components/custom_filter_bar.dart';
+import 'package:khedma/components/service_provider_card.dart';
+import 'package:khedma/core/constants.dart';
+import 'package:khedma/models/service_provider_model.dart';
+
+class ServiceSectionsScreen extends StatefulWidget {
+  const ServiceSectionsScreen({super.key});
+  static String id = 'ServiceSectionsScreen';
+
+  @override
+  State<ServiceSectionsScreen> createState() => _ServiceSectionsScreenState();
+}
+
+class _ServiceSectionsScreenState extends State<ServiceSectionsScreen> {
+  final List<ServiceProviderModel> serviceProviders = [
+    ServiceProviderModel(
+      fullName: 'احمد علي',
+      profileImageUrl: 'assets/images/naqash.jpg',
+      governorate: 'القاهرة',
+      profession: 'نجار',
+      pricingType: 'بالساعة',
+      isAvailable: true,
+    ),
+    ServiceProviderModel(
+      fullName: 'احمد علي',
+      profileImageUrl: 'assets/images/naqash.jpg',
+      governorate: 'القاهرة',
+      profession: 'نجار',
+      pricingType: 'بالساعة',
+      isAvailable: true,
+    ),
+    ServiceProviderModel(
+      fullName: 'احمد علي',
+      profileImageUrl: 'assets/images/naqash.jpg',
+      governorate: 'القاهرة',
+      profession: 'نجار',
+      pricingType: 'بالساعة',
+      isAvailable: true,
+    ),
+    ServiceProviderModel(
+      fullName: 'احمد علي',
+      profileImageUrl: 'assets/images/naqash.jpg',
+      governorate: 'القاهرة',
+      profession: 'نجار',
+      pricingType: 'بالساعة',
+      isAvailable: true,
+    ),
+    ServiceProviderModel(
+      fullName: 'احمد علي',
+      profileImageUrl: 'assets/images/naqash.jpg',
+      governorate: 'القاهرة',
+      profession: 'نجار',
+      pricingType: 'بالساعة',
+      isAvailable: true,
+    ),
+    ServiceProviderModel(
+      fullName: 'محمد محمد',
+      profileImageUrl: 'assets/images/naqash.jpg',
+      governorate: 'اسيوط',
+      profession: 'نجار',
+      pricingType: 'باليومية',
+      isAvailable: false,
+    ),
+    ServiceProviderModel(
+      fullName: 'احمد نوبي',
+      profileImageUrl: 'assets/images/naqash.jpg',
+      governorate: 'الاقصر',
+      profession: 'سباك',
+      pricingType: 'بالمتر',
+      isAvailable: true,
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFE19113),
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        leadingWidth: kWidth(40),
+        leading: const SizedBox.shrink(),
+        title: Image.asset(
+          "assets/images/logo.png",
+          height: kHeight(45),
+          fit: BoxFit.contain,
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+              size: kWidth(25),
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Column(
+              children: [
+                const CustomFilterBar(),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: serviceProviders.length,
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.only(bottom: kHeight(20)),
+                    itemBuilder: (context, index) {
+                      final worker = serviceProviders[index];
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: kHeight(5)),
+                        child: ServiceProviderCard(worker: worker),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

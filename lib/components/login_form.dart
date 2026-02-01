@@ -23,6 +23,7 @@ class _LoginFormState extends State<LoginForm> {
         children: [
           SizedBox(height: kHeight(0.5)),
           CustomLoginTextFormField(
+            keyboardType: TextInputType.text,
             width: kWidth(300),
             hint: 'البريد الإلكتروني او رقم الهاتف',
             controller: emailController,
@@ -32,6 +33,8 @@ class _LoginFormState extends State<LoginForm> {
           SizedBox(height: kHeight(20)),
 
           CustomLoginTextFormField(
+            keyboardType: TextInputType.visiblePassword,
+
             width: kWidth(300),
             hint: 'كلمة المرور',
             obscureText: true,
@@ -131,5 +134,4 @@ class _LoginFormState extends State<LoginForm> {
     }
     return null;
   }
-
 }

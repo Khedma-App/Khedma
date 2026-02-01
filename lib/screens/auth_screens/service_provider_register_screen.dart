@@ -75,6 +75,8 @@ class _ServiceProviderRegisterScreenState
                                       children: [
                                         // last name
                                         CustomLoginTextFormField(
+                                          keyboardType: TextInputType.name,
+
                                           hint: 'الاســم الاخير',
                                           isCenter: true,
                                           validator: _validateLastName,
@@ -85,6 +87,8 @@ class _ServiceProviderRegisterScreenState
                                         SizedBox(width: kWidth(9)),
                                         // first name
                                         CustomLoginTextFormField(
+                                          keyboardType: TextInputType.name,
+
                                           hint: 'الاســم الاول',
                                           isCenter: true,
                                           controller: firstNameController,
@@ -98,6 +102,8 @@ class _ServiceProviderRegisterScreenState
 
                                     // phone
                                     CustomLoginTextFormField(
+                                      keyboardType: TextInputType.number,
+
                                       hint: 'رقم الهاتف المحمول',
                                       controller: phoneController,
                                       validator: _validatePhone,
@@ -115,6 +121,8 @@ class _ServiceProviderRegisterScreenState
                                     SizedBox(height: kHeight(20)),
                                     // password
                                     CustomLoginTextFormField(
+                                      keyboardType:
+                                          TextInputType.visiblePassword,
                                       hint: 'كلمــــــــة المــــــــرور',
                                       controller: passwordController,
                                       validator: _validatePassword,
@@ -215,6 +223,8 @@ class _ServiceProviderRegisterScreenState
                                           ),
                                           // age
                                           CustomLoginTextFormField(
+                                            keyboardType: TextInputType.number,
+
                                             hint: 'الســــــن',
                                             isCenter: true,
                                             controller: ageController,

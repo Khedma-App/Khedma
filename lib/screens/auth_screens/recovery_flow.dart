@@ -12,7 +12,6 @@ class RecoveryFlow extends StatefulWidget {
   static String id = 'RecoveryFlow';
 }
 
-// الخطوات
 enum RecoveryStep { enterEmail, enterCode, confirmPassword }
 
 class _RecoveryFlowState extends State<RecoveryFlow> {
@@ -23,76 +22,77 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
     initScreenSize(context);
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Stack(
+                  children: [
+                    const CustumBackgrondImage(),
+                    const CustumBackgrondColor(),
 
-      body: Stack(
-        children: [
-          const CustumBackgrondImage(),
-          const CustumBackgrondColor(),
-          Positioned(
-            top: kHeight(279),
-            left: kWidth(106),
-            child: Container(
-              width: kWidth(178),
-              height: kHeight(77),
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/khedma.png'),
-                  fit: BoxFit.cover,
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                        margin: EdgeInsets.only(top: kHeight(279)),
+                        width: kWidth(178),
+                        height: kHeight(77),
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/images/khedma.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    Column(
+                      children: [
+                        SizedBox(height: kHeight(516)),
+                        Container(
+                          width: kScreenWidth,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(50),
+                              topRight: Radius.circular(50),
+                            ),
+                          ),
+                          child: _buildContent(),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: kHeight(516)),
-                // المحتوى المتغير حسب المرحلة
-                Container(
-                  width: kScreenWidth,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(50),
-                      topRight: Radius.circular(50),
-                    ),
-                  ),
-                  child: _buildContent(),
-                ),
-              ],
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  // محتوى كل خطوة
   Widget _buildContent() {
     switch (step) {
       case RecoveryStep.enterEmail:
         return _buildEnterEmail();
-
       case RecoveryStep.enterCode:
         return _buildEnterCode();
-
       case RecoveryStep.confirmPassword:
         return _buildConfirmPassword();
     }
   }
 
-  // أول مرحلة: إدخال الإيميل
   Widget _buildEnterEmail() {
     return Column(
       children: [
         SizedBox(height: kHeight(10)),
         _title(),
         SizedBox(height: kHeight(39)),
-        CustomLoginTextFormField(
-          hint: 'البريد الالكتروني او رقم الهاتف',
-          width: kWidth(329),
-        ),
+        CustomLoginTextFormField(hint: 'ادخل رقم الهاتف', width: kWidth(329)),
         SizedBox(height: kHeight(50)),
         _button(
           onTap: () {
@@ -106,20 +106,14 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
     );
   }
 
-  // ثاني مرحلة: إدخال الكود
-
   Widget _buildEnterCode() {
     return Column(
       children: [
         SizedBox(height: kHeight(10)),
         _title(),
-
         SizedBox(height: kHeight(39)),
-
         CustomLoginTextFormField(hint: 'ادخل الكود المرسل', width: kWidth(329)),
-
         SizedBox(height: kHeight(30)),
-
         TextButton(
           onPressed: () {
             print("إعادة إرسال الكود");
@@ -143,9 +137,7 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
             ),
           ),
         ),
-
         SizedBox(height: kHeight(30)),
-
         _button(
           onTap: () {
             setState(() {
@@ -153,46 +145,34 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
             });
           },
         ),
-
         SizedBox(height: kHeight(60)),
       ],
     );
   }
 
-  // -------------------------
-  // ثالث مرحلة: كلمة سر جديدة
-  // -------------------------
   Widget _buildConfirmPassword() {
     return Column(
       children: [
         SizedBox(height: kHeight(10)),
         _title(),
-
         SizedBox(height: kHeight(39)),
-
         CustomLoginTextFormField(hint: 'كلمة السر الجديدة', width: kWidth(329)),
-
         SizedBox(height: kHeight(30)),
-
         CustomLoginTextFormField(
           hint: 'تأكيد كلمة السر الجديدة',
           width: kWidth(329),
         ),
-
         SizedBox(height: kHeight(40)),
-
         _button(
           onTap: () {
             print("تم تغيير كلمة السر بنجاح");
           },
         ),
-
         SizedBox(height: kHeight(60)),
       ],
     );
   }
 
-  // العنوان
   Widget _title() {
     return Container(
       width: kWidth(187),
@@ -211,7 +191,6 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
     );
   }
 
-  // زر المتابعة
   Widget _button({required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,

@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<ServiceProviderModel> ServiceProviders = [
     ServiceProviderModel(
+      imagesOfPreviousWorks: ['assets/images/service_provider_info_image.png'],
       fullName: 'احمد علي',
       profileImageUrl: 'assets/images/naqash.jpg',
       governorate: 'القاهرة',
@@ -21,6 +22,16 @@ class _HomeScreenState extends State<HomeScreen> {
       isAvailable: true,
     ),
     ServiceProviderModel(
+      imagesOfPreviousWorks: ['assets/images/service_provider_info_image.png'],
+      fullName: 'عبدالرحمن عبدالرحمن عبدالرحمن',
+      profileImageUrl: 'assets/images/naqash.jpg',
+      governorate: 'الاسكندرية',
+      profession: 'حداد',
+      pricingType: 'بالساعة',
+      isAvailable: true,
+    ),
+    ServiceProviderModel(
+      imagesOfPreviousWorks: ['assets/images/service_provider_info_image.png'],
       fullName: 'محمد محمد',
       profileImageUrl: 'assets/images/naqash.jpg',
       governorate: 'اسيوط',
@@ -29,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isAvailable: false,
     ),
     ServiceProviderModel(
+      imagesOfPreviousWorks: ['assets/images/service_provider_info_image.png'],
       fullName: 'احمد نوبي',
       profileImageUrl: 'assets/images/naqash.jpg',
       governorate: 'الاقصر',
@@ -180,8 +192,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    // Top Ads
                     Image.asset('assets/images/jotun_ads.jpg'),
                     SizedBox(height: kHeight(15)),
+                    // Trusted Workers Banner (ads)
                     Container(
                       width: kWidth(340),
                       height: kHeight(46),

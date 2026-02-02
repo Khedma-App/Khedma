@@ -5,7 +5,12 @@ class ServiceProviderModel {
   final String profileImageUrl;
   final String pricingType;
   final bool isAvailable;
-  bool isFavorite;
+  final int? yearsOfExperience;
+  final String? overviewOfExperience;
+  final String? previousCompanies;
+  final List<String> imagesOfPreviousWorks;
+  final bool isFavorite;
+  final bool? emergencyworks;
 
   ServiceProviderModel({
     required this.fullName,
@@ -15,5 +20,10 @@ class ServiceProviderModel {
     required this.pricingType,
     this.isAvailable = true,
     this.isFavorite = false,
+    this.yearsOfExperience,
+    this.overviewOfExperience,
+    this.previousCompanies,
+    required this.imagesOfPreviousWorks,
+    this.emergencyworks = false,
   });
 }

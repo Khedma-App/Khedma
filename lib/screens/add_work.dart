@@ -20,6 +20,7 @@ class _AddWorkState extends State<AddWork> {
     profileImageUrl: 'assets/images/worker1.png',
     pricingType: 'بالساعة',
     isAvailable: true,
+    imagesOfPreviousWorks: ['assets/images/service_provider_info_image.png'],
   );
 
   @override

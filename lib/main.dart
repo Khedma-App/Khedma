@@ -3,14 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
-import 'package:khedma/models/service_provider_model.dart';
-import 'package:khedma/screens/add_work.dart';
 import 'package:khedma/screens/auth_screens/auth_screen.dart';
-import 'package:khedma/screens/main_layout_screen.dart';
 import 'package:khedma/screens/auth_screens/recovery_flow.dart';
-import 'package:khedma/screens/auth_screens/service_requester_register_screen.dart';
 import 'package:khedma/screens/auth_screens/service_provider_register_screen.dart';
+import 'package:khedma/screens/auth_screens/service_requester_register_screen.dart';
 import 'package:khedma/screens/auth_screens/welcome_screen.dart';
+import 'package:khedma/screens/main_layout_screen.dart';
 import 'package:khedma/screens/search.dart';
 
 void main() {
@@ -35,13 +33,14 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         theme: ThemeData(fontFamily: 'cairo'),
         routes: {
-          // WelcomeScreen.id: (context) => WelcomeScreen(),
-          // AuthScreen.id: (context) => const AuthScreen(),
-          // ServiceProviderRegisterScreen.id: (context) =>
-          //     ServiceProviderRegisterScreen(),
-          // ServiceRequesterRegisterScreen.id: (context) =>
-          //     ServiceRequesterRegisterScreen(),
-          // RecoveryFlow.id: (context) => RecoveryFlow(),
+          WelcomeScreen.id: (context) => WelcomeScreen(),
+          AuthScreen.id: (context) => const AuthScreen(),
+          ServiceProviderRegisterScreen.id: (context) =>
+              ServiceProviderRegisterScreen(),
+          ServiceRequesterRegisterScreen.id: (context) =>
+              ServiceRequesterRegisterScreen(),
+          RecoveryFlow.id: (context) => RecoveryFlow(),
+          MainLayoutScreen.id: (context) => MainLayoutScreen(),
           Search.id: (context) => Search(),
         },
         debugShowCheckedModeBanner: false,
@@ -50,7 +49,7 @@ class MyApp extends StatelessWidget {
             //  context عشان اقدر اوصل للـ Builder هنا انا استخدمت
             // اللي من خلاله هقدر اجيب الطول و العرض بتاع الشاشة
             initScreenSize(context);
-            return Search();
+            return MainLayoutScreen();
           },
         ),
       ),

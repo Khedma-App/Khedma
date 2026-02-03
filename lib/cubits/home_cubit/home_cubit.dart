@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/models/service_item.dart';
+import 'package:khedma/screens/search_screen.dart';
+import 'package:khedma/screens/service_sections_screen.dart';
 import 'home_states.dart';
 import '../../screens/home_screen.dart';
 
@@ -13,8 +15,8 @@ class HomeCubit extends Cubit<HomeStates> {
 
   List<Widget> screens = [
     const HomeScreen(),
-    const HomeScreen(),
-    const HomeScreen(),
+    const ServiceSectionsScreen(),
+    const SearchScreen(),
     const HomeScreen(),
   ];
 

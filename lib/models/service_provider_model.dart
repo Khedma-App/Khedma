@@ -11,6 +11,7 @@ class ServiceProviderModel {
   final List<String> imagesOfPreviousWorks;
   final bool isFavorite;
   final bool? emergencyworks;
+  final bool? canWorkOutsideGovernorate;
 
   ServiceProviderModel({
     required this.fullName,
@@ -24,6 +25,6 @@ class ServiceProviderModel {
     this.overviewOfExperience,
     this.previousCompanies,
     required this.imagesOfPreviousWorks,
-    this.emergencyworks = false,
+    this.emergencyworks = false, this.canWorkOutsideGovernorate = false,
   });
 }

@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
       imagesOfPreviousWorks: ['assets/images/service_provider_info_image.png'],
       fullName: 'عبدالرحمن عبدالرحمن عبدالرحمن',
       profileImageUrl: 'assets/images/naqash.jpg',
+      overviewOfExperience: 'خبرة 15 سنة في مجال الدهانات بأنواعها خبرة 15 سنة في مجال الدهانات بأنواعها',
       governorate: 'الاسكندرية',
       profession: 'حداد',
       pricingType: 'بالساعة',

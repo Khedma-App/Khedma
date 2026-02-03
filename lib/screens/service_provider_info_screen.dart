@@ -23,19 +23,14 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                 ImagesSliderOfPreviousWorks(
                   images: worker.imagesOfPreviousWorks,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 15.0,
-                        vertical: 47,
-                      ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
                       child: IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                        onPressed: () => Navigator.pop(context),
                         icon: Container(
                           height: kHeight(40),
                           width: kWidth(40),
@@ -47,7 +42,7 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -58,7 +53,8 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(11),
                     width: double.infinity,
-                    height: kHeight(108),
+                    // height: kHeight(108),
+                    // constraints: BoxConstraints(minHeight: kHeight(30)),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(25),
@@ -83,13 +79,11 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            // Spacer(),
                             // name
                             Expanded(
                               child: Text(
                                 textDirection: TextDirection.rtl,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+
                                 worker.fullName,
                                 style: TextStyle(
                                   fontSize: 20,
@@ -111,21 +105,26 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        SizedBox(height: kHeight(6)),
+                        // SizedBox(height: kHeight(6)),
                         // overview of experience
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              worker.overviewOfExperience ?? '',
-                              style: TextStyle(
-                                fontSize: kSize(16),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
+                        (worker.overviewOfExperience != null)
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      worker.overviewOfExperience ?? '',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                        fontSize: kSize(16),
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : SizedBox(),
                       ],
                     ),
                   ),
@@ -136,7 +135,8 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                       // governorate
                       Container(
                         width: kWidth(150),
-                        height: kHeight(90),
+                        // height: kHeight(90),
+                        constraints: BoxConstraints(minHeight: kHeight(90)),
                         padding: EdgeInsets.symmetric(
                           horizontal: kWidth(13),
                           vertical: kHeight(9),
@@ -169,6 +169,7 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                             SizedBox(height: kHeight(2)),
                             Text(
                               worker.governorate,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: kSize(20),
                                 fontWeight: FontWeight.w700,
@@ -181,7 +182,8 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                       // profession
                       Container(
                         width: kWidth(150),
-                        height: kHeight(90),
+                        // height: kHeight(90),
+                        constraints: BoxConstraints(minHeight: kHeight(90)),
                         padding: EdgeInsets.symmetric(
                           horizontal: kWidth(13),
                           vertical: kHeight(9),
@@ -213,6 +215,7 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                             SizedBox(height: kHeight(2)),
                             Text(
                               worker.profession,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: kSize(20),
                                 fontWeight: FontWeight.w700,
@@ -231,7 +234,8 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                       // emergency works
                       Container(
                         width: kWidth(150),
-                        height: kHeight(90),
+                        // height: kHeight(90),
+                        constraints: BoxConstraints(minHeight: kHeight(90)),
                         padding: EdgeInsets.symmetric(
                           horizontal: kWidth(6),
                           vertical: kHeight(9),
@@ -262,7 +266,9 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                             ),
                             SizedBox(height: kHeight(2)),
                             Text(
-                              worker.emergencyworks! ? 'متاح' : 'غير متاح',
+                              (worker.emergencyworks ?? false)
+                                  ? 'متاح'
+                                  : 'غير متاح',
                               style: TextStyle(
                                 fontSize: kSize(20),
                                 fontWeight: FontWeight.w700,
@@ -275,7 +281,8 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                       // pricing type
                       Container(
                         width: kWidth(150),
-                        height: kHeight(90),
+                        // height: kHeight(90),
+                        constraints: BoxConstraints(minHeight: kHeight(90)),
                         padding: EdgeInsets.symmetric(
                           horizontal: kWidth(13),
                           vertical: kHeight(9),
@@ -307,6 +314,8 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                             SizedBox(height: kHeight(2)),
                             Text(
                               worker.pricingType,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: kSize(20),
                                 fontWeight: FontWeight.w700,
@@ -324,14 +333,16 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                       SizedBox(width: kWidth(16)),
                       Container(
                         height: kHeight(27),
-                        width: kWidth(95),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         decoration: BoxDecoration(
                           color: kPrimaryColor,
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: Center(
                           child: Text(
-                            'لا مانع',
+                            (worker.canWorkOutsideGovernorate ?? false)
+                                ? 'متاح'
+                                : 'غير متاح',
                             style: TextStyle(
                               fontSize: kSize(16),
                               fontWeight: FontWeight.w700,
@@ -340,13 +351,15 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Spacer(),
-                      Text(
-                        'العمل خارج نطاق المحافظة',
-                        style: TextStyle(
-                          fontSize: kSize(16),
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
+                      Expanded(
+                        child: Text(
+                          textAlign: TextAlign.end,
+                          'العمل خارج نطاق المحافظة',
+                          style: TextStyle(
+                            fontSize: kSize(16),
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                       SizedBox(width: kWidth(16)),
@@ -369,7 +382,8 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                     },
                     child: Container(
                       height: kHeight(60),
-                      width: kWidth(300),
+                      width: double.infinity,
+                      margin: EdgeInsets.symmetric(horizontal: kWidth(30)),
                       decoration: BoxDecoration(
                         color: kPrimaryColor,
                         borderRadius: BorderRadius.circular(50),

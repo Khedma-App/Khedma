@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:khedma/components/build_custom_bottom_nav_bar.dart';
 import 'package:khedma/components/custom_search_app_bar.dart';
-import 'package:khedma/components/service_item.dart';
+import 'package:khedma/components/custom_service_item.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
 import 'package:khedma/cubits/home_cubit/home_states.dart';
 import 'package:khedma/core/constants.dart';
 
-class Search extends StatefulWidget {
-  const Search({super.key});
-  static String id = 'Sections';
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+  static String id = 'SearchScreen';
 
   @override
-  State<Search> createState() => _SearchState();
+  State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchState extends State<Search> {
+class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeCubit, HomeStates>(
@@ -69,47 +70,8 @@ class _SearchState extends State<Search> {
               );
             },
           ),
-          bottomNavigationBar: _buildGNav(cubit),
         );
       },
-    );
-  }
-
-  Widget _buildGNav(HomeCubit cubit) {
-    return Container(
-      margin: EdgeInsets.all(kWidth(15)),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(50),
-        boxShadow: [
-          BoxShadow(blurRadius: 20, color: Colors.black.withOpacity(.1)),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: kWidth(10),
-          vertical: kHeight(8),
-        ),
-        child: GNav(
-          selectedIndex: cubit.currentIndex,
-          onTabChange: (index) => cubit.changeBottomNav(index),
-          gap: 8,
-          activeColor: Colors.white,
-          iconSize: 24,
-          padding: EdgeInsets.symmetric(
-            horizontal: kWidth(20),
-            vertical: kHeight(12),
-          ),
-          tabBackgroundColor: Colors.orange,
-          color: Colors.orange,
-          tabs: const [
-            GButton(icon: Icons.home, text: 'الرئيسية'),
-            GButton(icon: Icons.search, text: 'بحث'),
-            GButton(icon: Icons.message, text: 'محادثات'),
-            GButton(icon: Icons.more_horiz, text: 'المزيد'),
-          ],
-        ),
-      ),
     );
   }
 }

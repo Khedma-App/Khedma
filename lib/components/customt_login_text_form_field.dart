@@ -12,6 +12,7 @@ class CustomLoginTextFormField extends StatelessWidget {
     this.isCenter = false,
     this.icon,
     this.useEnabledColor = false,
+    required TextInputType keyboardType,
   });
 
   final String hint;

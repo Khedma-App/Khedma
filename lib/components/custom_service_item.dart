@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/service_item.dart';
-import 'package:khedma/screens/auth_screens/welcome_screen.dart';
+import 'package:khedma/screens/service_sections_screen.dart';
 
 class ServiceItem extends StatelessWidget {
   final ServiceModel service;
@@ -20,7 +20,7 @@ class ServiceItem extends StatelessWidget {
               () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                  MaterialPageRoute(builder: (context) => ServiceSectionsScreen()),
                 );
               },
           borderRadius: BorderRadius.circular(19),

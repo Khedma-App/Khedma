@@ -92,7 +92,13 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
         SizedBox(height: kHeight(10)),
         _title(),
         SizedBox(height: kHeight(39)),
-        CustomLoginTextFormField(hint: 'ادخل رقم الهاتف', width: kWidth(329)),
+
+        CustomLoginTextFormField(
+          keyboardType: TextInputType.text,
+
+          hint: 'البريد الالكتروني او رقم الهاتف',
+          width: kWidth(329),
+        ),
         SizedBox(height: kHeight(50)),
         _button(
           onTap: () {
@@ -112,7 +118,15 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
         SizedBox(height: kHeight(10)),
         _title(),
         SizedBox(height: kHeight(39)),
-        CustomLoginTextFormField(hint: 'ادخل الكود المرسل', width: kWidth(329)),
+
+
+        CustomLoginTextFormField(
+          keyboardType: TextInputType.number,
+
+          hint: 'ادخل الكود المرسل',
+          width: kWidth(329),
+        ),
+
         SizedBox(height: kHeight(30)),
         TextButton(
           onPressed: () {
@@ -156,9 +170,17 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
         SizedBox(height: kHeight(10)),
         _title(),
         SizedBox(height: kHeight(39)),
-        CustomLoginTextFormField(hint: 'كلمة السر الجديدة', width: kWidth(329)),
+
+
+        CustomLoginTextFormField(
+          keyboardType: TextInputType.visiblePassword,
+          hint: 'كلمة السر الجديدة',
+          width: kWidth(329),
+        ),
+
         SizedBox(height: kHeight(30)),
         CustomLoginTextFormField(
+          keyboardType: TextInputType.visiblePassword,
           hint: 'تأكيد كلمة السر الجديدة',
           width: kWidth(329),
         ),

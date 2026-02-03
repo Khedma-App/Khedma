@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:khedma/components/build_custom_bottom_nav_bar.dart';
 import 'package:khedma/components/custom_search_app_bar.dart';
 import 'package:khedma/components/custom_service_item.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';

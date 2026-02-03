@@ -4,17 +4,11 @@ import 'package:khedma/components/build_custom_bottom_nav_bar.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
 import 'package:khedma/cubits/home_cubit/home_states.dart';
 
-
 class MainLayoutScreen extends StatefulWidget {
-  const MainLayoutScreen({
-    super.key, 
-    this.initialIndex, 
-    this.targetChatUser
-  });
+  const MainLayoutScreen({super.key, this.initialIndex, this.targetChatUser});
 
-  final int? initialIndex;         
-  final dynamic? targetChatUser;     
-
+  final int? initialIndex;
+  final dynamic targetChatUser;
 
   static String id = 'main_layout_screen';
   @override
@@ -22,13 +16,11 @@ class MainLayoutScreen extends StatefulWidget {
 }
 
 class _MainLayoutScreenState extends State<MainLayoutScreen> {
-  
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      
       final cubit = HomeCubit.get(context);
 
       if (widget.initialIndex != null) {
@@ -40,12 +32,11 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       //     context,
       //     MaterialPageRoute(
       //       builder: (context) => ChatDetailsScreen(
-      //         user: widget.targetChatUser, 
+      //         user: widget.targetChatUser,
       //       ),
       //     ),
       //   );
       // }
-      
     });
   }
 

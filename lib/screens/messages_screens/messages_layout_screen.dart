@@ -127,7 +127,7 @@ class MessagesLayoutScreen extends StatelessWidget {
                   Expanded(
                     child: AnimatedCrossFade(
                       firstChild: const AllChatsScreen(),
-                      secondChild: const FavChatsScreen(),
+                      secondChild: const FavChatsScreen(favoriteChats: []),
                       crossFadeState: !isFav
                           ? CrossFadeState.showFirst
                           : CrossFadeState.showSecond,

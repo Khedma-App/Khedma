@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
 import 'package:khedma/screens/main_layout_screen.dart';
+import 'package:khedma/screens/messages_screens/all_chats_screens.dart';
+import 'package:khedma/screens/messages_screens/fav_chats_screen.dart';
 import 'package:khedma/screens/search_screen.dart';
 import 'package:khedma/screens/service_sections_screen.dart';
 
@@ -45,7 +47,7 @@ class MyApp extends StatelessWidget {
             //  context عشان اقدر اوصل للـ Builder هنا انا استخدمت
             // اللي من خلاله هقدر اجيب الطول و العرض بتاع الشاشة
             initScreenSize(context);
-            return MainLayoutScreen();
+            return FavChatsScreen(favoriteChats: []);
           },
         ),
       ),

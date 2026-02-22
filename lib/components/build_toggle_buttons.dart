@@ -5,13 +5,18 @@ import 'package:khedma/core/constants.dart';
 class BuildToggleButtons extends StatelessWidget {
   const BuildToggleButtons({
     required this.isLogin,
-    required this.onToggle, 
+    required this.onToggle,
     super.key,
+    required this.title1,
+    required this.title2,
+    this.isRight = false,
   });
 
+  final bool isRight;
   final bool isLogin;
-  final Function(bool)
-  onToggle; 
+  final String title1;
+  final String title2;
+  final Function(bool) onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -33,17 +38,17 @@ class BuildToggleButtons extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           BuildToggleItem(
-            text: 'تسجيل الدخول',
-            isActive: isLogin,
+            text: title1,
+            isActive: isRight ? !isLogin : isLogin,
             onTap: () {
-              onToggle(true);
+              onToggle(isRight ? false : true);
             },
           ),
           BuildToggleItem(
-            text: 'إنشاء حساب',
-            isActive: !isLogin,
+            text: title1,
+            isActive: isRight ? isLogin : !isLogin,
             onTap: () {
-              onToggle(false);
+              onToggle(isRight ? true : false);
             },
           ),
         ],

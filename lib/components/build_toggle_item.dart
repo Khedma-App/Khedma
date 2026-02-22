@@ -22,7 +22,7 @@ class BuildToggleItem extends StatelessWidget {
         width: kWidth(160),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
-          color: isActive ? Colors.orange : Colors.transparent,
+          color: isActive ? kPrimaryColor : Colors.transparent,
         ),
         child: Center(
           child: Text(

@@ -75,6 +75,8 @@ class AuthScreen extends StatelessWidget {
                                         children: [
                                           // toggle buttons (login / register)
                                           BuildToggleButtons(
+                                            title1: 'تسجيل الدخول',
+                                            title2: 'إنشاء حساب',
                                             isLogin: isLogin,
                                             onToggle: (val) {
                                               if (val) {

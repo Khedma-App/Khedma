@@ -6,15 +6,15 @@ class FavChatsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // بيانات تجريبية لرؤية الشكل النهائي
     final List<Map<String, String>> favList = [
       {"name": "محمود السيد"},
       {"name": "السيد ابراهيم"},
     ];
 
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: ListView.builder(
+    // 🔥 استبدلنا Scaffold بـ Container
+    return Container(
+      color: Colors.grey[100],
+      child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: favList.length,
         itemBuilder: (context, index) {
@@ -27,7 +27,7 @@ class FavChatsScreen extends StatelessWidget {
   Widget _buildFavoriteCard(String name) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
-      height: kHeight(150),
+      height: kHeight(150), // انتبه: يفضل إعطاء ارتفاع ثابت للكارت
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
@@ -50,8 +50,8 @@ class FavChatsScreen extends StatelessWidget {
 
           //  الاسم وصورة الشخص
           Positioned(
-            top: kSize(20),
-            right: kSize(20),
+            top: 20,
+            right: 20,
             child: Row(
               children: [
                 Text(
@@ -66,11 +66,11 @@ class FavChatsScreen extends StatelessWidget {
                 CircleAvatar(
                   radius: 35,
                   backgroundColor: Colors.purple[50],
-                  child: Icon(
+                  child: const Icon(
                     Icons.person,
-                    size: kSize(20),
+                    size: 20,
                     color: Colors.deepPurple,
-                  ), // صورة الأفاتار
+                  ),
                 ),
               ],
             ),

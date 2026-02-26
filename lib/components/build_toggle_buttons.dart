@@ -45,7 +45,7 @@ class BuildToggleButtons extends StatelessWidget {
             },
           ),
           BuildToggleItem(
-            text: title1,
+            text: title2,
             isActive: isRight ? isLogin : !isLogin,
             onTap: () {
               onToggle(isRight ? true : false);

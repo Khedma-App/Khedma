@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/models/service_item.dart';
 import 'package:khedma/screens/messages_screens/messages_layout_screen.dart';
+import 'package:khedma/screens/more_screen.dart';
 import 'package:khedma/screens/search_screen.dart';
 import 'home_states.dart';
 import '../../screens/home_screen.dart';
@@ -14,7 +15,7 @@ class HomeCubit extends Cubit<HomeStates> {
   int currentIndex = 3;
 
   List<Widget> screens = [
-    HomeScreen(),
+    MoreScreen(),
     MessagesLayoutScreen(),
     SearchScreen(),
     HomeScreen(),

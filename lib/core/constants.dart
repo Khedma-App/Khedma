@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 var kPrimaryColor = const Color(0xFFE19113);
+// bool isFirstTime = false; // to track if it's the first time user logs in
 
 late double kScreenWidth; // to store screen width
 late double kScreenHeight; // to store screen height

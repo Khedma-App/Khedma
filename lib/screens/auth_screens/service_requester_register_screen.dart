@@ -1,8 +1,12 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:khedma/components/customt_login_text_form_field.dart';
 
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/screens/auth_screens/auth_screen.dart';
 
 class ServiceRequesterRegisterScreen extends StatefulWidget {
   const ServiceRequesterRegisterScreen({super.key});
@@ -19,11 +23,8 @@ class _ServiceRequesterRegisterScreenState
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   TextEditingController firstNameController = TextEditingController();
-
   TextEditingController lastNameController = TextEditingController();
-
-  TextEditingController phoneController = TextEditingController();
-
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   String? selectedGender;
@@ -139,13 +140,13 @@ class _ServiceRequesterRegisterScreenState
 
                                     // phone
                                     CustomLoginTextFormField(
-                                      keyboardType: TextInputType.number,
+                                      keyboardType: TextInputType.emailAddress,
 
-                                      hint: 'رقم الهاتف المحمول',
+                                      hint: 'البريد الالكتروني',
 
-                                      controller: phoneController,
+                                      controller: emailController,
 
-                                      validator: _validatePhone,
+                                      validator: _validateEmail,
 
                                       width: kWidth(329),
 
@@ -312,9 +313,7 @@ class _ServiceRequesterRegisterScreenState
                                     GestureDetector(
                                       onTap: () {
                                         if (formKey.currentState!.validate()) {
-                                          // Proceed to the next step
-
-                                          // Handle login action here
+                                          _registerWithEmail();
                                         }
                                       },
 
@@ -380,9 +379,102 @@ class _ServiceRequesterRegisterScreenState
     );
   }
 
+  Future<void> _registerWithEmail() async {
+    try {
+      final auth = FirebaseAuth.instance;
+      final firestore = FirebaseFirestore.instance;
+
+      // 1️⃣ إنشاء الحساب
+      UserCredential credential = await auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      User user = credential.user!;
+
+      // 2️⃣ حفظ البيانات في Firestore
+      await firestore.collection('users').doc(user.uid).set({
+        'uid': user.uid,
+        'role': 'Client', // 👈 نوع المستخدم
+        'firstName': firstNameController.text.trim(),
+        'lastName': lastNameController.text.trim(),
+        'email': emailController.text.trim(),
+        'phone': '', // لو هتضيفه بعدين
+        'createdAt': FieldValue.serverTimestamp(),
+        'isActive': true,
+        'profileCompleted': false,
+
+        // 👨‍🔧 بيانات مقدم الخدمة
+        'providerData': {
+          'gender': selectedGender,
+          'serviceType': '', // يتحدد لاحقًا
+          'rating': 0,
+          'completedJobs': 0,
+          'isAvailable': true,
+        },
+      });
+
+      // 3️⃣ إرسال تحقق الإيميل
+      await user.sendEmailVerification();
+
+      _showAwesomeDialog(
+        'تم إرسال رابط التحقق إلى بريدك الإلكتروني\nيرجى تفعيل الحساب ثم تسجيل الدخول',
+        DialogType.success,
+      );
+
+      // 4️⃣ تسجيل خروج
+      await auth.signOut();
+    } on FirebaseAuthException catch (e) {
+      String msg = 'حدث خطأ';
+
+      if (e.code == 'email-already-in-use') {
+        msg = 'الإيميل مستخدم بالفعل';
+      } else if (e.code == 'invalid-email') {
+        msg = 'الإيميل غير صالح';
+      } else if (e.code == 'weak-password') {
+        msg = 'كلمة المرور ضعيفة';
+      } else if (e.code == 'network-request-failed') {
+        msg = 'تحقق من الإنترنت';
+      }
+
+      _showAwesomeDialog(msg, DialogType.error);
+    }
+  }
+
+  void _showAwesomeDialog(String msg, DialogType type) {
+    AwesomeDialog(
+      context: context,
+      dialogType: type,
+      animType: AnimType.scale,
+      title: 'تنبيه',
+      desc: msg,
+      btnOkOnPress: () {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, AuthScreen.id);
+        }
+      },
+    ).show();
+  }
+
   String? _validateGender(String? value) {
     if (value == null || value.isEmpty) {
       return 'من فضلك اختر النوع';
+    }
+
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'ادخل البريد الالكتروني';
+    }
+
+    bool isEmail = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    ).hasMatch(value);
+
+    if (!isEmail) {
+      return 'الرجاء إدخال بريد إلكتروني صحيح';
     }
 
     return null;

@@ -27,4 +27,41 @@ class ServiceProviderModel {
     required this.imagesOfPreviousWorks,
     this.emergencyworks = false, this.canWorkOutsideGovernorate = false,
   });
+  // 1. دالة الإرسال لـ Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'fullName': fullName,
+      'profession': profession,
+      'governorate': governorate,
+      'profileImageUrl': profileImageUrl,
+      'pricingType': pricingType,
+      'isAvailable': isAvailable,
+      'yearsOfExperience': yearsOfExperience,
+      'overviewOfExperience': overviewOfExperience,
+      'previousCompanies': previousCompanies,
+      'imagesOfPreviousWorks': imagesOfPreviousWorks,
+      'isFavorite': isFavorite,
+      'emergencyworks': emergencyworks,
+      'canWorkOutsideGovernorate': canWorkOutsideGovernorate,
+    };
+  }
+
+  // 2. دالة الاستقبال من Firestore
+  factory ServiceProviderModel.fromMap(Map<String, dynamic> map) {
+    return ServiceProviderModel(
+      fullName: map['fullName'] ?? '',
+      profession: map['profession'] ?? '',
+      governorate: map['governorate'] ?? '',
+      profileImageUrl: map['profileImageUrl'] ?? '',
+      pricingType: map['pricingType'] ?? '',
+      isAvailable: map['isAvailable'] ?? true,
+      yearsOfExperience: map['yearsOfExperience'],
+      overviewOfExperience: map['overviewOfExperience'],
+      previousCompanies: map['previousCompanies'],
+      imagesOfPreviousWorks: List<String>.from(map['imagesOfPreviousWorks'] ?? []),
+      isFavorite: map['isFavorite'] ?? false,
+      emergencyworks: map['emergencyworks'] ?? false,
+      canWorkOutsideGovernorate: map['canWorkOutsideGovernorate'] ?? false,
+    );
+  }
 }

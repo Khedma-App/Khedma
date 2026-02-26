@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "804667018998",
+    "project_id": "khidma-2d423",
+    "storage_bucket": "khidma-2d423.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:804667018998:android:3a3b577b605acc342226d7",
+        "android_client_info": {
+          "package_name": "com.example.khedma"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "804667018998-mfmvond08o5q48pjcbjen6hrt9earhj5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtMEfEpHWFhYr822fdZnEPRASab5zN4ns"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "804667018998-mfmvond08o5q48pjcbjen6hrt9earhj5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "804667018998-ie9f02cnianhobi2vvejgt990ebev7gr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.khedma1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

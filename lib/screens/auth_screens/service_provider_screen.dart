@@ -1,8 +1,11 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/service_provider_model.dart';
+import 'package:khedma/screens/main_layout_screen.dart';
 
 class ServiceProviderScreen extends StatefulWidget {
   const ServiceProviderScreen({super.key});
@@ -14,9 +17,195 @@ class ServiceProviderScreen extends StatefulWidget {
 
 class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
+  String fullName =
+      'جاري التحميل...'; // سيظهر هذا النص لجزء من الثانية حتى تأتي البيانات
 
-  late TextEditingController firstNameController;
-  late TextEditingController lastNameController;
+  Future<void> _fetchUserData() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists && userDoc.data() != null) {
+          final data = userDoc.data()!;
+
+          // تحديث الواجهة بالاسم الحقيقي
+          setState(() {
+            fullName = '${data['firstName'] ?? ''} ${data['lastName'] ?? ''}'
+                .trim();
+            if (fullName.isEmpty) fullName = 'مقدم خدمة'; // قيمة احتياطية
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+    }
+  }
+
+  // Future<void> _saveProviderData() async {
+  //   // 1. التأكد من إدخال البيانات المطلوبة
+  //   if (!_formKey.currentState!.validate()) return;
+  //   if (selectedProfession == null || selectedGovernorate == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('يرجى اختيار المهنة والمحافظة')),
+  //     );
+  //     return;
+  //   }
+
+  //   setState(() => isLoading = true);
+
+  //   try {
+  //     final uid = FirebaseAuth.instance.currentUser!.uid;
+  //     String profilePicUrl = '';
+  //     List<String> worksUrls = [];
+
+  //     // 2. رفع الصورة الشخصية (يجب استخدام Firebase Storage هنا)
+  //     if (selectedImage != null) {
+  //       // مثال وهمي للرفع (سنكتب الكود الحقيقي لاحقاً إذا أردت)
+  //       // profilePicUrl = await uploadImageToStorage(selectedImage!);
+  //     }
+
+  //     // 3. رفع صور الأعمال السابقة
+  //     if (previousWorksImages.isNotEmpty) {
+  //       // for (var img in previousWorksImages) {
+  //       //   String url = await uploadImageToStorage(img);
+  //       //   worksUrls.add(url);
+  //       // }
+  //     }
+  //     // User user = FirebaseAuth.instance.currentUser!;
+  //     // // 4. دمج الاسم الأول والأخير
+  //     // final userDoc = await FirebaseFirestore.instance
+  //     //     .collection('users')
+  //     //     .doc(user.uid)
+  //     //     .get();
+
+  //     // if (!userDoc.exists) {
+  //     //   _showMessage('بيانات المستخدم غير موجودة في قاعدة البيانات');
+  //     //   return;
+  //     // }
+  //     // // 6. حفظ البيانات في Firestore (باستخدام دالة toMap التي أنشأناها)
+  //     // await FirebaseFirestore.instance.collection('users').doc(uid).update({
+  //     //   'providerData': providerData.toMap(), // 👈 هنا يحدث السحر
+  //     //   'isFirstTime': false, // 👈 تحديث القيمة لكي لا تظهر الشاشة مجدداً
+  //     //   'profileCompleted': true,
+
+  //     // });
+
+  //     User user = FirebaseAuth.instance.currentUser!;
+
+  //     // 1. التحقق من وجود الوثيقة
+  //     final userDoc = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(user.uid)
+  //         .get();
+
+  //     if (!userDoc.exists) {
+  //       _showMessage('بيانات المستخدم غير موجودة في قاعدة البيانات');
+  //       return;
+  //     }
+
+  //     // 2. دمج الاسم (أو تجهيز أي بيانات أخرى تحتاجها)
+  //     fullName =
+  //         userDoc.data()!['firstName'] + ' ' + userDoc.data()!['lastName'] ??
+  //         'مقدم خدمة';
+
+  //     // 🔥 3. هنا يكمن الحل: يجب "إنشاء" الكائن وتعبئته بالبيانات أولاً 🔥
+  //     ServiceProviderModel providerData = ServiceProviderModel(
+  //       fullName: fullName,
+  //       profession:
+  //           selectedProfession!, // استخدمنا ! لأننا تأكدنا من عدم كونه فارغاً
+  //       governorate: selectedGovernorate!,
+  //       profileImageUrl: '', // مؤقتاً فارغ حتى تبرمج رفع الصورة
+  //       pricingType: selectedPriceType,
+  //       isAvailable: selectedStatus == 'متاح',
+  //       yearsOfExperience: int.tryParse(yearsController.text),
+  //       overviewOfExperience: bioController.text.trim(),
+  //       previousCompanies: companiesController.text.trim(),
+  //       imagesOfPreviousWorks: [], // مؤقتاً فارغ
+  //     );
+
+  //     // ✅ 4. الآن نستخدمه بأمان في قاعدة البيانات لأننا قمنا بتعريفه في السطر السابق
+  //     await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
+  //       {
+  //         'providerData': providerData
+  //             .toMap(), // الآن هو يعرف ما هو providerData
+  //         'isFirstTime': false,
+  //         'profileCompleted': true,
+  //       },
+  //     );
+  //     // 7. الانتقال للشاشة الرئيسية
+  //     if (mounted) {
+  //       Navigator.pushReplacementNamed(context, MainLayoutScreen.id);
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(SnackBar(content: Text('حدث خطأ أثناء الحفظ: $e')));
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() => isLoading = false);
+  //     }
+  //   }
+  // }
+
+  Future<void> _saveProviderData() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (selectedProfession == null || selectedGovernorate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('يرجى اختيار المهنة والمحافظة')),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      User user = FirebaseAuth.instance.currentUser!;
+
+      // بناء الكائن باستخدام المتغير fullName الذي تم تحديثه مسبقاً
+      ServiceProviderModel providerData = ServiceProviderModel(
+        fullName: fullName, // سيأخذ الاسم الحقيقي الذي تم جلبه في البداية
+        profession: selectedProfession!,
+        governorate: selectedGovernorate!,
+        profileImageUrl: 'assets/images/naqash.jpg',
+        pricingType: selectedPriceType,
+        isAvailable: selectedStatus == 'متاح',
+        yearsOfExperience: int.tryParse(yearsController.text),
+        overviewOfExperience: bioController.text.trim(),
+        previousCompanies: companiesController.text.trim(),
+        imagesOfPreviousWorks: [],
+      );
+
+      // الحفظ مباشرة في قاعدة البيانات
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({
+            'providerData': providerData.toMap(),
+            'isFirstTime': false,
+            'profileCompleted': true,
+          });
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, MainLayoutScreen.id);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('حدث خطأ أثناء الحفظ: $e')));
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  // late TextEditingController firstNameController;
+  // late TextEditingController lastNameController;
   late TextEditingController bioController;
   late TextEditingController companiesController;
   late TextEditingController yearsController;
@@ -42,7 +231,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
   ];
 
   final ServiceProviderModel worker = ServiceProviderModel(
-    fullName: 'محمود سمير',
+    fullName: 'محمد أحمد',
     profileImageUrl: 'assets/images/naqash.jpg',
     governorate: 'بور سعيد',
     profession: 'نقاش',
@@ -58,17 +247,18 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
   @override
   void initState() {
     super.initState();
-    firstNameController = TextEditingController();
-    lastNameController = TextEditingController();
     bioController = TextEditingController();
     companiesController = TextEditingController();
     yearsController = TextEditingController();
+
+    // 🔥 جلب البيانات فور فتح الشاشة
+    _fetchUserData();
   }
 
   @override
   void dispose() {
-    firstNameController.dispose();
-    lastNameController.dispose();
+    // firstNameController.dispose();
+    // lastNameController.dispose();
     bioController.dispose();
     companiesController.dispose();
     yearsController.dispose();
@@ -180,7 +370,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                worker.fullName,
+                                fullName,
                                 style: TextStyle(
                                   fontSize: kSize(15),
                                   fontWeight: FontWeight.w700,
@@ -300,71 +490,72 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
                   ),
                   child: Column(
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'الاسم الأخير',
-                                  style: TextStyle(
-                                    fontSize: kSize(12),
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFFADADAD),
-                                  ),
-                                ),
-                                TextFormField(
-                                  controller: lastNameController,
-                                  textAlign: TextAlign.right,
-                                  validator: (v) =>
-                                      (v == null || v.isEmpty) ? 'مطلوب' : null,
-                                  decoration: const InputDecoration(
-                                    isDense: true,
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Color(0xFFD9D9D9),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: kWidth(20)),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'الاسم الأول',
-                                  style: TextStyle(
-                                    fontSize: kSize(12),
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFFADADAD),
-                                  ),
-                                ),
-                                TextFormField(
-                                  controller: firstNameController,
-                                  textAlign: TextAlign.right,
-                                  validator: (v) =>
-                                      (v == null || v.isEmpty) ? 'مطلوب' : null,
-                                  decoration: const InputDecoration(
-                                    isDense: true,
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Color(0xFFD9D9D9),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: kHeight(20)),
+                      // // Row(
+                      // //   crossAxisAlignment: CrossAxisAlignment.start,
+                      // //   children: [
+                      // //     // Expanded(
+                      // //     //   child: Column(
+                      // //     //     crossAxisAlignment: CrossAxisAlignment.end,
+                      // //     //     children: [
+                      // //     //       Text(
+                      // //     //         'الاسم الأخير',
+                      // //     //         style: TextStyle(
+                      // //     //           fontSize: kSize(12),
+                      // //     //           fontWeight: FontWeight.w700,
+                      // //     //           color: const Color(0xFFADADAD),
+                      // //     //         ),
+                      // //     //       ),
+                      // //     //       TextFormField(
+                      // //     //         controller: lastNameController,
+                      // //     //         textAlign: TextAlign.right,
+                      // //     //         validator: (v) =>
+                      // //     //             (v == null || v.isEmpty) ? 'مطلوب' : null,
+                      // //     //         decoration: const InputDecoration(
+                      // //     //           isDense: true,
+                      // //     //           enabledBorder: UnderlineInputBorder(
+                      // //     //             borderSide: BorderSide(
+                      // //     //               color: Color(0xFFD9D9D9),
+                      // //     //             ),
+                      // //     //           ),
+                      // //     //         ),
+                      // //     //       ),
+                      // //     //     ],
+                      // //     //   ),
+                      // //     // ),
+                      // //     // SizedBox(width: kWidth(20)),
+                      // //     // Expanded(
+                      // //     //   child: Column(
+                      // //     //     crossAxisAlignment: CrossAxisAlignment.end,
+                      // //     //     children: [
+                      // //     //       Text(
+                      // //     //         'الاسم الأول',
+                      // //     //         style: TextStyle(
+                      // //     //           fontSize: kSize(12),
+                      // //     //           fontWeight: FontWeight.w700,
+                      // //     //           color: const Color(0xFFADADAD),
+                      // //     //         ),
+                      // //     //       ),
+                      // //     //       TextFormField(
+                      // //     //         controller: firstNameController,
+                      // //     //         textAlign: TextAlign.right,
+                      // //     //         validator: (v) =>
+                      // //     //             (v == null || v.isEmpty) ? 'مطلوب' : null,
+                      // //     //         decoration: const InputDecoration(
+                      // //     //           isDense: true,
+                      // //     //           enabledBorder: UnderlineInputBorder(
+                      // //     //             borderSide: BorderSide(
+                      // //     //               color: Color(0xFFD9D9D9),
+                      // //     //             ),
+                      // //     //           ),
+                      // //     //         ),
+                      // //     //       ),
+                      // //     //     ],
+                      // //     //   ),
+                      // //     // ),
+
+                      // //   ],
+                      // // ),
+                      // SizedBox(height: kHeight(20)),
                       //Dropdown
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -724,13 +915,18 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
 
                 // --- Submit Button ---
                 GestureDetector(
-                  onTap: () {
-                    if (_formKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('جاري حفظ البيانات...')),
-                      );
-                    }
-                  },
+                  onTap: isLoading ? null : _saveProviderData,
+                  // () {
+                  //   if (_formKey.currentState!.validate()) {
+                  //     ScaffoldMessenger.of(context).showSnackBar(
+                  //       const SnackBar(content: Text('جاري حفظ البيانات...')),
+                  //     );
+                  //     Navigator.pushReplacementNamed(
+                  //       context,
+                  //       MainLayoutScreen.id,
+                  //     );
+                  //   }
+                  // },
                   child: Container(
                     height: kHeight(60),
                     width: kWidth(300),
@@ -746,14 +942,16 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Center(
-                      child: Text(
-                        'متابعة',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: kSize(22),
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
+                      child: isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              'متابعة',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: kSize(22),
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
                     ),
                   ),
                 ),
@@ -763,6 +961,14 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.orange),
     );
   }
 }

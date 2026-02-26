@@ -13,6 +13,7 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var isFirstTime = ModalRoute.of(context)!.settings.arguments ?? false;
     return BlocProvider(
       create: (context) => AuthCubit(),
       child: Scaffold(
@@ -94,7 +95,7 @@ class AuthScreen extends StatelessWidget {
                                           SizedBox(height: kHeight(40)),
 
                                           AnimatedCrossFade(
-                                            firstChild: const LoginForm(),
+                                            firstChild: LoginForm(),
                                             secondChild:
                                                 const RegisterOptions(),
                                             crossFadeState: isLogin

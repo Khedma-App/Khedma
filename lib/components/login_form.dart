@@ -1,11 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khedma/components/customt_login_text_form_field.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/screens/auth_screens/recovery_flow.dart';
+import 'package:khedma/screens/auth_screens/service_provider_screen.dart';
+import 'package:khedma/screens/main_layout_screen.dart';
 
 class LoginForm extends StatefulWidget {
-  const LoginForm({super.key});
-
+  LoginForm({super.key, this.isFirstTime = false});
+  bool isFirstTime; // to track if it's the first time user logs in
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
@@ -14,9 +18,12 @@ class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
+    widget.isFirstTime =
+        ModalRoute.of(context)?.settings.arguments as bool? ?? false;
     return Form(
       key: formKey,
       child: Column(
@@ -27,7 +34,7 @@ class _LoginFormState extends State<LoginForm> {
             width: kWidth(300),
             hint: 'البريد الإلكتروني او رقم الهاتف',
             controller: emailController,
-            validator: _validatePhone,
+            validator: _validateEmail,
             useEnabledColor: true,
           ),
           SizedBox(height: kHeight(20)),
@@ -65,20 +72,23 @@ class _LoginFormState extends State<LoginForm> {
 
           // Login Button continue...
           GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
+            onTap: isLoading
+                ? null
+                : () {
+                    FocusScope.of(context).unfocus();
 
-              if (formKey.currentState!.validate()) {
-                try {
-                  print("Validation Success... Proceeding to Login");
-                  // TODO: Add Firebase Logic Here
-                } catch (e) {
-                  print(e);
-                }
-              } else {
-                print("Validation Failed");
-              }
-            },
+                    if (formKey.currentState!.validate()) {
+                      _login();
+                      try {
+                        print("Validation Success... Proceeding to Login");
+                        // TODO: Add Firebase Logic Here
+                      } catch (e) {
+                        print(e);
+                      }
+                    } else {
+                      print("Validation Failed");
+                    }
+                  },
             child: Container(
               height: kHeight(60),
               width: kWidth(300),
@@ -110,6 +120,107 @@ class _LoginFormState extends State<LoginForm> {
         ],
       ),
     );
+  }
+
+  Future<void> _login() async {
+    FocusScope.of(context).unfocus();
+
+    if (!formKey.currentState!.validate()) return;
+
+    setState(() => isLoading = true);
+
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
+
+      User? user = userCredential.user;
+
+      if (user == null) {
+        _showMessage('حدث خطأ غير متوقع');
+        return;
+      }
+
+      // 1️⃣ التحقق من توثيق البريد الإلكتروني
+      if (!user.emailVerified) {
+        await user.sendEmailVerification();
+        await FirebaseAuth.instance.signOut();
+        _showMessage('يرجى تأكيد بريدك الإلكتروني أولاً، تم إرسال رسالة تأكيد');
+        return;
+      }
+
+      // 2️⃣ جلب بيانات المستخدم من Firestore لفحص الـ Role والـ isFirstTime
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        _showMessage('بيانات المستخدم غير موجودة في قاعدة البيانات');
+        return;
+      }
+
+      // ... بعد جلب الـ userDoc بنجاح ...
+      Map<String, dynamic> userData = userDoc.data()!;
+      String role = userData['role'] ?? 'user';
+      bool isFirstTime = userData['isFirstTime'] ?? false;
+
+      if (!mounted) return;
+
+      if (role == 'provider' && isFirstTime == true) {
+        // 1️⃣ تحديث القيمة في Firestore فوراً لتصبح false
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({'isFirstTime': false});
+
+        // 2️⃣ التوجه لصفحة الـ Provider
+        Navigator.pushReplacementNamed(context, ServiceProviderScreen.id);
+      } else {
+        Navigator.pushReplacementNamed(context, MainLayoutScreen.id);
+      }
+    } on FirebaseAuthException catch (e) {
+      String message = 'حدث خطأ';
+      if (e.code == 'user-not-found') {
+        message = 'الحساب غير موجود';
+      } else if (e.code == 'wrong-password') {
+        message = 'كلمة المرور غير صحيحة';
+      } else if (e.code == 'invalid-email') {
+        message = 'البريد الإلكتروني غير صالح';
+      }
+      _showMessage(message);
+    } catch (e) {
+      _showMessage('حدث خطأ أثناء جلب البيانات: $e');
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  // ================= HELPERS =================
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.orange),
+    );
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'ادخل البريد الإلكتروني';
+    }
+
+    bool isEmail = RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value);
+    if (!isEmail) {
+      return 'ادخل بريد إلكتروني صحيح';
+    }
+
+    return null;
   }
 
   String? _validatePhone(String? value) {

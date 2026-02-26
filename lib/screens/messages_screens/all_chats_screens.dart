@@ -22,9 +22,10 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: ListView.builder(
+    // 🔥 استبدلنا Scaffold بـ Container
+    return Container(
+      color: Colors.grey[100],
+      child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: chats.length,
         itemBuilder: (context, index) {
@@ -51,7 +52,6 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
                 ),
                 onPressed: () async {
                   if (chats[index]['isFavorite']) {
-                    // إظهار نافذة تأكيد عند الرغبة في الحذف من المفضلة
                     bool? confirm = await _showConfirmDialog(
                       context,
                       chats[index]['name'],
@@ -62,7 +62,6 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
                       });
                     }
                   } else {
-                    // الإضافة للمفضلة مباشرة
                     setState(() {
                       chats[index]['isFavorite'] = true;
                     });
@@ -78,8 +77,6 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
                   }
                 },
               ),
-
-              //  الضغط على ListTile بالكامل يفتح الشات
               onTap: () {
                 Navigator.push(
                   context,
@@ -93,13 +90,11 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
                 horizontal: 16,
                 vertical: 8,
               ),
-
-              //  الجزء الخاص بالصورة وتكبيرها (Hero)
               trailing: GestureDetector(
                 onTap: () =>
                     _showLargeImage(context, index, chats[index]['name']!),
                 child: Hero(
-                  tag: 'avatar_$index',
+                  tag: 'avatar_all_$index', // تغيير الـ tag لعدم التداخل
                   child: CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.purple[50],
@@ -111,7 +106,6 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
                   ),
                 ),
               ),
-
               title: Text(
                 chats[index]['name']!,
                 textAlign: TextAlign.right,
@@ -133,7 +127,6 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
     );
   }
 
-  // دالة نافذة التأكيد قبل الحذف
   Future<bool?> _showConfirmDialog(BuildContext context, String name) {
     return showDialog<bool>(
       context: context,
@@ -157,14 +150,13 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
     );
   }
 
-  // دالة عرض الصورة مكبرة (Pop-up)
   void _showLargeImage(BuildContext context, int index, String name) {
     showDialog(
       context: context,
       barrierDismissible: true,
       builder: (context) => Center(
         child: Hero(
-          tag: 'avatar_$index',
+          tag: 'avatar_all_$index',
           child: Material(
             color: Colors.transparent,
             child: Container(

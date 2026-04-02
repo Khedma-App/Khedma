@@ -5,17 +5,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
 import 'package:khedma/firebase_options.dart';
-import 'package:khedma/screens/auth_screens/auth_screen.dart';
-import 'package:khedma/screens/auth_screens/recovery_flow.dart';
-import 'package:khedma/screens/auth_screens/service_provider_register_screen.dart';
+// import 'package:khedma/screens/auth_screens/auth_screen.dart';
+// import 'package:khedma/screens/auth_screens/recovery_flow.dart';
+// import 'package:khedma/screens/auth_screens/service_provider_register_screen.dart';
 import 'package:khedma/screens/auth_screens/service_provider_screen.dart';
-import 'package:khedma/screens/auth_screens/service_requester_register_screen.dart';
-import 'package:khedma/screens/auth_screens/welcome_screen.dart';
-import 'package:khedma/screens/main_layout_screen.dart';
-import 'package:khedma/screens/messages_screens/all_chats_screens.dart';
-import 'package:khedma/screens/messages_screens/fav_chats_screen.dart';
-import 'package:khedma/screens/search_screen.dart';
-import 'package:khedma/screens/service_sections_screen.dart';
+// import 'package:khedma/screens/auth_screens/service_requester_register_screen.dart';
+// import 'package:khedma/screens/auth_screens/welcome_screen.dart';
+// import 'package:khedma/screens/main_layout_screen.dart';
+// import 'package:khedma/screens/messages_screens/all_chats_screens.dart';
+// import 'package:khedma/screens/messages_screens/fav_chats_screen.dart';
+// import 'package:khedma/screens/search_screen.dart';
+// import 'package:khedma/screens/service_sections_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,26 +41,24 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         theme: ThemeData(fontFamily: 'cairo'),
         routes: {
-          MainLayoutScreen.id: (context) => MainLayoutScreen(),
+          // الـ routes معطلة حالياً ومحفوظة كـ تعليق
           ServiceProviderScreen.id: (context) => ServiceProviderScreen(),
+          /* MainLayoutScreen.id: (context) => MainLayoutScreen(),
           WelcomeScreen.id: (context) => WelcomeScreen(),
           AuthScreen.id: (context) => const AuthScreen(),
-          ServiceProviderRegisterScreen.id: (context) =>
-              ServiceProviderRegisterScreen(),
-          ServiceRequesterRegisterScreen.id: (context) =>
-              ServiceRequesterRegisterScreen(),
+          ServiceProviderRegisterScreen.id: (context) => ServiceProviderRegisterScreen(),
+          ServiceRequesterRegisterScreen.id: (context) => ServiceRequesterRegisterScreen(),
           RecoveryFlow.id: (context) => RecoveryFlow(),
           SearchScreen.id: (context) => SearchScreen(),
           ServiceSectionsScreen.id: (context) => ServiceSectionsScreen(),
+          */
         },
         debugShowCheckedModeBanner: false,
         home: Builder(
           builder: (context) {
-            //  context عشان اقدر اوصل للـ Builder هنا انا استخدمت
-            // اللي من خلاله هقدر اجيب الطول و العرض بتاع الشاشة
             initScreenSize(context);
-
-            return WelcomeScreen();
+            // الصفحة التي ستفتح عند تشغيل التطبيق
+            return ServiceProviderScreen();
           },
         ),
       ),

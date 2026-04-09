@@ -13,14 +13,12 @@ import 'package:khedma/screens/auth_screens/service_provider_screen.dart';
 import 'package:khedma/screens/auth_screens/service_requester_register_screen.dart';
 import 'package:khedma/screens/auth_screens/welcome_screen.dart';
 import 'package:khedma/screens/main_layout_screen.dart';
-
 import 'package:khedma/screens/search_screen.dart';
 import 'package:khedma/screens/service_sections_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StorageService {
   final supabase = Supabase.instance.client;
@@ -113,17 +111,17 @@ class MyApp extends StatelessWidget {
         ),
 
         routes: {
-          MainLayoutScreen.id: (context) => MainLayoutScreen(),
+          // الـ routes معطلة حالياً ومحفوظة كـ تعليق
           ServiceProviderScreen.id: (context) => ServiceProviderScreen(),
+          /* MainLayoutScreen.id: (context) => MainLayoutScreen(),
           WelcomeScreen.id: (context) => WelcomeScreen(),
           AuthScreen.id: (context) => const AuthScreen(),
-          ServiceProviderRegisterScreen.id: (context) =>
-              ServiceProviderRegisterScreen(),
-          ServiceRequesterRegisterScreen.id: (context) =>
-              ServiceRequesterRegisterScreen(),
+          ServiceProviderRegisterScreen.id: (context) => ServiceProviderRegisterScreen(),
+          ServiceRequesterRegisterScreen.id: (context) => ServiceRequesterRegisterScreen(),
           RecoveryFlow.id: (context) => RecoveryFlow(),
           SearchScreen.id: (context) => SearchScreen(),
           ServiceSectionsScreen.id: (context) => ServiceSectionsScreen(),
+          */
         },
       ),
     );

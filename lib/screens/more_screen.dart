@@ -16,7 +16,7 @@ class MoreScreen extends StatelessWidget {
               User? user = FirebaseAuth.instance.currentUser;
               if (user != null) {
                 FirebaseAuth.instance.signOut();
-                Navigator.pushReplacementNamed(context, AuthScreen.id);
+                // Navigator.pushReplacementNamed(context, AuthScreen.id);
               }
             },
             icon: Icon(Icons.logout),

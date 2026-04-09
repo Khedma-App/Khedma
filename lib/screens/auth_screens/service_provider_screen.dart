@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/screens/main_layout_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 
 class ServiceProviderScreen extends StatefulWidget {
   const ServiceProviderScreen({super.key});
@@ -46,112 +47,6 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
     }
   }
 
-  // Future<void> _saveProviderData() async {
-  //   // 1. التأكد من إدخال البيانات المطلوبة
-  //   if (!_formKey.currentState!.validate()) return;
-  //   if (selectedProfession == null || selectedGovernorate == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('يرجى اختيار المهنة والمحافظة')),
-  //     );
-  //     return;
-  //   }
-
-  //   setState(() => isLoading = true);
-
-  //   try {
-  //     final uid = FirebaseAuth.instance.currentUser!.uid;
-  //     String profilePicUrl = '';
-  //     List<String> worksUrls = [];
-
-  //     // 2. رفع الصورة الشخصية (يجب استخدام Firebase Storage هنا)
-  //     if (selectedImage != null) {
-  //       // مثال وهمي للرفع (سنكتب الكود الحقيقي لاحقاً إذا أردت)
-  //       // profilePicUrl = await uploadImageToStorage(selectedImage!);
-  //     }
-
-  //     // 3. رفع صور الأعمال السابقة
-  //     if (previousWorksImages.isNotEmpty) {
-  //       // for (var img in previousWorksImages) {
-  //       //   String url = await uploadImageToStorage(img);
-  //       //   worksUrls.add(url);
-  //       // }
-  //     }
-  //     // User user = FirebaseAuth.instance.currentUser!;
-  //     // // 4. دمج الاسم الأول والأخير
-  //     // final userDoc = await FirebaseFirestore.instance
-  //     //     .collection('users')
-  //     //     .doc(user.uid)
-  //     //     .get();
-
-  //     // if (!userDoc.exists) {
-  //     //   _showMessage('بيانات المستخدم غير موجودة في قاعدة البيانات');
-  //     //   return;
-  //     // }
-  //     // // 6. حفظ البيانات في Firestore (باستخدام دالة toMap التي أنشأناها)
-  //     // await FirebaseFirestore.instance.collection('users').doc(uid).update({
-  //     //   'providerData': providerData.toMap(), // 👈 هنا يحدث السحر
-  //     //   'isFirstTime': false, // 👈 تحديث القيمة لكي لا تظهر الشاشة مجدداً
-  //     //   'profileCompleted': true,
-
-  //     // });
-
-  //     User user = FirebaseAuth.instance.currentUser!;
-
-  //     // 1. التحقق من وجود الوثيقة
-  //     final userDoc = await FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(user.uid)
-  //         .get();
-
-  //     if (!userDoc.exists) {
-  //       _showMessage('بيانات المستخدم غير موجودة في قاعدة البيانات');
-  //       return;
-  //     }
-
-  //     // 2. دمج الاسم (أو تجهيز أي بيانات أخرى تحتاجها)
-  //     fullName =
-  //         userDoc.data()!['firstName'] + ' ' + userDoc.data()!['lastName'] ??
-  //         'مقدم خدمة';
-
-  //     // 🔥 3. هنا يكمن الحل: يجب "إنشاء" الكائن وتعبئته بالبيانات أولاً 🔥
-  //     ServiceProviderModel providerData = ServiceProviderModel(
-  //       fullName: fullName,
-  //       profession:
-  //           selectedProfession!, // استخدمنا ! لأننا تأكدنا من عدم كونه فارغاً
-  //       governorate: selectedGovernorate!,
-  //       profileImageUrl: '', // مؤقتاً فارغ حتى تبرمج رفع الصورة
-  //       pricingType: selectedPriceType,
-  //       isAvailable: selectedStatus == 'متاح',
-  //       yearsOfExperience: int.tryParse(yearsController.text),
-  //       overviewOfExperience: bioController.text.trim(),
-  //       previousCompanies: companiesController.text.trim(),
-  //       imagesOfPreviousWorks: [], // مؤقتاً فارغ
-  //     );
-
-  //     // ✅ 4. الآن نستخدمه بأمان في قاعدة البيانات لأننا قمنا بتعريفه في السطر السابق
-  //     await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-  //       {
-  //         'providerData': providerData
-  //             .toMap(), // الآن هو يعرف ما هو providerData
-  //         'isFirstTime': false,
-  //         'profileCompleted': true,
-  //       },
-  //     );
-  //     // 7. الانتقال للشاشة الرئيسية
-  //     if (mounted) {
-  //       Navigator.pushReplacementNamed(context, MainLayoutScreen.id);
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(SnackBar(content: Text('حدث خطأ أثناء الحفظ: $e')));
-  //   } finally {
-  //     if (mounted) {
-  //       setState(() => isLoading = false);
-  //     }
-  //   }
-  // }
-
   Future<void> _saveProviderData() async {
     if (!_formKey.currentState!.validate()) return;
     if (selectedProfession == null || selectedGovernorate == null) {
@@ -165,22 +60,63 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
 
     try {
       User user = FirebaseAuth.instance.currentUser!;
+      final supabase = Supabase.instance.client;
 
-      // بناء الكائن باستخدام المتغير fullName الذي تم تحديثه مسبقاً
+      // المتغير الافتراضي للصورة (لو لم يختر صورة جديدة)
+      String profileUrl = worker.profileImageUrl;
+
+      // --- 1. رفع الصورة الشخصية (Profile Image) ---
+      if (selectedImage != null) {
+        String fileName =
+            'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        String path = '${user.uid}/$fileName';
+
+        await supabase.storage
+            .from('Provider_images')
+            .upload(path, selectedImage!);
+
+        // الحصول على الرابط العام
+        profileUrl = supabase.storage
+            .from('Provider_images')
+            .getPublicUrl(path);
+      }
+
+      // --- 2. رفع صور الأعمال السابقة (نفس الكود السابق الخاص بك) ---
+      List<String> uploadedUrls = [];
+      if (previousWorksImages.isNotEmpty) {
+        for (int i = 0; i < previousWorksImages.length; i++) {
+          File imageFile = previousWorksImages[i];
+          String fileName =
+              'work_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
+          String path = '${user.uid}/$fileName';
+
+          await supabase.storage
+              .from('Provider_images')
+              .upload(path, imageFile);
+
+          final String publicUrl = supabase.storage
+              .from('Provider_images')
+              .getPublicUrl(path);
+
+          uploadedUrls.add(publicUrl);
+        }
+      }
+
+      // --- 3. بناء الكائن مع رابط الصورة الشخصية الجديد ---
       ServiceProviderModel providerData = ServiceProviderModel(
-        fullName: fullName, // سيأخذ الاسم الحقيقي الذي تم جلبه في البداية
+        fullName: fullName,
         profession: selectedProfession!,
         governorate: selectedGovernorate!,
-        profileImageUrl: 'assets/images/naqash.jpg',
+        profileImageUrl: profileUrl, // الرابط الجديد من Supabase
         pricingType: selectedPriceType,
         isAvailable: selectedStatus == 'متاح',
         yearsOfExperience: int.tryParse(yearsController.text),
         overviewOfExperience: bioController.text.trim(),
         previousCompanies: companiesController.text.trim(),
-        imagesOfPreviousWorks: [],
+        imagesOfPreviousWorks: uploadedUrls,
       );
 
-      // الحفظ مباشرة في قاعدة البيانات
+      // --- 4. التحديث في Firestore ---
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -190,17 +126,22 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
             'profileCompleted': true,
           });
 
+      // --- 5. زيادة عداد المهنة ---
+      await FirebaseFirestore.instance
+          .collection('professions_stats')
+          .doc(selectedProfession!)
+          .set({'count': FieldValue.increment(1)}, SetOptions(merge: true));
+
       if (mounted) {
         Navigator.pushReplacementNamed(context, MainLayoutScreen.id);
       }
     } catch (e) {
+      debugPrint('Error: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('حدث خطأ أثناء الحفظ: $e')));
     } finally {
-      if (mounted) {
-        setState(() => isLoading = false);
-      }
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -215,19 +156,13 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
   String selectedPriceType = 'بالأتفاق';
   String selectedStatus = 'متاح';
 
-  final List<String> professions = [
-    'نقاش',
-    'سباك',
-    'كهربائي',
-    'نجار',
-    'فني تكييف',
-  ];
+  final List<String> professions = ['نقاش', 'سباك', 'كهربائي', 'نجار', 'حداد'];
   final List<String> governorates = [
-    'القاهرة',
-    'الإسكندرية',
-    'بور سعيد',
-    'الجيزة',
-    'المنصورة',
+    'اسيوط',
+    'سوهاج',
+    'قنا',
+    'اسوان',
+    'المنيا',
   ];
 
   final ServiceProviderModel worker = ServiceProviderModel(
@@ -490,73 +425,6 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
                   ),
                   child: Column(
                     children: [
-                      // // Row(
-                      // //   crossAxisAlignment: CrossAxisAlignment.start,
-                      // //   children: [
-                      // //     // Expanded(
-                      // //     //   child: Column(
-                      // //     //     crossAxisAlignment: CrossAxisAlignment.end,
-                      // //     //     children: [
-                      // //     //       Text(
-                      // //     //         'الاسم الأخير',
-                      // //     //         style: TextStyle(
-                      // //     //           fontSize: kSize(12),
-                      // //     //           fontWeight: FontWeight.w700,
-                      // //     //           color: const Color(0xFFADADAD),
-                      // //     //         ),
-                      // //     //       ),
-                      // //     //       TextFormField(
-                      // //     //         controller: lastNameController,
-                      // //     //         textAlign: TextAlign.right,
-                      // //     //         validator: (v) =>
-                      // //     //             (v == null || v.isEmpty) ? 'مطلوب' : null,
-                      // //     //         decoration: const InputDecoration(
-                      // //     //           isDense: true,
-                      // //     //           enabledBorder: UnderlineInputBorder(
-                      // //     //             borderSide: BorderSide(
-                      // //     //               color: Color(0xFFD9D9D9),
-                      // //     //             ),
-                      // //     //           ),
-                      // //     //         ),
-                      // //     //       ),
-                      // //     //     ],
-                      // //     //   ),
-                      // //     // ),
-                      // //     // SizedBox(width: kWidth(20)),
-                      // //     // Expanded(
-                      // //     //   child: Column(
-                      // //     //     crossAxisAlignment: CrossAxisAlignment.end,
-                      // //     //     children: [
-                      // //     //       Text(
-                      // //     //         'الاسم الأول',
-                      // //     //         style: TextStyle(
-                      // //     //           fontSize: kSize(12),
-                      // //     //           fontWeight: FontWeight.w700,
-                      // //     //           color: const Color(0xFFADADAD),
-                      // //     //         ),
-                      // //     //       ),
-                      // //     //       TextFormField(
-                      // //     //         controller: firstNameController,
-                      // //     //         textAlign: TextAlign.right,
-                      // //     //         validator: (v) =>
-                      // //     //             (v == null || v.isEmpty) ? 'مطلوب' : null,
-                      // //     //         decoration: const InputDecoration(
-                      // //     //           isDense: true,
-                      // //     //           enabledBorder: UnderlineInputBorder(
-                      // //     //             borderSide: BorderSide(
-                      // //     //               color: Color(0xFFD9D9D9),
-                      // //     //             ),
-                      // //     //           ),
-                      // //     //         ),
-                      // //     //       ),
-                      // //     //     ],
-                      // //     //   ),
-                      // //     // ),
-
-                      // //   ],
-                      // // ),
-                      // SizedBox(height: kHeight(20)),
-                      //Dropdown
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [

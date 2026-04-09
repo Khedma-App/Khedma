@@ -44,27 +44,25 @@ class ServiceProviderCard extends StatelessWidget {
               padding: const EdgeInsets.all(1.0),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: worker.profileImageUrl.isEmpty
-                    // 👈 إذا كان الرابط فارغاً، اعرض صورة افتراضية من ملفاتك (تأكد أن المسار صحيح)
-                    ? Image.asset(
-                        'assets/images/naqash.jpg', // ضع مسار أي صورة موجودة لديك بالفعل
-                        width: 140,
-                        // height: 60,
-                        fit: BoxFit.cover,
-                      )
-                    // 👈 إذا لم يكن فارغاً، اعرض صورته
-                    : Image.network(
+                child: worker.profileImageUrl.startsWith('http')
+                    // 👈 إذا كان الرابط يبدأ بـ http يعني أنه رابط من إنترنت
+                    ? Image.network(
                         worker.profileImageUrl,
                         width: 140,
-                        // height: 60,
+                        height: kHeight(160),
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
                             Image.asset(
                               'assets/images/naqash.jpg',
                               width: 140,
-                              // height: 60,
                               fit: BoxFit.cover,
                             ),
+                      )
+                    // 👈 إذا كان نصاً عادياً أو مساراً داخلياً
+                    : Image.asset(
+                        'assets/images/naqash.jpg',
+                        width: 140,
+                        fit: BoxFit.cover,
                       ),
               ),
             ),

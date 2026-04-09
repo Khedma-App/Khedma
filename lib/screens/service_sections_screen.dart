@@ -1,77 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:khedma/components/custom_filter_bar.dart';
 import 'package:khedma/components/service_provider_card.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/service_provider_model.dart';
 
 class ServiceSectionsScreen extends StatefulWidget {
-  const ServiceSectionsScreen({super.key});
+  const ServiceSectionsScreen({super.key, this.profession});
   static String id = 'ServiceSectionsScreen';
+
+  final String? profession;
 
   @override
   State<ServiceSectionsScreen> createState() => _ServiceSectionsScreenState();
 }
 
 class _ServiceSectionsScreenState extends State<ServiceSectionsScreen> {
-  final List<ServiceProviderModel> serviceProviders = [
-    ServiceProviderModel(
-      fullName: 'احمد علي',
-      profileImageUrl: 'assets/images/naqash.jpg',
-      governorate: 'القاهرة',
-      profession: 'نجار',
-      pricingType: 'بالساعة',
-      isAvailable: true, imagesOfPreviousWorks: [],
-    ),
-    ServiceProviderModel(
-      fullName: 'احمد علي',
-      profileImageUrl: 'assets/images/naqash.jpg',
-      governorate: 'القاهرة',
-      profession: 'نجار',
-      pricingType: 'بالساعة',
-      isAvailable: true, imagesOfPreviousWorks: [],
-    ),
-    ServiceProviderModel(
-      fullName: 'احمد علي',
-      profileImageUrl: 'assets/images/naqash.jpg',
-      governorate: 'القاهرة',
-      profession: 'نجار',
-      pricingType: 'بالساعة',
-      isAvailable: true, imagesOfPreviousWorks: [],
-    ),
-    ServiceProviderModel(
-      fullName: 'احمد علي',
-      profileImageUrl: 'assets/images/naqash.jpg',
-      governorate: 'القاهرة',
-      profession: 'نجار',
-      pricingType: 'بالساعة',
-      isAvailable: true, imagesOfPreviousWorks: [],
-    ),
-    ServiceProviderModel(
-      fullName: 'احمد علي',
-      profileImageUrl: 'assets/images/naqash.jpg',
-      governorate: 'القاهرة',
-      profession: 'نجار',
-      pricingType: 'بالساعة',
-      isAvailable: true, imagesOfPreviousWorks: [],
-    ),
-    ServiceProviderModel(
-      fullName: 'محمد محمد',
-      profileImageUrl: 'assets/images/naqash.jpg',
-      governorate: 'اسيوط',
-      profession: 'نجار',
-      pricingType: 'باليومية',
-      isAvailable: false, imagesOfPreviousWorks: [],
-    ),
-    ServiceProviderModel(
-      fullName: 'احمد نوبي',
-      profileImageUrl: 'assets/images/naqash.jpg',
-      governorate: 'الاقصر',
-      profession: 'سباك',
-      pricingType: 'بالمتر',
-      isAvailable: true, imagesOfPreviousWorks: [],
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,13 +44,48 @@ class _ServiceSectionsScreenState extends State<ServiceSectionsScreen> {
         ],
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Column(
-              children: [
-                const CustomFilterBar(),
-                Expanded(
-                  child: ListView.builder(
+        child: Column(
+          children: [
+            const CustomFilterBar(),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .where(
+                      'providerData.profession',
+                      isEqualTo: widget.profession,
+                    )
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text("لا يوجد عمال لهذه المهنة"),
+                    );
+                  }
+
+                  List<ServiceProviderModel> serviceProviders = snapshot
+                      .data!
+                      .docs
+                      .map((doc) {
+                        var data = doc['providerData'];
+                        return ServiceProviderModel(
+                          fullName: data['fullName'] ?? '',
+                          profileImageUrl: data['profileImageUrl'] ?? '',
+                          governorate: data['governorate'] ?? '',
+                          profession: data['profession'] ?? '',
+                          pricingType: data['pricingType'] ?? '',
+                          isAvailable: data['isAvailable'] ?? true,
+                          imagesOfPreviousWorks: List<String>.from(
+                            data['imagesOfPreviousWorks'] ?? [],
+                          ),
+                        );
+                      })
+                      .toList();
+
+                  return ListView.builder(
                     itemCount: serviceProviders.length,
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.only(bottom: kHeight(20)),
@@ -117,11 +96,11 @@ class _ServiceSectionsScreenState extends State<ServiceSectionsScreen> {
                         child: ServiceProviderCard(worker: worker),
                       );
                     },
-                  ),
-                ),
-              ],
-            );
-          },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

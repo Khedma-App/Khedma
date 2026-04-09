@@ -13,11 +13,11 @@ class ServiceProviderInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(245, 245, 245, 1),
+      backgroundColor: const Color.fromRGBO(245, 245, 245, 1),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Gallery of previous works
+            // Slider Section
             Stack(
               children: [
                 ImagesSliderOfPreviousWorks(
@@ -34,7 +34,7 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                         icon: Container(
                           height: kHeight(40),
                           width: kWidth(40),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             color: Color.fromRGBO(131, 131, 131, 0.5),
                           ),
@@ -46,15 +46,15 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                 ),
               ],
             ),
+
             Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: kWidth(12)),
+              padding: EdgeInsets.symmetric(horizontal: kWidth(12)),
               child: Column(
                 children: [
+                  // Profile Info Card
                   Container(
-                    padding: EdgeInsets.all(11),
+                    padding: const EdgeInsets.all(11),
                     width: double.infinity,
-                    // height: kHeight(108),
-                    // constraints: BoxConstraints(minHeight: kHeight(30)),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(25),
@@ -64,28 +64,24 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            SizedBox(width: kWidth(28)),
+                            // Availability Indicator
                             Container(
-                              alignment: Alignment.centerLeft,
-                              height: kHeight(25),
-                              width: kWidth(25),
+                              height: kHeight(15),
+                              width: kWidth(15),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: worker.isAvailable
-                                      ? Color.fromRGBO(47, 188, 52, 1)
-                                      : Colors.red,
-                                  width: 25,
-                                ),
+                                color: worker.isAvailable
+                                    ? const Color.fromRGBO(47, 188, 52, 1)
+                                    : Colors.red,
                               ),
                             ),
-                            // name
+                            const SizedBox(width: 10),
+                            // Name
                             Expanded(
                               child: Text(
-                                textDirection: TextDirection.rtl,
-
                                 worker.fullName,
-                                style: TextStyle(
+                                textDirection: TextDirection.rtl,
+                                style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.black,
@@ -93,247 +89,116 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                               ),
                             ),
                             SizedBox(width: kWidth(16)),
-                            // profile image
+
                             ClipRRect(
                               borderRadius: BorderRadius.circular(50),
-                              child: Image.asset(
+                              child: Image.network(
                                 worker.profileImageUrl,
-                                height: kHeight(50),
-                                width: kWidth(50),
+                                height: kHeight(55),
+                                width: kWidth(55),
                                 fit: BoxFit.cover,
+                                // معالجة حالة التحميل
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Container(
+                                        height: kHeight(55),
+                                        width: kWidth(55),
+                                        color: Colors.grey[200],
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                // معالجة حالة الخطأ في الرابط
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                      height: kHeight(55),
+                                      width: kWidth(55),
+                                      color: Colors.grey[300],
+                                      child: const Icon(
+                                        Icons.person,
+                                        color: Color.fromARGB(255, 112, 17, 17),
+                                      ),
+                                    ),
                               ),
                             ),
                           ],
                         ),
-                        // SizedBox(height: kHeight(6)),
-                        // overview of experience
-                        (worker.overviewOfExperience != null)
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      worker.overviewOfExperience ?? '',
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                        fontSize: kSize(16),
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
+
+                        // Overview of Experience
+                        if (worker.overviewOfExperience != null) ...[
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  worker.overviewOfExperience!,
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontSize: kSize(16),
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[700],
                                   ),
-                                ],
-                              )
-                            : SizedBox(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  SizedBox(height: kHeight(12)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      // governorate
-                      Container(
-                        width: kWidth(150),
-                        // height: kHeight(90),
-                        constraints: BoxConstraints(minHeight: kHeight(90)),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: kWidth(13),
-                          vertical: kHeight(9),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
 
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'المحافظة',
-                                  style: TextStyle(
-                                    fontSize: kSize(15),
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromRGBO(131, 131, 131, 1),
-                                  ),
-                                ),
-                                SizedBox(width: kWidth(5)),
-                                Image.asset(
-                                  'assets/images/location2.png',
-                                  width: kWidth(25),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: kHeight(2)),
-                            Text(
-                              worker.governorate,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: kSize(20),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // profession
-                      Container(
-                        width: kWidth(150),
-                        // height: kHeight(90),
-                        constraints: BoxConstraints(minHeight: kHeight(90)),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: kWidth(13),
-                          vertical: kHeight(9),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'الحِرفه',
-                                  style: TextStyle(
-                                    fontSize: kSize(15),
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromRGBO(131, 131, 131, 1),
-                                  ),
-                                ),
-                                SizedBox(width: kWidth(5)),
-                                Image.asset(
-                                  'assets/images/worker.png',
-                                  width: kWidth(25),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: kHeight(2)),
-                            Text(
-                              worker.profession,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: kSize(20),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
                   SizedBox(height: kHeight(12)),
+
+                  // Governorate & Profession Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      // emergency works
-                      Container(
-                        width: kWidth(150),
-                        // height: kHeight(90),
-                        constraints: BoxConstraints(minHeight: kHeight(90)),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: kWidth(6),
-                          vertical: kHeight(9),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'الاعمال الضرورية',
-                                  style: TextStyle(
-                                    fontSize: kSize(14),
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromRGBO(131, 131, 131, 1),
-                                  ),
-                                ),
-                                SizedBox(width: kWidth(3)),
-                                Image.asset(
-                                  'assets/images/important_works.png',
-                                  width: kWidth(25),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: kHeight(2)),
-                            Text(
-                              (worker.emergencyworks ?? false)
-                                  ? 'متاح'
-                                  : 'غير متاح',
-                              style: TextStyle(
-                                fontSize: kSize(20),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
+                      _buildInfoCard(
+                        'المحافظة',
+                        worker.governorate,
+                        'assets/images/location2.png',
                       ),
-                      // pricing type
-                      Container(
-                        width: kWidth(150),
-                        // height: kHeight(90),
-                        constraints: BoxConstraints(minHeight: kHeight(90)),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: kWidth(13),
-                          vertical: kHeight(9),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'الحساب',
-                                  style: TextStyle(
-                                    fontSize: kSize(15),
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromRGBO(131, 131, 131, 1),
-                                  ),
-                                ),
-                                SizedBox(width: kWidth(5)),
-                                Image.asset(
-                                  'assets/images/type_pricing.png',
-                                  width: kWidth(25),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: kHeight(2)),
-                            Text(
-                              worker.pricingType,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: kSize(20),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
+                      _buildInfoCard(
+                        'الحِرفه',
+                        worker.profession,
+                        'assets/images/worker.png',
                       ),
                     ],
                   ),
+
+                  SizedBox(height: kHeight(12)),
+
+                  // Emergency & Pricing Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildInfoCard(
+                        'الاعمال الضرورية',
+                        (worker.emergencyworks ?? false) ? 'متاح' : 'غير متاح',
+                        'assets/images/important_works.png',
+                      ),
+                      _buildInfoCard(
+                        'الحساب',
+                        worker.pricingType,
+                        'assets/images/type_pricing.png',
+                      ),
+                    ],
+                  ),
+
                   SizedBox(height: kHeight(16)),
+
+                  // Work Outside Governorate
                   Row(
                     children: [
                       SizedBox(width: kWidth(16)),
                       Container(
                         height: kHeight(27),
-                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         decoration: BoxDecoration(
                           color: kPrimaryColor,
                           borderRadius: BorderRadius.circular(50),
@@ -344,19 +209,19 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                                 ? 'متاح'
                                 : 'غير متاح',
                             style: TextStyle(
-                              fontSize: kSize(16),
+                              fontSize: kSize(14),
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
                           ),
                         ),
                       ),
-                      Expanded(
+                      const Expanded(
                         child: Text(
                           textAlign: TextAlign.end,
                           'العمل خارج نطاق المحافظة',
                           style: TextStyle(
-                            fontSize: kSize(16),
+                            fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Colors.black,
                           ),
@@ -365,17 +230,17 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                       SizedBox(width: kWidth(16)),
                     ],
                   ),
+
                   SizedBox(height: kHeight(40)),
-                  // contact button
+
+                  // Contact Button
                   GestureDetector(
                     onTap: () {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MainLayoutScreen(
-                            initialIndex: 1,
-                            // targetChatUser: worker,   // هنا هتبعت بيانات العامل اللي عايز تكلمه
-                          ),
+                          builder: (context) =>
+                              const MainLayoutScreen(initialIndex: 1),
                         ),
                         (route) => false,
                       );
@@ -406,6 +271,71 @@ class ServiceProviderInfoScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Helper method to build info cards and reduce code duplication
+  // 1. تحديث الدالة المساعدة لضمان ثبات الأبعاد
+  Widget _buildInfoCard(String title, String value, String iconPath) {
+    return Container(
+      width: kWidth(155), // تحديد عرض ثابت لمنع التداخل
+      padding: EdgeInsets.symmetric(
+        horizontal: kWidth(10),
+        vertical: kHeight(12),
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize:
+            MainAxisSize.min, // مهم جداً لمنع تمدد الـ Column لا نهائياً
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: kSize(13),
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(width: 6),
+              Image.asset(
+                iconPath,
+                width: kWidth(22),
+                height: kHeight(22),
+                fit: BoxFit.contain,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // استخدام الـ Center أو Align لضمان تموضع النص بشكل صحيح
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              value,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: kSize(18),
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

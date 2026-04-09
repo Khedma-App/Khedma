@@ -1,4 +1,5 @@
 class ServiceProviderModel {
+  final String? id; // إضافة الـ ID مهم جداً للتعامل مع العمليات المستقبلية
   final String fullName;
   final String profession;
   final String governorate;
@@ -14,6 +15,7 @@ class ServiceProviderModel {
   final bool? canWorkOutsideGovernorate;
 
   ServiceProviderModel({
+    this.id,
     required this.fullName,
     required this.profession,
     required this.governorate,
@@ -25,9 +27,11 @@ class ServiceProviderModel {
     this.overviewOfExperience,
     this.previousCompanies,
     required this.imagesOfPreviousWorks,
-    this.emergencyworks = false, this.canWorkOutsideGovernorate = false,
+    this.emergencyworks = false,
+    this.canWorkOutsideGovernorate = false,
   });
-  // 1. دالة الإرسال لـ Firestore
+
+  // 1. دالة الإرسال لـ Supabase/Firestore
   Map<String, dynamic> toMap() {
     return {
       'fullName': fullName,
@@ -39,26 +43,39 @@ class ServiceProviderModel {
       'yearsOfExperience': yearsOfExperience,
       'overviewOfExperience': overviewOfExperience,
       'previousCompanies': previousCompanies,
-      'imagesOfPreviousWorks': imagesOfPreviousWorks,
+      'imagesOfPreviousWorks': imagesOfPreviousWorks, // تُرسل كقائمة روابط
       'isFavorite': isFavorite,
       'emergencyworks': emergencyworks,
       'canWorkOutsideGovernorate': canWorkOutsideGovernorate,
     };
   }
 
-  // 2. دالة الاستقبال من Firestore
-  factory ServiceProviderModel.fromMap(Map<String, dynamic> map) {
+  // 2. دالة الاستقبال -
+  factory ServiceProviderModel.fromMap(
+    Map<String, dynamic> map, {
+    String? documentId,
+  }) {
     return ServiceProviderModel(
-      fullName: map['fullName'] ?? '',
+      id: documentId, // استقبال الـ ID من قاعدة البيانات
+      fullName: map['fullName'] ?? 'غير معروف',
       profession: map['profession'] ?? '',
       governorate: map['governorate'] ?? '',
-      profileImageUrl: map['profileImageUrl'] ?? '',
+
+      // التأكد من وجود رابط أو وضع صورة افتراضية لمنع الكراش
+      profileImageUrl: map['profileImageUrl'] ?? 'assets/images/profile.png',
+
       pricingType: map['pricingType'] ?? '',
       isAvailable: map['isAvailable'] ?? true,
-      yearsOfExperience: map['yearsOfExperience'],
+      yearsOfExperience: map['yearsOfExperience'] as int?,
       overviewOfExperience: map['overviewOfExperience'],
       previousCompanies: map['previousCompanies'],
-      imagesOfPreviousWorks: List<String>.from(map['imagesOfPreviousWorks'] ?? []),
+
+      // 🔥 التعديل الأهم: التحويل الآمن للقائمة
+      // لضمان عدم حدوث خطأ type 'List<dynamic>' is not a subtype of type 'List<String>'
+      imagesOfPreviousWorks: map['imagesOfPreviousWorks'] != null
+          ? List<String>.from(map['imagesOfPreviousWorks'])
+          : [],
+
       isFavorite: map['isFavorite'] ?? false,
       emergencyworks: map['emergencyworks'] ?? false,
       canWorkOutsideGovernorate: map['canWorkOutsideGovernorate'] ?? false,

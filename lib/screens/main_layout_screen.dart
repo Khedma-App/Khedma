@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/components/build_custom_bottom_nav_bar.dart';
@@ -19,7 +20,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   @override
   void initState() {
     super.initState();
-
+    checkUserStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = HomeCubit.get(context);
 
@@ -38,6 +39,21 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       //   );
       // }
     });
+  }
+
+  Future<void> checkUserStatus() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // محاولة تحديث بيانات المستخدم من السيرفر
+        await user.reload();
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        // إذا لم يجد المستخدم، قم بتسجيل الخروج يدوياً
+        await FirebaseAuth.instance.signOut();
+      }
+    }
   }
 
   @override

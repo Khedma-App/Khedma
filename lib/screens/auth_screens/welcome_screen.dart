@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/screens/auth_screens/auth_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:khedma/screens/login_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -13,7 +14,6 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -53,7 +53,11 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        await prefs.setBool('seenWelcome', true);
+
                         Navigator.pushReplacementNamed(context, AuthScreen.id);
                       },
                       child: Container(

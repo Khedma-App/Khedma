@@ -112,12 +112,16 @@ class ServiceProviderCard extends StatelessWidget {
                         width: kWidth(18),
                       ),
                       SizedBox(width: kWidth(8)),
-                      Text(
-                        worker.profession,
-                        style: TextStyle(
-                          fontSize: kSize(14),
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey,
+                      Flexible(
+                        child: Text(
+                          worker.profession,
+                          style: TextStyle(
+                            fontSize: kSize(14),
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       SizedBox(width: kWidth(3)),
@@ -131,12 +135,16 @@ class ServiceProviderCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text(
-                        worker.pricingType,
-                        style: TextStyle(
-                          fontSize: kSize(14),
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey,
+                      Flexible(
+                        child: Text(
+                          worker.pricingType,
+                          style: TextStyle(
+                            fontSize: kSize(14),
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       SizedBox(width: kWidth(3)),

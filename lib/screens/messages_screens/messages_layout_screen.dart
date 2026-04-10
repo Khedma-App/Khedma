@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/components/build_toggle_buttons.dart';
@@ -6,14 +7,20 @@ import 'package:khedma/cubits/messages_cubit/messages_cubit.dart';
 import 'package:khedma/cubits/messages_cubit/messages_states.dart';
 import 'package:khedma/screens/messages_screens/all_chats_screens.dart';
 import 'package:khedma/screens/messages_screens/fav_chats_screen.dart';
+import 'package:khedma/services/chat_service.dart';
 
 class MessagesLayoutScreen extends StatelessWidget {
   const MessagesLayoutScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final myUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+
     return BlocProvider(
-      create: (context) => MessagesCubit(),
+      create: (context) => MessagesCubit(
+        chatService: ChatService(),
+        myUid: myUid,
+      )..loadChatRooms(),
       child: Scaffold(
         appBar: AppBar(
           title: Padding(
@@ -58,7 +65,7 @@ class MessagesLayoutScreen extends StatelessWidget {
                       // ValueKey ضروري جداً لكي يعمل الـ Fade Animation
                       child: !isFav
                           ? const AllChatsScreen(key: ValueKey('all_chats'))
-                          : const FavChatsScreen(favoriteChats: [], key: ValueKey('fav_chats')),
+                          : const FavChatsScreen(key: ValueKey('fav_chats')),
                     ),
                   ),
                 ],

@@ -2,17 +2,17 @@ abstract class MessagesStates {}
 
 class MessagesInitial extends MessagesStates {}
 
-// 1. حالة التحميل (عشان تعرض Spinner)
+/// Emitted while the chat rooms stream is being established.
 class MessagesLoadingState extends MessagesStates {}
 
-// 2. حالة النجاح (عشان تعرض الليستة)
-class MessagesSuccessState extends MessagesStates {}
+/// Emitted every time the chat rooms stream delivers new data.
+class ChatRoomsLoadedState extends MessagesStates {}
 
-// 3. حالة الخطأ (عشان تعرض رسالة خطأ)
+/// Emitted on a Firestore error during streaming.
 class MessagesErrorState extends MessagesStates {
   final String error;
   MessagesErrorState(this.error);
 }
 
-// 4. لما نغير بين الكل والمفضلة
+/// Emitted when the user toggles between "الكل" and "المفضلة".
 class MessagesChangeViewModeState extends MessagesStates {}

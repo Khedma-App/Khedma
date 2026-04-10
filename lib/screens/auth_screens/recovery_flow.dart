@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/components/customt_login_text_form_field.dart';
 import 'package:khedma/components/custum_backgrond_color.dart';
 import 'package:khedma/components/custum_backgrond_image.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/cubits/auth_cubit/auth_cubit.dart';
+import 'package:khedma/services/auth_service.dart';
+import 'package:khedma/services/user_service.dart';
 
 class RecoveryFlow extends StatefulWidget {
   const RecoveryFlow({super.key});
@@ -17,8 +20,6 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
   final TextEditingController emailController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  bool isLoading = false;
-
   @override
   void dispose() {
     emailController.dispose();
@@ -29,106 +30,114 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
   Widget build(BuildContext context) {
     initScreenSize(context);
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          const CustumBackgrondImage(),
-          const CustumBackgrondColor(),
+    // RecoveryFlow is a separate route — provides its own AuthCubit.
+    return BlocProvider(
+      create: (_) => AuthCubit(
+        authService: AuthService(),
+        userService: UserService(),
+      ),
+      child: BlocConsumer<AuthCubit, AuthStates>(
+        // Rebuild only when loading status flips.
+        buildWhen: (prev, curr) =>
+            (prev is AuthLoadingState) != (curr is AuthLoadingState),
+        // Listen only to operation outcomes.
+        listenWhen: (prev, curr) =>
+            curr is AuthPasswordResetSentState || curr is AuthErrorState,
+        listener: (context, state) {
+          if (state is AuthPasswordResetSentState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content:
+                    Text('تم إرسال رابط إعادة تعيين كلمة المرور على بريدك'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pop(context);
+          } else if (state is AuthErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          final bool isLoading = state is AuthLoadingState;
 
-          SingleChildScrollView(
-            child: Column(
+          return Scaffold(
+            resizeToAvoidBottomInset: false,
+            body: Stack(
               children: [
-                SizedBox(height: kHeight(250)),
+                const CustumBackgrondImage(),
+                const CustumBackgrondColor(),
 
-                Container(
-                  width: kScreenWidth,
-                  padding: EdgeInsets.only(
-                    top: kHeight(40),
-                    bottom:
-                        kHeight(40) + MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(50),
-                      topRight: Radius.circular(50),
-                    ),
-                  ),
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        _title(),
-                        SizedBox(height: kHeight(30)),
+                SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      SizedBox(height: kHeight(250)),
 
-                        CustomLoginTextFormField(
-                          hint: 'ادخل البريد الإلكتروني',
-                          width: kWidth(329),
-                          controller: emailController,
-                          validator: _validateEmail,
-                          keyboardType: TextInputType.emailAddress,
+                      Container(
+                        width: kScreenWidth,
+                        padding: EdgeInsets.only(
+                          top: kHeight(40),
+                          bottom: kHeight(40) +
+                              MediaQuery.of(context).viewInsets.bottom,
                         ),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(50),
+                            topRight: Radius.circular(50),
+                          ),
+                        ),
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            children: [
+                              _title(),
+                              SizedBox(height: kHeight(30)),
 
-                        SizedBox(height: kHeight(40)),
+                              CustomLoginTextFormField(
+                                hint: 'ادخل البريد الإلكتروني',
+                                width: kWidth(329),
+                                controller: emailController,
+                                validator: _validateEmail,
+                                keyboardType: TextInputType.emailAddress,
+                              ),
 
-                        _button(onTap: _sendResetEmail),
+                              SizedBox(height: kHeight(40)),
 
-                        SizedBox(height: kHeight(20)),
-                      ],
-                    ),
+                              _button(
+                                isLoading: isLoading,
+                                onTap: () {
+                                  if (formKey.currentState!.validate()) {
+                                    context
+                                        .read<AuthCubit>()
+                                        .sendPasswordReset(
+                                          email: emailController.text,
+                                        );
+                                  }
+                                },
+                              ),
+
+                              SizedBox(height: kHeight(20)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  // ================= LOGIC =================
-
-  Future<void> _sendResetEmail() async {
-    if (!formKey.currentState!.validate()) return;
-
-    setState(() => isLoading = true);
-
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(
-        email: emailController.text.trim(),
-      );
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم إرسال رابط إعادة تعيين كلمة المرور على بريدك'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      Navigator.pop(context);
-    } on FirebaseAuthException catch (e) {
-      String message = 'حدث خطأ';
-
-      if (e.code == 'user-not-found') {
-        message = 'لا يوجد حساب بهذا البريد الإلكتروني';
-      } else if (e.code == 'invalid-email') {
-        message = 'البريد الإلكتروني غير صالح';
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: Colors.red),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => isLoading = false);
-    }
-  }
-
-  // ================= UI HELPERS =================
+  // ─── UI Helpers ───────────────────────────────────────────────────────────
 
   Widget _title() {
     return const Text(
@@ -137,7 +146,10 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
     );
   }
 
-  Widget _button({required VoidCallback onTap}) {
+  Widget _button({
+    required VoidCallback onTap,
+    required bool isLoading,
+  }) {
     return GestureDetector(
       onTap: isLoading ? null : onTap,
       child: Container(
@@ -163,15 +175,13 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
     );
   }
 
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'ادخل البريد الإلكتروني';
-    }
+  // ─── Validator ────────────────────────────────────────────────────────────
 
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) return 'ادخل البريد الإلكتروني';
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
       return 'ادخل بريد إلكتروني صحيح';
     }
-
     return null;
   }
 }

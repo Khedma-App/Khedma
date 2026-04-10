@@ -72,6 +72,7 @@ class _ServiceSectionsScreenState extends State<ServiceSectionsScreen> {
                       .map((doc) {
                         var data = doc['providerData'];
                         return ServiceProviderModel(
+                          id: doc.id,
                           fullName: data['fullName'] ?? '',
                           profileImageUrl: data['profileImageUrl'] ?? '',
                           governorate: data['governorate'] ?? '',

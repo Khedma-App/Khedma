@@ -4,8 +4,9 @@ import 'package:khedma/components/build_toggle_buttons.dart';
 import 'package:khedma/components/login_form.dart';
 import 'package:khedma/components/register_options.dart';
 import 'package:khedma/cubits/auth_cubit/auth_cubit.dart';
-import 'package:khedma/cubits/auth_cubit/auth_states.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/services/auth_service.dart';
+import 'package:khedma/services/user_service.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -15,7 +16,8 @@ class AuthScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var isFirstTime = ModalRoute.of(context)!.settings.arguments ?? false;
     return BlocProvider(
-      create: (context) => AuthCubit(),
+      create: (context) =>
+          AuthCubit(authService: AuthService(), userService: UserService()),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: Container(
@@ -68,8 +70,13 @@ class AuthScreen extends StatelessWidget {
                                   ),
 
                                   child: BlocBuilder<AuthCubit, AuthStates>(
+                                    // ✅ KEY OPTIMIZATION: The tab widget ONLY
+                                    // rebuilds when the tab itself changes —
+                                    // never for loading/error/success states.
+                                    buildWhen: (prev, curr) =>
+                                        curr is AuthTabState,
                                     builder: (context, state) {
-                                      bool isLogin = state is AuthLoginState;
+                                      bool isLogin = state is AuthLoginTabState;
 
                                       return Column(
                                         mainAxisSize: MainAxisSize.min,

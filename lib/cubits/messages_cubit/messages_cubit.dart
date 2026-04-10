@@ -1,19 +1,97 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'messages_states.dart'; 
+import 'dart:async';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:khedma/models/chat_room_model.dart';
+import 'package:khedma/services/chat_service.dart';
+import 'messages_states.dart';
+
+/// Manages the chat rooms list and the favorite/all toggle.
+///
+/// Subscribes to a real-time Firestore stream and cleans up
+/// the subscription when the cubit is closed — zero memory leaks.
 class MessagesCubit extends Cubit<MessagesStates> {
-  MessagesCubit() : super(MessagesInitial());
+  final ChatService _chatService;
+  final String myUid;
+
+  MessagesCubit({
+    required ChatService chatService,
+    required this.myUid,
+  })  : _chatService = chatService,
+        super(MessagesInitial());
 
   static MessagesCubit get(context) => BlocProvider.of(context);
 
-  // المتغير اللي بيحدد الشاشة (false = الكل، true = المفضلة)
+  // ─── State ────────────────────────────────────────────────────────────────
+
+  /// Toggle flag: false = all chats, true = favorites only.
   bool isFavoriteScreen = false;
 
-  // دالة تغيير الشاشة
-  void changeScreen(bool isFav) {
-    if (isFavoriteScreen == isFav) return; // لو داس على نفس الزرار ميعملش حاجة
+  /// All chat rooms from Firestore (updated in real-time).
+  List<ChatRoomModel> _allChatRooms = [];
 
+  /// Locally-tracked favorite room IDs (persisted per session).
+  final Set<String> _favoriteRoomIds = {};
+
+  /// Public getter: all rooms with their favorite flag applied.
+  List<ChatRoomModel> get chatRooms => _allChatRooms
+      .map((r) => r.copyWith(isFavorite: _favoriteRoomIds.contains(r.id)))
+      .toList();
+
+  /// Public getter: only favorited rooms.
+  List<ChatRoomModel> get favoriteChatRooms =>
+      chatRooms.where((r) => r.isFavorite).toList();
+
+  // ─── Stream Subscription ──────────────────────────────────────────────────
+
+  StreamSubscription<List<ChatRoomModel>>? _chatRoomsSub;
+
+  /// Starts listening to the user's chat rooms.
+  ///
+  /// Call this once from the UI after the cubit is created.
+  void loadChatRooms() {
+    emit(MessagesLoadingState());
+
+    _chatRoomsSub = _chatService.getChatRoomsStream(myUid).listen(
+      (rooms) {
+        _allChatRooms = rooms;
+        if (!isClosed) emit(ChatRoomsLoadedState());
+      },
+      onError: (error) {
+        if (!isClosed) {
+          emit(MessagesErrorState('فشل تحميل المحادثات'));
+        }
+      },
+    );
+  }
+
+  // ─── Toggle View ──────────────────────────────────────────────────────────
+
+  void changeScreen(bool isFav) {
+    if (isFavoriteScreen == isFav) return;
     isFavoriteScreen = isFav;
-    emit(MessagesChangeViewModeState()); // تحديث الـ UI
+    emit(MessagesChangeViewModeState());
+  }
+
+  // ─── Favorites ────────────────────────────────────────────────────────────
+
+  /// Toggles a room's favorite status locally.
+  void toggleFavorite(String roomId) {
+    if (_favoriteRoomIds.contains(roomId)) {
+      _favoriteRoomIds.remove(roomId);
+    } else {
+      _favoriteRoomIds.add(roomId);
+    }
+    emit(ChatRoomsLoadedState());
+  }
+
+  /// Whether a specific room is favorited.
+  bool isFavorite(String roomId) => _favoriteRoomIds.contains(roomId);
+
+  // ─── Cleanup ──────────────────────────────────────────────────────────────
+
+  @override
+  Future<void> close() {
+    _chatRoomsSub?.cancel();
+    return super.close();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
-import 'package:khedma/screens/auth_screens/auth_screen.dart';
+import 'package:khedma/screens/auth_screens/auth_wrapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:khedma/screens/login_screen.dart';
 
@@ -58,7 +58,10 @@ class WelcomeScreen extends StatelessWidget {
                             await SharedPreferences.getInstance();
                         await prefs.setBool('seenWelcome', true);
 
-                        Navigator.pushReplacementNamed(context, AuthScreen.id);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const AuthWrapper()),
+                        );
                       },
                       child: Container(
                         width: kWidth(300),

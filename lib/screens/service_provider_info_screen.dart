@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khedma/components/Images_slider_of_previous_works.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/service_provider_model.dart';
-import 'package:khedma/screens/main_layout_screen.dart';
+import 'package:khedma/screens/messages_screens/chat_screen.dart';
+import 'package:khedma/services/chat_service.dart';
+import 'package:khedma/services/user_service.dart';
 
 class ServiceProviderInfoScreen extends StatelessWidget {
   const ServiceProviderInfoScreen({super.key, required this.worker});
@@ -179,7 +182,7 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                     children: [
                       _buildInfoCard(
                         'الاعمال الضرورية',
-                        (worker.emergencyworks ?? false) ? 'متاح' : 'غير متاح',
+                        worker.emergencyWorks ? 'متاح' : 'غير متاح',
                         'assets/images/important_works.png',
                       ),
                       _buildInfoCard(
@@ -205,7 +208,7 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            (worker.canWorkOutsideGovernorate ?? false)
+                            worker.canWorkOutsideGovernorate
                                 ? 'متاح'
                                 : 'غير متاح',
                             style: TextStyle(
@@ -234,36 +237,101 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                   SizedBox(height: kHeight(40)),
 
                   // Contact Button
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const MainLayoutScreen(initialIndex: 1),
-                        ),
-                        (route) => false,
+                  Builder(
+                    builder: (context) {
+                      final ValueNotifier<bool> isLoadingNotifier = ValueNotifier(false);
+
+                      return ValueListenableBuilder<bool>(
+                        valueListenable: isLoadingNotifier,
+                        builder: (context, isLoading, _) {
+                          return GestureDetector(
+                            onTap: isLoading ? null : () async {
+                              final currentUser = FirebaseAuth.instance.currentUser;
+                              
+                              if (currentUser == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('يجب تسجيل الدخول لاستخدام المحادثات', textAlign: TextAlign.right)),
+                                );
+                                return;
+                              }
+
+                              if (worker.id == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('عذراً، بيانات مقدم الخدمة غير مكتملة', textAlign: TextAlign.right)),
+                                );
+                                return;
+                              }
+
+                              isLoadingNotifier.value = true;
+
+                              try {
+                                // Fetch current user's name from Firestore
+                                final userService = UserService();
+                                final myProfile = await userService.getUserById(currentUser.uid);
+
+                                final chatService = ChatService();
+                                final room = await chatService.getOrCreateChatRoom(
+                                  myUid: currentUser.uid,
+                                  otherUid: worker.id!,
+                                  myName: myProfile.fullName,
+                                  otherName: worker.fullName,
+                                  myImage: '',
+                                  otherImage: worker.profileImageUrl,
+                                );
+
+                                if (context.mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        chatRoomId: room.id,
+                                        userName: worker.fullName,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('حدث خطأ أثناء الاتصال بالخادم', textAlign: TextAlign.right)),
+                                  );
+                                }
+                              } finally {
+                                isLoadingNotifier.value = false;
+                              }
+                            },
+                            child: Container(
+                              height: kHeight(60),
+                              width: double.infinity,
+                              margin: EdgeInsets.symmetric(horizontal: kWidth(30)),
+                              decoration: BoxDecoration(
+                                color: isLoading ? Colors.grey : kPrimaryColor,
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Center(
+                                child: isLoading
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 3,
+                                        ),
+                                      )
+                                    : Text(
+                                        'تواصل',
+                                        style: TextStyle(
+                                          fontSize: kSize(23),
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
-                    child: Container(
-                      height: kHeight(60),
-                      width: double.infinity,
-                      margin: EdgeInsets.symmetric(horizontal: kWidth(30)),
-                      decoration: BoxDecoration(
-                        color: kPrimaryColor,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'تواصل',
-                          style: TextStyle(
-                            fontSize: kSize(23),
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                   SizedBox(height: kHeight(34)),
                 ],

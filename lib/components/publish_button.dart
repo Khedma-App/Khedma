@@ -3,14 +3,19 @@ import 'package:khedma/core/constants.dart';
 
 class PublishButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final bool isLoading;
 
-  const PublishButton({super.key, required this.onPressed});
+  const PublishButton({
+    super.key,
+    required this.onPressed,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: GestureDetector(
-        onTap: onPressed,
+        onTap: isLoading ? null : onPressed,
         child: Container(
           height: kHeight(60),
           width: kWidth(300),
@@ -27,14 +32,16 @@ class PublishButton extends StatelessWidget {
             borderRadius: BorderRadius.all(Radius.circular(kSize(30))),
           ),
           child: Center(
-            child: Text(
-              'نشر الخدمة',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: kSize(20),
-                fontWeight: FontWeight.w900,
-              ),
-            ),
+            child: isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : Text(
+                    'نشر الخدمة',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: kSize(20),
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
           ),
         ),
       ),

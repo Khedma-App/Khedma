@@ -12,8 +12,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/screens/main_layout_screen.dart';
+import 'package:khedma/services/user_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
-import 'package:khedma/models/new_service_provider_model.dart';
 
 class ServiceProviderScreen extends StatefulWidget {
   const ServiceProviderScreen({super.key});
@@ -42,9 +42,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
   int? selectedExperience;
 
   // متغيرات إضافية للربط مع المودل
-  final TextEditingController _nameController = TextEditingController(
-    text: 'يوسف مهران',
-  );
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _serviceDescriptionController =
       TextEditingController();
   final TextEditingController _aboutController = TextEditingController();
@@ -59,6 +57,28 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
   String? _priceOptionError;
   String? _governorateError;
   String? _cityError;
+
+  // ================== دورة حياة الشاشة ==================
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserName();
+  }
+
+  Future<void> _fetchUserName() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userModel = await UserService().getUserById(user.uid);
+        setState(() {
+          _nameController.text = '${userModel.firstName} ${userModel.lastName}'
+              .trim();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching user name: $e');
+    }
+  }
 
   // فانكشن التقاط الصورة الشخصية
   Future<void> _pickProfileImage() async {
@@ -181,6 +201,9 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
   void _scrollToFirstError() {}
 
   Future<void> _publishService() async {
+    // FIX: State lock prevents multiple rapid executions (triple-taps).
+    if (isLoading) return;
+
     if (!_validateForm()) {
       _scrollToFirstError();
       return;
@@ -195,20 +218,28 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
       String profileUrl = '';
 
       if (_image != null) {
-        String fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        String fileName =
+            'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
         String path = '${user.uid}/$fileName';
         await supabase.storage.from('Provider_images').upload(path, _image!);
-        profileUrl = supabase.storage.from('Provider_images').getPublicUrl(path);
+        profileUrl = supabase.storage
+            .from('Provider_images')
+            .getPublicUrl(path);
       }
 
       List<String> uploadedUrls = [];
       if (_workImages.isNotEmpty) {
         for (int i = 0; i < _workImages.length; i++) {
           File imageFile = _workImages[i];
-          String fileName = 'work_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
+          String fileName =
+              'work_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
           String path = '${user.uid}/$fileName';
-          await supabase.storage.from('Provider_images').upload(path, imageFile);
-          final String publicUrl = supabase.storage.from('Provider_images').getPublicUrl(path);
+          await supabase.storage
+              .from('Provider_images')
+              .upload(path, imageFile);
+          final String publicUrl = supabase.storage
+              .from('Provider_images')
+              .getPublicUrl(path);
           uploadedUrls.add(publicUrl);
         }
       }
@@ -226,11 +257,14 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
         imagesOfPreviousWorks: uploadedUrls,
       );
 
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-        'providerData': providerData.toMap(),
-        'isFirstTime': false,
-        'profileCompleted': true,
-      });
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({
+            'providerData': providerData.toMap(),
+            'isFirstTime': false,
+            'profileCompleted': true,
+          });
 
       await FirebaseFirestore.instance
           .collection('professions_stats')
@@ -239,14 +273,20 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم نشر الخدمة بنجاح'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('تم نشر الخدمة بنجاح'),
+            backgroundColor: Colors.green,
+          ),
         );
         Navigator.pushReplacementNamed(context, MainLayoutScreen.id);
       }
     } catch (e) {
       debugPrint('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ أثناء الحفظ: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('حدث خطأ أثناء الحفظ: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) setState(() => isLoading = false);
@@ -283,7 +323,6 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
                 Center(
                   child: Column(
                     children: [
-
                       Text(
                         'مُقدم خِدمة',
                         textAlign: TextAlign.center,
@@ -436,7 +475,10 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
                   cityError: _cityError,
                 ),
                 SizedBox(height: kHeight(30)),
-                PublishButton(onPressed: _publishService),
+                PublishButton(
+                  onPressed: _publishService,
+                  isLoading: isLoading,
+                ),
               ],
             ),
           ),

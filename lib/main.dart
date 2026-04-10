@@ -17,49 +17,6 @@ import 'package:khedma/screens/search_screen.dart';
 import 'package:khedma/screens/service_sections_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
-
-class StorageService {
-  final supabase = Supabase.instance.client;
-
-  Future<void> uploadImage() async {
-    // 1. اختيار صورة من المعرض
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image == null) return; // المستخدم ألغى الاختيار
-
-    // 2. تحويل الصورة إلى ملف (File)
-    final imageFile = File(image.path);
-
-    // 3. تحديد اسم فريد للملف لتجنب التكرار
-    final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-    // رفع الملف مباشرة في الـ Root الخاص بالباكيت
-    final String path = fileName;
-    try {
-      // 4. عملية الرفع إلى الباكيت (اسمه 'images' مثلاً)
-      await supabase.storage
-          .from('Provider_images')
-          .upload(
-            path,
-            imageFile,
-            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
-          );
-
-      // 5. الحصول على رابط الصورة (إذا كان الباكيت Public)
-      final String publicUrl = supabase.storage
-          .from('Provider_images')
-          .getPublicUrl(path);
-
-      print('تم الرفع بنجاح! الرابط: $publicUrl');
-
-      // الآن يمكنك حفظ هذا الرابط (publicUrl) في قاعدة البيانات (Table) بجانب بيانات المستخدم
-    } catch (e) {
-      print('خطأ أثناء الرفع: $e');
-    }
-  }
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -95,7 +52,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    StorageService storageService = StorageService();
     return MultiBlocProvider(
       providers: [BlocProvider(create: (context) => HomeCubit())],
       child: MaterialApp(
@@ -111,9 +67,8 @@ class MyApp extends StatelessWidget {
         ),
 
         routes: {
-          // الـ routes معطلة حالياً ومحفوظة كـ تعليق
           ServiceProviderScreen.id: (context) => ServiceProviderScreen(),
-          /* MainLayoutScreen.id: (context) => MainLayoutScreen(),
+          MainLayoutScreen.id: (context) => MainLayoutScreen(),
           WelcomeScreen.id: (context) => WelcomeScreen(),
           AuthScreen.id: (context) => const AuthScreen(),
           ServiceProviderRegisterScreen.id: (context) => ServiceProviderRegisterScreen(),
@@ -121,7 +76,6 @@ class MyApp extends StatelessWidget {
           RecoveryFlow.id: (context) => RecoveryFlow(),
           SearchScreen.id: (context) => SearchScreen(),
           ServiceSectionsScreen.id: (context) => ServiceSectionsScreen(),
-          */
         },
       ),
     );

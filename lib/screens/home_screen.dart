@@ -667,6 +667,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ServiceProviderModel worker =
                                 ServiceProviderModel.fromMap(
                                   doc['providerData'],
+                                  documentId: providerDocs[index].id,
                                 );
 
                             return Padding(

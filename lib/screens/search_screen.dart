@@ -39,8 +39,28 @@ class _SearchScreenState extends State<SearchScreen> {
                 .collection('professions_stats')
                 .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData)
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'حدث خطأ: ${snapshot.error}',
+                    style: TextStyle(color: Colors.red, fontSize: kSize(16)),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return Center(
+                  child: Text(
+                    'لا توجد بيانات متاحة',
+                    style: TextStyle(fontSize: kSize(18), color: Colors.grey),
+                  ),
+                );
+              }
 
               List<ServiceModel> services = snapshot.data!.docs.map((doc) {
                 return ServiceModel(

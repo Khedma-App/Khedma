@@ -1,9 +1,70 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:khedma/models/message_model.dart';
+import 'package:khedma/services/chat_service.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
+  final String chatRoomId;
   final String userName;
 
-  const ChatScreen({super.key, required this.userName});
+  const ChatScreen({
+    super.key,
+    required this.chatRoomId,
+    required this.userName,
+  });
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final ChatService _chatService = ChatService();
+
+  String get _myUid => FirebaseAuth.instance.currentUser?.uid ?? '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Mark messages as read when entering the chat
+    _chatService.markMessagesAsRead(
+      chatRoomId: widget.chatRoomId,
+      myUid: _myUid,
+    );
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+
+    _chatService.sendMessage(
+      chatRoomId: widget.chatRoomId,
+      senderId: _myUid,
+      text: text,
+    );
+
+    _messageController.clear();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,18 +73,47 @@ class ChatScreen extends StatelessWidget {
       appBar: _buildAppBar(context),
       body: Column(
         children: [
-          // منطقة الرسائل
+          // منطقة الرسائل — Real-time stream
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildMessageBubble(
-                  isMe: true,
-                  text:
-                      "هنا نص الرسالة المرسلة من المستخدم الحالي وتكون في جهة اليمين مع حواف دائرية كبيرة",
-                ),
-                _buildMessageBubble(isMe: false, text: "رد الطرف الآخر"),
-              ],
+            child: StreamBuilder<List<MessageModel>>(
+              stream: _chatService.getMessagesStream(widget.chatRoomId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final messages = snapshot.data ?? [];
+
+                if (messages.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'ابدأ المحادثة الآن!',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  );
+                }
+
+                // Auto-scroll when new messages arrive
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _scrollToBottom();
+                });
+
+                return ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = messages[index];
+                    return _buildMessageBubble(
+                      isMe: msg.isMine(_myUid),
+                      text: msg.text,
+                    );
+                  },
+                );
+              },
             ),
           ),
           //  حقل إدخال الرسالة
@@ -42,27 +132,16 @@ class ChatScreen extends StatelessWidget {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // زر الملف الشخصي
-          ElevatedButton(
-            onPressed: () {
-              //////
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE6911F),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              "الملف الشخصي",
-              style: TextStyle(color: Colors.white),
-            ),
+          // زر الرجوع
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           ),
           // اسم المستخدم والصورة
           Row(
             children: [
               Text(
-                userName,
+                widget.userName,
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 18,
@@ -148,15 +227,17 @@ class ChatScreen extends StatelessWidget {
                 radius: 25,
                 child: IconButton(
                   icon: const Icon(Icons.send, color: Colors.white),
-                  onPressed: () {},
+                  onPressed: _sendMessage,
                 ),
               ),
             ),
             // مكان الكتابة
-            const Expanded(
+            Expanded(
               child: TextField(
+                controller: _messageController,
                 textAlign: TextAlign.right,
-                decoration: InputDecoration(
+                onSubmitted: (_) => _sendMessage,
+                decoration: const InputDecoration(
                   hintText: "...ماذا تريد",
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 20),

@@ -1,30 +1,73 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/cubits/messages_cubit/messages_cubit.dart';
+import 'package:khedma/cubits/messages_cubit/messages_states.dart';
+import 'package:khedma/screens/messages_screens/chat_screen.dart';
 
 class FavChatsScreen extends StatelessWidget {
-  const FavChatsScreen({super.key, required List<dynamic> favoriteChats});
+  const FavChatsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> favList = [
-      {"name": "محمود السيد"},
-      {"name": "السيد ابراهيم"},
-    ];
+    final myUid = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-    // 🔥 استبدلنا Scaffold بـ Container
-    return Container(
-      color: Colors.grey[100],
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: favList.length,
-        itemBuilder: (context, index) {
-          return _buildFavoriteCard(favList[index]['name']!);
-        },
-      ),
+    return BlocBuilder<MessagesCubit, MessagesStates>(
+      builder: (context, state) {
+        final cubit = MessagesCubit.get(context);
+        final favList = cubit.favoriteChatRooms;
+
+        if (favList.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.favorite_border, size: 60, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'لا توجد محادثات مفضلة',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // 🔥 استبدلنا Scaffold بـ Container
+        return Container(
+          color: Colors.grey[100],
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: favList.length,
+            itemBuilder: (context, index) {
+              final chat = favList[index];
+              final otherName = chat.getOtherName(myUid);
+              final otherImage = chat.getOtherImage(myUid);
+
+              return _buildFavoriteCard(
+                context,
+                name: otherName,
+                imageUrl: otherImage,
+                chatRoomId: chat.id,
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildFavoriteCard(String name) {
+  Widget _buildFavoriteCard(
+    BuildContext context, {
+    required String name,
+    required String imageUrl,
+    required String chatRoomId,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       height: kHeight(150), // انتبه: يفضل إعطاء ارتفاع ثابت للكارت
@@ -66,23 +109,37 @@ class FavChatsScreen extends StatelessWidget {
                 CircleAvatar(
                   radius: 35,
                   backgroundColor: Colors.purple[50],
-                  child: const Icon(
-                    Icons.person,
-                    size: 20,
-                    color: Colors.deepPurple,
-                  ),
+                  backgroundImage:
+                      imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                  child: imageUrl.isEmpty
+                      ? const Icon(
+                          Icons.person,
+                          size: 20,
+                          color: Colors.deepPurple,
+                        )
+                      : null,
                 ),
               ],
             ),
           ),
 
-          //زرارالملف الشخصي
+          //زرارالملف الشخصي → يفتح المحادثة
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 15),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                        chatRoomId: chatRoomId,
+                        userName: name,
+                      ),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFE6911F),
                   shape: RoundedRectangleBorder(

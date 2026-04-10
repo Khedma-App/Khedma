@@ -127,10 +127,15 @@ class ChatService {
         .limit(20)
         .snapshots()
         .handleError((error) {
-          if (error is FirebaseException && error.code == 'failed-precondition') {
+          if (error is FirebaseException &&
+              error.code == 'failed-precondition') {
             print('\n======================================================');
             print('🔥 FIRESTORE INDEX REQUIRED 🔥');
-            print('Please copy and paste the link below into your browser to create the composite index:');
+            print(
+              'Please copy and paste the link below into your browser to create the composite index:',
+            );
+            print('======================================================\n');
+
             print(error.message);
             print('======================================================\n');
           }

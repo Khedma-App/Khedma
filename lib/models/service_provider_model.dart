@@ -25,6 +25,12 @@ class ServiceProviderModel {
   final String? fromTime;
   final String? toTime;
 
+  /// Average rating (0.0–5.0). Populated by the reviews backend.
+  final double rating;
+
+  /// Number of completed service orders.
+  final int completedOrders;
+
   const ServiceProviderModel({
     this.id,
     required this.fullName,
@@ -44,6 +50,8 @@ class ServiceProviderModel {
     this.imagesOfPreviousWorks = const [],
     this.fromTime,
     this.toTime,
+    this.rating = 0.0,
+    this.completedOrders = 0,
   });
 
   // ─── Serialization ────────────────────────────────────────────────────────
@@ -75,6 +83,8 @@ class ServiceProviderModel {
           : const [],
       fromTime: map['fromTime'] as String?,
       toTime: map['toTime'] as String?,
+      rating: (map['rating'] as num?)?.toDouble() ?? 0.0,
+      completedOrders: map['completedOrders'] as int? ?? 0,
     );
   }
 
@@ -97,6 +107,8 @@ class ServiceProviderModel {
       'imagesOfPreviousWorks': imagesOfPreviousWorks,
       'fromTime': fromTime,
       'toTime': toTime,
+      'rating': rating,
+      'completedOrders': completedOrders,
     };
   }
 
@@ -121,6 +133,8 @@ class ServiceProviderModel {
     List<String>? imagesOfPreviousWorks,
     String? fromTime,
     String? toTime,
+    double? rating,
+    int? completedOrders,
   }) {
     return ServiceProviderModel(
       id: id ?? this.id,
@@ -143,6 +157,8 @@ class ServiceProviderModel {
           imagesOfPreviousWorks ?? this.imagesOfPreviousWorks,
       fromTime: fromTime ?? this.fromTime,
       toTime: toTime ?? this.toTime,
+      rating: rating ?? this.rating,
+      completedOrders: completedOrders ?? this.completedOrders,
     );
   }
 }

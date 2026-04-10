@@ -248,13 +248,18 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
         fullName: _nameController.text,
         profession: selectedService ?? '',
         governorate: selectedGovernorate ?? '',
+        city: selectedCity ?? '',
         profileImageUrl: profileUrl,
         pricingType: selectedPriceOption ?? 'بالإتفاق',
         isAvailable: true,
+        canWorkOutsideGovernorate: isAvailableOutside,
         yearsOfExperience: selectedExperience,
         overviewOfExperience: _aboutController.text.trim(),
         previousCompanies: _companiesController.text.trim(),
+        serviceDescription: _serviceDescriptionController.text.trim(),
         imagesOfPreviousWorks: uploadedUrls,
+        fromTime: selectedFrom,
+        toTime: selectedTo,
       );
 
       await FirebaseFirestore.instance

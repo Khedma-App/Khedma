@@ -4,206 +4,295 @@ import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/screens/service_provider_info_screen.dart';
 
 class ServiceProviderCard extends StatelessWidget {
-  const ServiceProviderCard({super.key, required this.worker});
+  const ServiceProviderCard({
+    super.key,
+    required this.worker,
+    this.onFavoriteTapped,
+  });
 
   final ServiceProviderModel worker;
+
+  /// Optional callback for the favorite button.
+  /// If null, the heart icon is still displayed but does nothing.
+  final VoidCallback? onFavoriteTapped;
+
+  // ─── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ServiceProviderInfoScreen(worker: worker),
-          ),
-        );
-      },
+      onTap: () => _navigateToInfo(context),
       child: Container(
-        width: kWidth(329),
-        height: kHeight(160),
-        margin: EdgeInsets.all(5),
+        width: kWidth(354),
+        height: kHeight(185),
         decoration: BoxDecoration(
           color: Colors.white,
+          borderRadius: BorderRadius.circular(kSize(16)),
           boxShadow: [
             BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.25),
-              blurRadius: 7,
-              offset: Offset(0, 3),
+              color: const Color.fromRGBO(0, 0, 0, 0.12),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
           ],
-          borderRadius: BorderRadius.circular(20),
         ),
-        padding: EdgeInsets.symmetric(
-          horizontal: kWidth(5),
-          vertical: kHeight(10),
+        child: Padding(
+          padding: EdgeInsets.all(kSize(8)),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(kSize(20)),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // ── LEFT: Profile image + Availability + Rating ──
+                _buildImageSection(),
+                // ── RIGHT: Info rows + Action buttons ──
+                Expanded(child: _buildInfoSection(context)),
+              ],
+            ),
+          ),
         ),
-        child: Row(
+      ),
+    );
+  }
+
+  // ─── Left Column ────────────────────────────────────────────────────────────
+
+  Widget _buildImageSection() {
+    return SizedBox(
+      width: kWidth(140),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(kSize(20)),
+        ),
+        child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(1.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+            // Profile image — fills remaining vertical space
+            Expanded(
+              child: SizedBox(
+                width: double.infinity,
                 child: worker.profileImageUrl.startsWith('http')
-                    // 👈 إذا كان الرابط يبدأ بـ http يعني أنه رابط من إنترنت
-                    ? Image.network(
-                        worker.profileImageUrl,
-                        width: 140,
-                        height: kHeight(160),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Image.asset(
-                              'assets/images/naqash.jpg',
-                              width: 140,
-                              fit: BoxFit.cover,
-                            ),
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(kSize(16)),
+                        ),
+                        child: Image.network(
+                          worker.profileImageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Image.asset(
+                            'assets/images/naqash.jpg',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       )
-                    // 👈 إذا كان نصاً عادياً أو مساراً داخلياً
                     : Image.asset(
                         'assets/images/naqash.jpg',
-                        width: 140,
                         fit: BoxFit.cover,
                       ),
               ),
             ),
-            SizedBox(width: kWidth(10)),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+
+            // Availability banner
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: kHeight(4)),
+              color: worker.isAvailable
+                  ? const Color(0xFFF2991D)
+                  : Colors.grey[600],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          textDirection: TextDirection.rtl,
-                          worker.fullName,
-                          style: TextStyle(
-                            fontSize: kSize(15),
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: kHeight(5)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          textDirection: TextDirection.rtl,
-                          worker.governorate,
-                          style: TextStyle(
-                            fontSize: kSize(14),
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(width: kWidth(3)),
-                      Image.asset(
-                        'assets/images/location2.png',
-                        width: kWidth(18),
-                      ),
-                      SizedBox(width: kWidth(8)),
-                      Flexible(
-                        child: Text(
-                          worker.profession,
-                          style: TextStyle(
-                            fontSize: kSize(14),
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(width: kWidth(3)),
-                      Image.asset(
-                        'assets/images/worker.png',
-                        width: kWidth(18),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: kHeight(5)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          worker.pricingType,
-                          style: TextStyle(
-                            fontSize: kSize(14),
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(width: kWidth(3)),
-                      Image.asset(
-                        'assets/images/pricing.png',
-                        width: kWidth(18),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: kHeight(5)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        worker.isAvailable ? 'متاح للعمل' : 'غير متاح للعمل',
-                        style: TextStyle(
-                          fontSize: kSize(14),
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      SizedBox(width: kWidth(5)),
-                      Container(
-                        width: kWidth(16),
-                        height: kHeight(16),
-                        decoration: BoxDecoration(
-                          color: worker.isAvailable
-                              ? Color.fromRGBO(47, 188, 52, 1)
-                              : Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: kHeight(10)),
-                    width: kWidth(100),
-                    height: kHeight(33),
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO(239, 155, 23, 1),
-                      borderRadius: BorderRadius.circular(10),
+                  Text(
+                    worker.isAvailable ? 'متاح للعمل' : 'غير متاح',
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: kSize(10),
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
-                    child: Center(
-                      child: Text(
-                        'تواصل',
-                        style: TextStyle(
-                          fontSize: kSize(15),
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
+                  ),
+                  SizedBox(width: kWidth(4)),
+                  Container(
+                    width: kSize(8),
+                    height: kSize(8),
+                    decoration: BoxDecoration(
+                      color: worker.isAvailable ? Colors.green : Colors.red,
+                      shape: BoxShape.circle,
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(width: kWidth(10)),
+
+            // Rating row
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: kHeight(6)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '( ${worker.completedOrders} )',
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: kSize(11),
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  SizedBox(width: kWidth(3)),
+                  Text(
+                    worker.rating.toStringAsFixed(1),
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: kSize(13),
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(width: kWidth(2)),
+                  Icon(
+                    Icons.star_rounded,
+                    color: Colors.amber,
+                    size: kSize(18),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ─── Right Column ───────────────────────────────────────────────────────────
+
+  Widget _buildInfoSection(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: kWidth(10),
+        vertical: kHeight(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // Name
+          Text(
+            worker.fullName,
+            style: TextStyle(
+              fontFamily: 'Cairo',
+              fontSize: kSize(18),
+              fontWeight: FontWeight.w800,
+              color: Colors.black,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textDirection: TextDirection.rtl,
+          ),
+          SizedBox(height: kHeight(3)),
+
+          // Profession
+          _buildInfoRow(icon: Icons.handyman_outlined, text: worker.profession),
+          SizedBox(height: kHeight(2)),
+
+          // Governorate
+          _buildInfoRow(
+            icon: Icons.location_on_outlined,
+            text: worker.governorate,
+          ),
+          SizedBox(height: kHeight(2)),
+
+          // Completed orders
+          _buildInfoRow(
+            icon: Icons.check_circle_outline,
+            text: '${worker.completedOrders} مكتمل',
+          ),
+          SizedBox(height: kHeight(2)),
+
+          // Pricing type
+          _buildInfoRow(
+            icon: Icons.monetization_on_outlined,
+            text: worker.pricingType.isNotEmpty
+                ? worker.pricingType
+                : 'بالإتفاق',
+          ),
+
+          const Spacer(),
+
+          // ── Bottom action row ──
+          Row(
+            children: [
+              // Favorite button
+              GestureDetector(
+                onTap: onFavoriteTapped,
+                child: Icon(
+                  worker.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: worker.isFavorite ? Colors.red : Colors.grey[400],
+                  size: kSize(24),
+                ),
+              ),
+              const Spacer(),
+              // Request service button
+              GestureDetector(
+                onTap: () => _navigateToInfo(context),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: kWidth(16),
+                    vertical: kHeight(5),
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF2991D),
+                    borderRadius: BorderRadius.circular(kSize(20)),
+                  ),
+                  child: Text(
+                    'اطلب خدمة',
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: kSize(13),
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Helpers ────────────────────────────────────────────────────────────────
+
+  /// Builds a single info row: [text ‹gap› icon] — right-aligned.
+  Widget _buildInfoRow({required IconData icon, required String text}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontFamily: 'Cairo',
+              fontSize: kSize(12),
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textDirection: TextDirection.rtl,
+          ),
+        ),
+        SizedBox(width: kWidth(4)),
+        Icon(icon, size: kSize(16), color: Colors.grey[500]),
+      ],
+    );
+  }
+
+  /// Navigate to the provider's full info screen.
+  void _navigateToInfo(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ServiceProviderInfoScreen(worker: worker),
       ),
     );
   }

@@ -12,6 +12,9 @@ class ServiceProviderModel {
   final bool isFavorite;
   final bool? emergencyworks;
   final bool? canWorkOutsideGovernorate;
+  // اجعلهم nullable (?) أو أعطهم قيمة افتراضية
+  final double? rating;
+  final int? completedOrders;
 
   ServiceProviderModel({
     required this.fullName,
@@ -25,9 +28,12 @@ class ServiceProviderModel {
     this.overviewOfExperience,
     this.previousCompanies,
     required this.imagesOfPreviousWorks,
-    this.emergencyworks = false, this.canWorkOutsideGovernorate = false,
+    this.emergencyworks = false,
+    this.canWorkOutsideGovernorate = false,
+    this.rating = 0.0, // قيمة افتراضية
+    this.completedOrders = 0, // قيمة افتراضية
   });
-  // 1. دالة الإرسال لـ Firestore
+
   Map<String, dynamic> toMap() {
     return {
       'fullName': fullName,
@@ -43,10 +49,11 @@ class ServiceProviderModel {
       'isFavorite': isFavorite,
       'emergencyworks': emergencyworks,
       'canWorkOutsideGovernorate': canWorkOutsideGovernorate,
+      'rating': rating,
+      'completedOrders': completedOrders,
     };
   }
 
-  // 2. دالة الاستقبال من Firestore
   factory ServiceProviderModel.fromMap(Map<String, dynamic> map) {
     return ServiceProviderModel(
       fullName: map['fullName'] ?? '',
@@ -58,10 +65,15 @@ class ServiceProviderModel {
       yearsOfExperience: map['yearsOfExperience'],
       overviewOfExperience: map['overviewOfExperience'],
       previousCompanies: map['previousCompanies'],
-      imagesOfPreviousWorks: List<String>.from(map['imagesOfPreviousWorks'] ?? []),
+      imagesOfPreviousWorks: List<String>.from(
+        map['imagesOfPreviousWorks'] ?? [],
+      ),
       isFavorite: map['isFavorite'] ?? false,
       emergencyworks: map['emergencyworks'] ?? false,
       canWorkOutsideGovernorate: map['canWorkOutsideGovernorate'] ?? false,
+      // استقبل القيم من الخريطة بدلاً من وضع null
+      rating: (map['rating'] as num?)?.toDouble() ?? 0.0,
+      completedOrders: (map['completedOrders'] as num?)?.toInt() ?? 0,
     );
   }
 }

@@ -1,44 +1,118 @@
 import 'package:flutter/material.dart';
-import 'package:khedma/components/Images_slider_of_previous_works.dart';
 import 'package:khedma/core/constants.dart';
-import 'package:khedma/models/service_provider_model.dart';
-import 'package:khedma/screens/main_layout_screen.dart';
 
-class ServiceProviderInfoScreen extends StatelessWidget {
-  const ServiceProviderInfoScreen({super.key, required this.worker});
-  final ServiceProviderModel worker;
+class ServiceProviderInfoScreen extends StatefulWidget {
+  const ServiceProviderInfoScreen({super.key});
 
   static String id = 'service_provider_info_screen';
 
   @override
+  State<ServiceProviderInfoScreen> createState() =>
+      _ServiceProviderInfoScreenState();
+}
+
+class _ServiceProviderInfoScreenState extends State<ServiceProviderInfoScreen> {
+  final PageController _imagesController = PageController();
+  int _currentImageIndex = 0;
+
+  final List<String> testImages = [
+    'https://picsum.photos/id/10/800/600',
+    'https://picsum.photos/id/20/800/600',
+    'https://picsum.photos/id/30/800/600',
+    'https://picsum.photos/id/40/800/600',
+    'https://picsum.photos/id/50/800/600',
+  ];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    for (var imageUrl in testImages) {
+      precacheImage(NetworkImage(imageUrl), context);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(245, 245, 245, 1),
+      backgroundColor: const Color(0xFFF6F6F6),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Gallery of previous works
+            SizedBox(height: kHeight(60)),
+
+            //  العنوان العلوي
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: kWidth(20)),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Text(
+                    'طلب خدمة',
+                    style: TextStyle(
+                      fontSize: kSize(20),
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Cairo',
+                      color: Colors.black,
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Icon(
+                        Icons.arrow_forward_ios,
+                        size: kSize(22),
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: kHeight(25)),
+
+            //   سكشن عرض الصور
             Stack(
+              alignment: Alignment.bottomCenter,
               children: [
-                ImagesSliderOfPreviousWorks(
-                  images: worker.imagesOfPreviousWorks,
+                SizedBox(
+                  height: kHeight(256),
+                  width: double.infinity,
+                  child: PageView.builder(
+                    controller: _imagesController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentImageIndex = index;
+                      });
+                    },
+                    itemCount: testImages.length,
+                    itemBuilder: (context, index) {
+                      return Image.network(
+                        testImages[index],
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
                 ),
                 Positioned(
-                  top: 0,
-                  right: 0,
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Container(
-                          height: kHeight(40),
-                          width: kWidth(40),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color.fromRGBO(131, 131, 131, 0.5),
-                          ),
-                          child: Image.asset('assets/images/arrow_back2.png'),
+                  bottom: kHeight(15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      testImages.length,
+                      (index) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: _currentImageIndex == index
+                            ? kWidth(20)
+                            : kWidth(8),
+                        height: kHeight(8),
+                        decoration: BoxDecoration(
+                          color: _currentImageIndex == index
+                              ? Colors.amber
+                              : Colors.white.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),
@@ -46,362 +120,356 @@ class ServiceProviderInfoScreen extends StatelessWidget {
                 ),
               ],
             ),
-            Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: kWidth(12)),
-              child: Column(
+
+            SizedBox(height: kHeight(20)),
+
+            //  3. كارت معلومات مقدم الخدمة
+            Container(
+              width: kWidth(354),
+              height: kHeight(75),
+              margin: EdgeInsets.symmetric(
+                horizontal: kWidth(20),
+                vertical: kHeight(10),
+              ),
+              padding: EdgeInsets.all(kSize(12)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(kSize(12)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: kSize(12),
+                    offset: Offset(0, kHeight(4)),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'يوسف مهران',
+                        style: TextStyle(
+                          fontSize: kSize(18),
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Cairo',
+                        ),
+                      ),
+                      SizedBox(height: kHeight(4)),
+                      Text(
+                        'مهندس',
+                        style: TextStyle(
+                          fontSize: kSize(14),
+                          fontFamily: 'Cairo',
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: kWidth(15)),
                   Container(
-                    padding: EdgeInsets.all(11),
-                    width: double.infinity,
-                    // height: kHeight(108),
-                    // constraints: BoxConstraints(minHeight: kHeight(30)),
+                    width: kSize(60),
+                    height: kSize(60),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(25),
+                      shape: BoxShape.circle,
+                      image: const DecorationImage(
+                        image: NetworkImage(
+                          'https://picsum.photos/id/91/200/200',
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            //  شريط الحالة والموقع
+            Container(
+              width: kWidth(354),
+              height: kHeight(45),
+              margin: EdgeInsets.symmetric(
+                horizontal: kWidth(20),
+                vertical: kHeight(5),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: kWidth(15)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(kSize(12)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: kSize(8),
+                    offset: Offset(0, kHeight(2)),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // الحالة
+                  Row(
+                    children: [
+                      Text(
+                        'متاح الآن',
+                        style: TextStyle(
+                          fontSize: kSize(13),
+                          fontFamily: 'Cairo',
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: kWidth(6)),
+                      CircleAvatar(
+                        radius: kSize(5),
+                        backgroundColor: Colors.green,
+                      ),
+                    ],
+                  ),
+                  // التقييم
+                  Row(
+                    children: [
+                      Text(
+                        '12 تقييم',
+                        style: TextStyle(
+                          fontSize: kSize(13),
+                          fontFamily: 'Cairo',
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: kWidth(4)),
+                      Icon(
+                        Icons.star_border_rounded,
+                        color: Colors.grey[500],
+                        size: kSize(20),
+                      ),
+                    ],
+                  ),
+                  // الموقع
+                  Row(
+                    children: [
+                      Text(
+                        'سوهاج',
+                        style: TextStyle(
+                          fontSize: kSize(13),
+                          fontFamily: 'Cairo',
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: kWidth(4)),
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: Colors.grey[500],
+                        size: kSize(20),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            //  كروت الإحصائيات
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: kWidth(20),
+                vertical: kHeight(15),
+              ),
+              child: Row(
+                children: [
+                  _buildStatCard(title: 'سنين الخبرة', value: '1000'),
+                  SizedBox(width: kWidth(10)),
+                  _buildStatCard(title: 'خدمة مكتملة', value: '400'),
+                  SizedBox(width: kWidth(10)),
+                  _buildStatCard(title: 'حسب المعاينة', value: 'السعر'),
+                ],
+              ),
+            ),
+            //  سكشن الخدمات
+            Container(
+              width: kWidth(354),
+              margin: EdgeInsets.symmetric(
+                horizontal: kWidth(20),
+                vertical: kHeight(10),
+              ),
+              padding: EdgeInsets.all(kSize(16)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(kSize(20)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: kSize(10),
+                    offset: Offset(0, kHeight(4)),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'الخدمات',
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: kSize(16),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: kHeight(12)),
+                  Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: Wrap(
+                      spacing: kWidth(8),
+                      runSpacing: kHeight(8),
+                      children: [
+                        _buildServiceChip('نقاشة'),
+                        _buildServiceChip('تشطيب'),
+                        _buildServiceChip('دهانات'),
+                        _buildServiceChip('إصلاح حوائط'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ////////////////////// عن العامل
+            Container(
+              width: kWidth(354),
+              height: kHeight(300),
+              padding: EdgeInsets.all(kSize(20)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'عن العامل',
+                    style: TextStyle(
+                      fontSize: kSize(18),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: kHeight(5)),
+                  Text(
+                    'خبرة أكثر من 5 سنوات في أعمال النقاشة',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: kSize(14),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Divider(thickness: 1),
+                  ),
+                  const Text(
+                    'الآراء',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+
+                  //  الرأي
+                  Container(
+                    padding: EdgeInsets.all(kSize(12)),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(kSize(15)),
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            SizedBox(width: kWidth(28)),
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              height: kHeight(25),
-                              width: kWidth(25),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: worker.isAvailable
-                                      ? Color.fromRGBO(47, 188, 52, 1)
-                                      : Colors.red,
-                                  width: 25,
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: kSize(30),
                                 ),
-                              ),
-                            ),
-                            // name
-                            Expanded(
-                              child: Text(
-                                textDirection: TextDirection.rtl,
-
-                                worker.fullName,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black,
+                                Text(
+                                  ' 10',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                              ),
+                              ],
                             ),
-                            SizedBox(width: kWidth(16)),
-                            // profile image
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(50),
-                              child: Image.asset(
-                                worker.profileImageUrl,
-                                height: kHeight(50),
-                                width: kWidth(50),
-                                fit: BoxFit.cover,
+                            Text(
+                              'أحمد ابراهيم',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: kSize(13),
                               ),
                             ),
                           ],
                         ),
-                        // SizedBox(height: kHeight(6)),
-                        // overview of experience
-                        (worker.overviewOfExperience != null)
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      worker.overviewOfExperience ?? '',
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                        fontSize: kSize(16),
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : SizedBox(),
+                        Text(
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            fontSize: kSize(12),
+                          ),
+                          '“شغله ممتاز جداً”',
+                          textDirection: TextDirection.rtl,
+                        ),
                       ],
                     ),
                   ),
-                  SizedBox(height: kHeight(12)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      // governorate
-                      Container(
-                        width: kWidth(150),
-                        // height: kHeight(90),
-                        constraints: BoxConstraints(minHeight: kHeight(90)),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: kWidth(13),
-                          vertical: kHeight(9),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
+                ],
+              ),
+            ),
+            SizedBox(height: kSize(15)),
 
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'المحافظة',
-                                  style: TextStyle(
-                                    fontSize: kSize(15),
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromRGBO(131, 131, 131, 1),
-                                  ),
-                                ),
-                                SizedBox(width: kWidth(5)),
-                                Image.asset(
-                                  'assets/images/location2.png',
-                                  width: kWidth(25),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: kHeight(2)),
-                            Text(
-                              worker.governorate,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: kSize(20),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // profession
-                      Container(
-                        width: kWidth(150),
-                        // height: kHeight(90),
-                        constraints: BoxConstraints(minHeight: kHeight(90)),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: kWidth(13),
-                          vertical: kHeight(9),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'الحِرفه',
-                                  style: TextStyle(
-                                    fontSize: kSize(15),
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromRGBO(131, 131, 131, 1),
-                                  ),
-                                ),
-                                SizedBox(width: kWidth(5)),
-                                Image.asset(
-                                  'assets/images/worker.png',
-                                  width: kWidth(25),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: kHeight(2)),
-                            Text(
-                              worker.profession,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: kSize(20),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: kHeight(12)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      // emergency works
-                      Container(
-                        width: kWidth(150),
-                        // height: kHeight(90),
-                        constraints: BoxConstraints(minHeight: kHeight(90)),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: kWidth(6),
-                          vertical: kHeight(9),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'الاعمال الضرورية',
-                                  style: TextStyle(
-                                    fontSize: kSize(14),
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromRGBO(131, 131, 131, 1),
-                                  ),
-                                ),
-                                SizedBox(width: kWidth(3)),
-                                Image.asset(
-                                  'assets/images/important_works.png',
-                                  width: kWidth(25),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: kHeight(2)),
-                            Text(
-                              (worker.emergencyworks ?? false)
-                                  ? 'متاح'
-                                  : 'غير متاح',
-                              style: TextStyle(
-                                fontSize: kSize(20),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // pricing type
-                      Container(
-                        width: kWidth(150),
-                        // height: kHeight(90),
-                        constraints: BoxConstraints(minHeight: kHeight(90)),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: kWidth(13),
-                          vertical: kHeight(9),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'الحساب',
-                                  style: TextStyle(
-                                    fontSize: kSize(15),
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromRGBO(131, 131, 131, 1),
-                                  ),
-                                ),
-                                SizedBox(width: kWidth(5)),
-                                Image.asset(
-                                  'assets/images/type_pricing.png',
-                                  width: kWidth(25),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: kHeight(2)),
-                            Text(
-                              worker.pricingType,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: kSize(20),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: kHeight(16)),
-                  Row(
-                    children: [
-                      SizedBox(width: kWidth(16)),
-                      Container(
-                        height: kHeight(27),
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: kPrimaryColor,
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Center(
-                          child: Text(
-                            (worker.canWorkOutsideGovernorate ?? false)
-                                ? 'متاح'
-                                : 'غير متاح',
-                            style: TextStyle(
-                              fontSize: kSize(16),
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          textAlign: TextAlign.end,
-                          'العمل خارج نطاق المحافظة',
-                          style: TextStyle(
-                            fontSize: kSize(16),
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: kWidth(16)),
-                    ],
-                  ),
-                  SizedBox(height: kHeight(40)),
-                  // contact button
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MainLayoutScreen(
-                            initialIndex: 1,
-                            // targetChatUser: worker,   // هنا هتبعت بيانات العامل اللي عايز تكلمه
-                          ),
-                        ),
-                        (route) => false,
-                      );
-                    },
-                    child: Container(
-                      height: kHeight(60),
-                      width: double.infinity,
-                      margin: EdgeInsets.symmetric(horizontal: kWidth(30)),
-                      decoration: BoxDecoration(
-                        color: kPrimaryColor,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'تواصل',
-                          style: TextStyle(
-                            fontSize: kSize(23),
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+            //  زر التأكيد النهائي (طلب خدمة)
+            GestureDetector(
+              onTap: () {
+                print("تم الضغط على متابعة");
+              },
+              child: Container(
+                height: kHeight(60),
+                width: kWidth(300),
+                margin: const EdgeInsets.only(bottom: 28),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black38,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  color: const Color(0xFFF2991D),
+                  borderRadius: const BorderRadius.all(Radius.circular(30)),
+                ),
+                child: const Center(
+                  child: Text(
+                    'طلب خدمة',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Cairo',
                     ),
                   ),
-                  SizedBox(height: kHeight(34)),
-                ],
+                ),
               ),
             ),
           ],
@@ -409,4 +477,73 @@ class ServiceProviderInfoScreen extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _imagesController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildStatCard({required String title, required String value}) {
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.all(kSize(12)),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(kSize(15)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: kSize(10),
+              offset: Offset(0, kHeight(4)),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'Cairo',
+                fontSize: kSize(16),
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: kHeight(5)),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Cairo',
+                fontSize: kSize(12),
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget _buildServiceChip(String label) {
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: kWidth(12), vertical: kHeight(6)),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF5F5F5),
+      borderRadius: BorderRadius.circular(kSize(10)),
+      border: Border.all(color: const Color(0xFFD1D1D1), width: 0.8),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(
+        fontFamily: 'Cairo',
+        fontSize: kSize(12),
+        color: const Color(0xFF838383),
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  );
 }

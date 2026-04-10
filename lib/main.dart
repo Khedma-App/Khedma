@@ -71,8 +71,10 @@ class MyApp extends StatelessWidget {
           MainLayoutScreen.id: (context) => MainLayoutScreen(),
           WelcomeScreen.id: (context) => WelcomeScreen(),
           AuthScreen.id: (context) => const AuthScreen(),
-          ServiceProviderRegisterScreen.id: (context) => ServiceProviderRegisterScreen(),
-          ServiceRequesterRegisterScreen.id: (context) => ServiceRequesterRegisterScreen(),
+          ServiceProviderRegisterScreen.id: (context) =>
+              ServiceProviderRegisterScreen(),
+          ServiceRequesterRegisterScreen.id: (context) =>
+              ServiceRequesterRegisterScreen(),
           RecoveryFlow.id: (context) => RecoveryFlow(),
           SearchScreen.id: (context) => SearchScreen(),
           ServiceSectionsScreen.id: (context) => ServiceSectionsScreen(),

@@ -1,30 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 
-class ServiceRequestCard extends StatelessWidget {
-  final bool isNewRequest;
-  final String serviceType;
-  final String serviceDescription;
-  final String serviceInitDate;
+class EditRequestReceiverCard extends StatelessWidget {
+  final String notes;
+  final String price;
   final String serviceDeuration;
-  final String serviceAddress;
-  final String serviceInitPrice;
-  VoidCallback? onEdit;
+  final String serviceInitDate;
   VoidCallback? onAccept;
+  VoidCallback? onEdit;
   VoidCallback? onCancel;
 
-
-  ServiceRequestCard({
+  EditRequestReceiverCard({
     super.key,
-    required this.serviceType,
-    required this.serviceDescription,
-    required this.serviceInitDate,
-    required this.serviceAddress,
-    required this.serviceInitPrice,
-    required this.isNewRequest,
+    required this.notes,
+    required this.price,
     required this.serviceDeuration,
+    required this.serviceInitDate,
   });
-  int day = 5;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +52,7 @@ class ServiceRequestCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  isNewRequest ? 'طلب جديد' : 'طلب خدمة',
+                  'طلب تعديل',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: kSize(16),
@@ -85,18 +77,38 @@ class ServiceRequestCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // type of service
-                _buildInfoRow('نوع الخدمة', serviceType),
                 SizedBox(height: kHeight(8)),
 
-                // description of service
+                // history of service
+                _buildInfoRow('تاريخ البدء', serviceInitDate),
+                SizedBox(height: kHeight(8)),
+
+                // history of service
+                _buildInfoRow(
+                  'مدة التنفيذ',
+                  'يوم',
+                  isWithNum: true,
+                  num: serviceDeuration,
+                ),
+                SizedBox(height: kHeight(8)),
+
+                // recommended price of service
+                _buildInfoRow(
+                  'السعر المقترح',
+                  'جنيه',
+                  isWithNum: true,
+                  num: price,
+                ),
+                SizedBox(height: kHeight(12)),
+
+                // notes
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Text(
-                        serviceDescription,
+                        notes,
                         textAlign: TextAlign.end,
                         style: TextStyle(
                           color: const Color(0xFF838383),
@@ -106,49 +118,11 @@ class ServiceRequestCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      ' : الوصف',
+                      ' : ملاحظات',
                       style: TextStyle(
                         fontSize: kSize(14),
                         fontWeight: FontWeight.w700,
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: kHeight(8)),
-
-                // history of service
-                _buildInfoRow('التاريخ المبدئي', serviceInitDate),
-                SizedBox(height: kHeight(8)),
-
-                // history of service
-                _buildInfoRow(
-                  'مدة التنفيذ',
-                  'يوم',
-                  isDuration: true,
-                  day: serviceDeuration,
-                ),
-                SizedBox(height: kHeight(8)),
-
-                // initial price of service
-                _buildInfoRow('السعر المبدئي', serviceInitPrice),
-                SizedBox(height: kHeight(12)),
-
-                // location of service
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      serviceAddress,
-                      style: TextStyle(
-                        fontSize: kSize(14),
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Icon(
-                      Icons.location_on,
-                      color: kPrimaryColor,
-                      size: kSize(18),
                     ),
                   ],
                 ),
@@ -205,28 +179,27 @@ class ServiceRequestCard extends StatelessWidget {
                     ),
 
                     // accept button
-                    if (isNewRequest)
-                      GestureDetector(
-                        onTap: onAccept,
-                        child: Container(
-                          height: kHeight(36),
-                          width: kWidth(88),
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(47, 188, 52, 1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'قبول',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: kSize(14),
-                                fontWeight: FontWeight.w700,
-                              ),
+                    GestureDetector(
+                      onTap: onAccept,
+                      child: Container(
+                        height: kHeight(36),
+                        width: kWidth(88),
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(47, 188, 52, 1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'قبول',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: kSize(14),
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
                       ),
+                    ),
                   ],
                 ),
               ],
@@ -240,8 +213,8 @@ class ServiceRequestCard extends StatelessWidget {
   Widget _buildInfoRow(
     String label,
     String value, {
-    bool isDuration = false,
-    String? day,
+    bool isWithNum = false,
+    String? num,
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -254,9 +227,9 @@ class ServiceRequestCard extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        if (isDuration)
+        if (isWithNum)
           Text(
-            ' $day',
+            ' $num',
             style: TextStyle(
               color: const Color(0xFF838383),
               fontSize: kSize(14),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/screens/booking_details_screen.dart';
 
@@ -484,39 +486,40 @@ class _ServiceProviderInfoScreenState extends State<ServiceProviderInfoScreen> {
             ),
             SizedBox(height: kSize(15)),
 
-            //  زر التأكيد النهائي (طلب خدمة)
-            GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, BookingDetailsScreen.id);
-              },
-              child: Container(
-                height: kHeight(60),
-                width: kWidth(300),
-                margin: const EdgeInsets.only(bottom: 28),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black38,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                  color: const Color(0xFFF2991D),
-                  borderRadius: const BorderRadius.all(Radius.circular(30)),
-                ),
-                child: const Center(
-                  child: Text(
-                    'طلب خدمة',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w900,
-                      fontFamily: 'Cairo',
+            //  زر التأكيد النهائي (طلب خدمة) — للعملاء فقط
+            if (context.read<ProvidersCubit>().isClient)
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, BookingDetailsScreen.id);
+                },
+                child: Container(
+                  height: kHeight(60),
+                  width: kWidth(300),
+                  margin: const EdgeInsets.only(bottom: 28),
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black38,
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                    color: const Color(0xFFF2991D),
+                    borderRadius: const BorderRadius.all(Radius.circular(30)),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'طلب خدمة',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Cairo',
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

@@ -7,10 +7,15 @@ class ServiceProviderCard extends StatelessWidget {
   const ServiceProviderCard({
     super.key,
     required this.worker,
+    this.isClient = true,
     this.onFavoriteTapped,
   });
 
   final ServiceProviderModel worker;
+
+  /// Whether the current user is a Client (true) or a Provider (false).
+  /// Controls visibility of the 'اطلب خدمة' button.
+  final bool isClient;
 
   /// Optional callback for the favorite button.
   /// If null, the heart icon is still displayed but does nothing.
@@ -59,10 +64,10 @@ class ServiceProviderCard extends StatelessWidget {
 
   Widget _buildImageSection() {
     return SizedBox(
-      width: kWidth(140),
+      width: kWidth(147),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(kSize(20)),
+          borderRadius: BorderRadius.circular(kSize(24)),
         ),
         child: Column(
           children: [
@@ -206,55 +211,75 @@ class ServiceProviderCard extends StatelessWidget {
             text: '${worker.completedOrders} مكتمل',
           ),
           SizedBox(height: kHeight(2)),
-
-          // Pricing type
-          _buildInfoRow(
-            icon: Icons.monetization_on_outlined,
-            text: worker.pricingType.isNotEmpty
-                ? worker.pricingType
-                : 'بالإتفاق',
-          ),
-
-          const Spacer(),
-
-          // ── Bottom action row ──
           Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // Favorite button
-              GestureDetector(
-                onTap: onFavoriteTapped,
-                child: Icon(
-                  worker.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: worker.isFavorite ? Colors.red : Colors.grey[400],
-                  size: kSize(24),
+              Text(
+                worker.pricingType.isNotEmpty ? worker.pricingType : 'بالإتفاق',
+                style: TextStyle(
+                  fontFamily: 'Cairo',
+                  fontSize: kSize(13),
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
                 ),
               ),
-              const Spacer(),
-              // Request service button
-              GestureDetector(
-                onTap: () => _navigateToInfo(context),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: kWidth(16),
-                    vertical: kHeight(5),
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF2991D),
-                    borderRadius: BorderRadius.circular(kSize(20)),
-                  ),
-                  child: Text(
-                    'اطلب خدمة',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: kSize(13),
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+              SizedBox(width: kWidth(3)),
+              Icon(
+                Icons.monetization_on_outlined,
+                color: const Color.fromARGB(255, 59, 183, 145),
+                size: kSize(18),
               ),
             ],
           ),
+
+          // Pricing type
+          // _buildInfoRow(
+          //   icon: Icons.monetization_on_outlined,
+          //   text: worker.pricingType.isNotEmpty
+          //       ? worker.pricingType
+          //       : 'بالإتفاق',
+          // ),
+          // ── Bottom action row (only shown for Clients) ──
+          if (isClient) ...[
+            const Spacer(),
+            Row(
+              children: [
+                // Favorite button
+                GestureDetector(
+                  onTap: onFavoriteTapped,
+                  child: Icon(
+                    worker.isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: worker.isFavorite ? Colors.red : Colors.grey[400],
+                    size: kSize(24),
+                  ),
+                ),
+                const Spacer(),
+                // Request service button
+                GestureDetector(
+                  onTap: () => _navigateToInfo(context),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: kWidth(16),
+                      vertical: kHeight(5),
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF2991D),
+                      borderRadius: BorderRadius.circular(kSize(20)),
+                    ),
+                    child: Text(
+                      'اطلب خدمة',
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: kSize(13),
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

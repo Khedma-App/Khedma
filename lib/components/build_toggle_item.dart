@@ -19,7 +19,6 @@ class BuildToggleItem extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         height: kHeight(42),
-        width: kWidth(160),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
           color: isActive ? kPrimaryColor : Colors.transparent,

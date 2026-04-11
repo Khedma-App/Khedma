@@ -9,23 +9,8 @@ import 'package:khedma/cubits/home_cubit/home_states.dart';
 import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
 import 'package:khedma/cubits/providers_cubit/providers_states.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Fire-and-forget: cubits handle all async logic internally.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProvidersCubit>().init();
-      context.read<HomeCubit>().fetchLocation();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

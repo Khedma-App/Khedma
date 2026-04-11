@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:khedma/components/build_toggle_item.dart';
 import 'package:khedma/core/constants.dart';
 
+/// A horizontal toggle bar that supports 2 or more labels.
+///
+/// [activeIndex] controls which tab is highlighted.
+/// [onChanged] fires when the user taps a different tab.
 class BuildToggleButtons extends StatelessWidget {
   const BuildToggleButtons({
-    required this.isLogin,
-    required this.onToggle,
     super.key,
-    required this.title1,
-    required this.title2,
-    this.isRight = false,
+    required this.labels,
+    required this.activeIndex,
+    required this.onChanged,
   });
 
-  final bool isRight;
-  final bool isLogin;
-  final String title1;
-  final String title2;
-  final Function(bool) onToggle;
+  final List<String> labels;
+  final int activeIndex;
+  final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -36,22 +36,15 @@ class BuildToggleButtons extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          BuildToggleItem(
-            text: title1,
-            isActive: isRight ? !isLogin : isLogin,
-            onTap: () {
-              onToggle(isRight ? false : true);
-            },
-          ),
-          BuildToggleItem(
-            text: title2,
-            isActive: isRight ? isLogin : !isLogin,
-            onTap: () {
-              onToggle(isRight ? true : false);
-            },
-          ),
-        ],
+        children: List.generate(labels.length, (i) {
+          return Expanded(
+            child: BuildToggleItem(
+              text: labels[i],
+              isActive: i == activeIndex,
+              onTap: () => onChanged(i),
+            ),
+          );
+        }),
       ),
     );
   }

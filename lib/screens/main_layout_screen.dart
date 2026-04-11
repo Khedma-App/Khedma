@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/components/build_custom_bottom_nav_bar.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
 import 'package:khedma/cubits/home_cubit/home_states.dart';
+import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
 
 class MainLayoutScreen extends StatefulWidget {
   const MainLayoutScreen({super.key, this.initialIndex, this.targetChatUser});
@@ -22,22 +23,15 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     super.initState();
     checkUserStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Initialize providers data + user role (needed by ALL tabs).
+      context.read<ProvidersCubit>().init();
+
       final cubit = HomeCubit.get(context);
+      cubit.fetchLocation();
 
       if (widget.initialIndex != null) {
         cubit.changeBottomNav(widget.initialIndex!);
       }
-
-      // if (widget.targetChatUser != null) {
-      //   Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) => ChatDetailsScreen(
-      //         user: widget.targetChatUser,
-      //       ),
-      //     ),
-      //   );
-      // }
     });
   }
 

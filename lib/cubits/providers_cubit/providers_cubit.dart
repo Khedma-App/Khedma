@@ -41,11 +41,32 @@ class ProvidersCubit extends Cubit<ProvidersStates> {
 
   /// Call once to load the user's role and subscribe to the providers stream.
   /// Subsequent calls are no-ops (idempotent).
+  ///
+  /// Forces a token refresh before any Firestore call to prevent the
+  /// cold-start race condition where `currentUser` exists but the
+  /// ID token hasn't been resolved yet (causes permission-denied).
   Future<void> init() async {
     if (_initialized) return;
     _initialized = true;
 
     emit(ProvidersLoadingState());
+
+    // ── Guard: wait for a valid auth token before touching Firestore ──
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      emit(ProvidersErrorState('لم يتم تسجيل الدخول'));
+      _initialized = false; // allow retry after login
+      return;
+    }
+
+    try {
+      // Force-refresh the ID token so Firestore rules see a valid request.auth.
+      await user.getIdToken(true);
+    } catch (e) {
+      debugPrint('⚠️ Token refresh failed: $e');
+      // Continue anyway — the token might still be valid from cache.
+    }
+
     await _fetchUserRole();
     _subscribeToProviders();
   }
@@ -66,7 +87,7 @@ class ProvidersCubit extends Cubit<ProvidersStates> {
       },
       onError: (e) {
         debugPrint('⛔ ProvidersCubit stream error: $e');
-        if (!isClosed) emit(ProvidersErrorState('فشل تحميل مقدمي الخدمات'));
+        if (!isClosed) emit(ProvidersErrorState('فشل تحميل مقدمي الخدمات\n$e'));
       },
     );
   }

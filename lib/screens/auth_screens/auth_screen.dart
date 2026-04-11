@@ -83,11 +83,13 @@ class AuthScreen extends StatelessWidget {
                                         children: [
                                           // toggle buttons (login / register)
                                           BuildToggleButtons(
-                                            title1: 'تسجيل الدخول',
-                                            title2: 'إنشاء حساب',
-                                            isLogin: isLogin,
-                                            onToggle: (val) {
-                                              if (val) {
+                                            labels: const [
+                                              'تسجيل الدخول',
+                                              'إنشاء حساب',
+                                            ],
+                                            activeIndex: isLogin ? 0 : 1,
+                                            onChanged: (index) {
+                                              if (index == 0) {
                                                 context
                                                     .read<AuthCubit>()
                                                     .switchToLogin();

@@ -218,7 +218,7 @@ class ServiceProviderCard extends StatelessWidget {
                 worker.pricingType.isNotEmpty ? worker.pricingType : 'بالإتفاق',
                 style: TextStyle(
                   fontFamily: 'Cairo',
-                  fontSize: kSize(13),
+                  fontSize: kSize(12),
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
                 ),

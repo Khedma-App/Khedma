@@ -23,8 +23,8 @@ class MessagesCubit extends Cubit<MessagesStates> {
 
   // ─── State ────────────────────────────────────────────────────────────────
 
-  /// Toggle flag: false = all chats, true = favorites only.
-  bool isFavoriteScreen = false;
+  /// Tab index: 0 = الرسائل, 1 = المفضلة, 2 = طلباتي.
+  int currentTabIndex = 0;
 
   /// All chat rooms from Firestore (updated in real-time).
   List<ChatRoomModel> _allChatRooms = [];
@@ -66,9 +66,9 @@ class MessagesCubit extends Cubit<MessagesStates> {
 
   // ─── Toggle View ──────────────────────────────────────────────────────────
 
-  void changeScreen(bool isFav) {
-    if (isFavoriteScreen == isFav) return;
-    isFavoriteScreen = isFav;
+  void changeTab(int index) {
+    if (currentTabIndex == index) return;
+    currentTabIndex = index;
     emit(MessagesChangeViewModeState());
   }
 

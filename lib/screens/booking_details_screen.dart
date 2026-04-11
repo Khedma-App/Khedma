@@ -5,9 +5,15 @@ import 'package:khedma/components/service_provider_card.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/service_data.dart';
 import 'package:khedma/models/service_provider_model.dart';
+import 'package:khedma/screens/messages_screens/chat_screen.dart';
+import 'package:khedma/services/chat_service.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
-  const BookingDetailsScreen({super.key});
+  const BookingDetailsScreen({super.key, required this.worker});
+
+  /// The service provider this booking is for.
+  final ServiceProviderModel worker;
+
   static const String id = 'bookingdetailsscreen';
   @override
   State<BookingDetailsScreen> createState() => _BookingDetailsScreenState();
@@ -27,15 +33,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   final TextEditingController _serviceDescriptionController =
       TextEditingController();
 
-  final ServiceProviderModel sampleWorker = ServiceProviderModel(
-    fullName: "محمود سمير",
-    profession: "نقاش",
-    governorate: "بور سعيد",
-    profileImageUrl: "",
-    pricingType: "السعر حسب المساحة",
-    isAvailable: true,
-    imagesOfPreviousWorks: [],
-  );
+  bool _isSubmitting = false;
 
   //  GPS Logic
   Future<void> _getCurrentLocation() async {
@@ -67,8 +65,68 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     );
   }
 
+  // ─── Submit Booking ─────────────────────────────────────────────────────────
+
+  /// Collects form data and delegates to [ChatService.submitBookingRequest].
+  ///
+  /// All Firebase logic lives in the service layer — this method only
+  /// collects UI state and handles navigation.
+  Future<void> _submitBooking() async {
+    // Basic validation
+    if (_serviceDescriptionController.text.trim().isEmpty) {
+      _showSnackBar('يرجى كتابة وصف الخدمة المطلوبة');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final worker = widget.worker;
+      final chatService = ChatService();
+
+      // Build the request payload from form fields.
+      final payload = <String, dynamic>{
+        'serviceType': worker.profession,
+        'description': _serviceDescriptionController.text.trim(),
+        'date': selectedDate ?? '',
+        'governorate': selectedGovernorate ?? '',
+        'city': selectedCity ?? '',
+        'addressDetail': _addressDetailController.text.trim(),
+        'pricingUnit': selectedPricingUnit ?? '',
+        'price': _priceController.text.trim(),
+      };
+
+      // All Firebase logic is inside submitBookingRequest.
+      final room = await chatService.submitBookingRequest(
+        providerUid: worker.id ?? '',
+        providerName: worker.fullName,
+        providerImage: worker.profileImageUrl,
+        requestPayload: payload,
+      );
+
+      if (!mounted) return;
+
+      // Navigate to the chat screen for this room.
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChatScreen(
+            chatRoomId: room.id,
+            userName: worker.fullName,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        _showSnackBar('حدث خطأ: $e');
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
   @override
   void dispose() {
+    _priceController.dispose();
     _addressDetailController.dispose();
     _serviceDescriptionController.dispose();
     super.dispose();
@@ -97,7 +155,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             ),
 
             SizedBox(height: kHeight(25)),
-            ServiceProviderCard(worker: sampleWorker),
+            ServiceProviderCard(worker: widget.worker, isClient: false),
             SizedBox(height: kHeight(15)),
 
             // قسم وصف الخدمة المطلوبة
@@ -543,9 +601,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
             //  زر التأكيد النهائي (طلب خدمة)
             GestureDetector(
-              onTap: () {
-                print("تم الضغط على متابعة");
-              },
+              onTap: _isSubmitting ? null : _submitBooking,
               child: Container(
                 height: kHeight(60),
                 width: kWidth(300),
@@ -558,19 +614,30 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       offset: const Offset(0, 4),
                     ),
                   ],
-                  color: const Color(0xFFF2991D),
+                  color: _isSubmitting
+                      ? Colors.grey
+                      : const Color(0xFFF2991D),
                   borderRadius: const BorderRadius.all(Radius.circular(30)),
                 ),
-                child: const Center(
-                  child: Text(
-                    'طلب خدمة',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w900,
-                      fontFamily: 'Cairo',
-                    ),
-                  ),
+                child: Center(
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(
+                          'طلب خدمة',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Cairo',
+                          ),
+                        ),
                 ),
               ),
             ),

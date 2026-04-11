@@ -490,7 +490,13 @@ class _ServiceProviderInfoScreenState extends State<ServiceProviderInfoScreen> {
             if (context.read<ProvidersCubit>().isClient)
               GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(context, BookingDetailsScreen.id);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          BookingDetailsScreen(worker: widget.worker),
+                    ),
+                  );
                 },
                 child: Container(
                   height: kHeight(60),

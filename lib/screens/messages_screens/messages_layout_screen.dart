@@ -5,8 +5,10 @@ import 'package:khedma/components/build_toggle_buttons.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/cubits/messages_cubit/messages_cubit.dart';
 import 'package:khedma/cubits/messages_cubit/messages_states.dart';
+import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
 import 'package:khedma/screens/messages_screens/all_chats_screens.dart';
 import 'package:khedma/screens/messages_screens/fav_chats_screen.dart';
+import 'package:khedma/screens/messages_screens/my_requests_screen.dart';
 import 'package:khedma/services/chat_service.dart';
 
 class MessagesLayoutScreen extends StatelessWidget {
@@ -15,6 +17,13 @@ class MessagesLayoutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final myUid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    // Read role synchronously from the in-memory cubit.
+    final isProvider = !context.read<ProvidersCubit>().isClient;
+
+    // Build the tab labels — providers get the extra "طلباتي" tab.
+    final labels = isProvider
+        ? const ['الرسائل', 'المفضلة', 'طلباتي']
+        : const ['الرسائل', 'المفضلة'];
 
     return BlocProvider(
       create: (context) => MessagesCubit(
@@ -36,10 +45,11 @@ class MessagesLayoutScreen extends StatelessWidget {
           child: BlocBuilder<MessagesCubit, MessagesStates>(
             builder: (context, state) {
               var cubit = MessagesCubit.get(context);
-              bool isFav = cubit.isFavoriteScreen;
-              
+              int tabIndex = cubit.currentTabIndex;
+
               return Column(
                 children: [
+                  // ── Toggle Bar ──
                   Container(
                     width: double.infinity,
                     color: kPrimaryColor,
@@ -48,24 +58,17 @@ class MessagesLayoutScreen extends StatelessWidget {
                       horizontal: 25,
                     ),
                     child: BuildToggleButtons(
-                      isRight: true,
-                      title1: 'المفضلة',
-                      title2: 'الرسائل',
-                      isLogin: !isFav,
-                      onToggle: (val) {
-                        cubit.changeScreen(!val);
-                      },
+                      labels: labels,
+                      activeIndex: tabIndex,
+                      onChanged: (index) => cubit.changeTab(index),
                     ),
                   ),
 
-                  // 🔥 الحل هنا: استخدام Expanded مع AnimatedSwitcher
+                  // ── Tab Content ──
                   Expanded(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
-                      // ValueKey ضروري جداً لكي يعمل الـ Fade Animation
-                      child: !isFav
-                          ? const AllChatsScreen(key: ValueKey('all_chats'))
-                          : const FavChatsScreen(key: ValueKey('fav_chats')),
+                      child: _buildTabContent(tabIndex),
                     ),
                   ),
                 ],
@@ -75,5 +78,19 @@ class MessagesLayoutScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Returns the correct screen widget for the active tab index.
+  Widget _buildTabContent(int index) {
+    switch (index) {
+      case 0:
+        return const AllChatsScreen(key: ValueKey('all_chats'));
+      case 1:
+        return const FavChatsScreen(key: ValueKey('fav_chats'));
+      case 2:
+        return const MyRequestsScreen(key: ValueKey('my_requests'));
+      default:
+        return const SizedBox();
+    }
   }
 }

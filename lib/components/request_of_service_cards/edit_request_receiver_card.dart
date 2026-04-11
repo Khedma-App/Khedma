@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 
-class EditRequestCard extends StatelessWidget {
+class EditRequestReceiverCard extends StatelessWidget {
   final String notes;
   final String price;
   final String serviceDeuration;
   final String serviceInitDate;
+  VoidCallback? onAccept;
+  VoidCallback? onEdit;
+  VoidCallback? onCancel;
 
-  const EditRequestCard({
+  EditRequestReceiverCard({
     super.key,
     required this.notes,
     required this.price,
@@ -131,7 +134,7 @@ class EditRequestCard extends StatelessWidget {
                   children: [
                     // cancel button
                     OutlinedButton(
-                      onPressed: () {},
+                      onPressed: onCancel,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF838383),
                         side: const BorderSide(
@@ -154,7 +157,7 @@ class EditRequestCard extends StatelessWidget {
 
                     // edit button
                     GestureDetector(
-                      onTap: () {},
+                      onTap: onEdit,
                       child: Container(
                         height: kHeight(36),
                         width: kWidth(88),
@@ -177,7 +180,7 @@ class EditRequestCard extends StatelessWidget {
 
                     // accept button
                     GestureDetector(
-                      onTap: () {},
+                      onTap: onAccept,
                       child: Container(
                         height: kHeight(36),
                         width: kWidth(88),

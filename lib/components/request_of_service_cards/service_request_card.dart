@@ -9,6 +9,10 @@ class ServiceRequestCard extends StatelessWidget {
   final String serviceDeuration;
   final String serviceAddress;
   final String serviceInitPrice;
+  VoidCallback? onEdit;
+  VoidCallback? onAccept;
+  VoidCallback? onCancel;
+
 
   ServiceRequestCard({
     super.key,
@@ -156,7 +160,7 @@ class ServiceRequestCard extends StatelessWidget {
                   children: [
                     // cancel button
                     OutlinedButton(
-                      onPressed: () {},
+                      onPressed: onCancel,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF838383),
                         side: const BorderSide(
@@ -179,7 +183,7 @@ class ServiceRequestCard extends StatelessWidget {
 
                     // edit button
                     GestureDetector(
-                      onTap: () {},
+                      onTap: onEdit,
                       child: Container(
                         height: kHeight(36),
                         width: kWidth(88),
@@ -203,7 +207,7 @@ class ServiceRequestCard extends StatelessWidget {
                     // accept button
                     if (isNewRequest)
                       GestureDetector(
-                        onTap: () {},
+                        onTap: onAccept,
                         child: Container(
                           height: kHeight(36),
                           width: kWidth(88),

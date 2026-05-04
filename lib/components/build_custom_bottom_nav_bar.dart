@@ -54,11 +54,18 @@ class _BuildCustomBottomNavBarState extends State<BuildCustomBottomNavBar> {
                 label: 'المحادثات',
               ),
             ),
-
             Expanded(
               child: BuildNavItem(
                 cubit: widget.cubit,
                 index: 2,
+                icon: Icons.assessment_outlined,
+                label: 'طلباتي',
+              ),
+            ),
+            Expanded(
+              child: BuildNavItem(
+                cubit: widget.cubit,
+                index: 3,
                 icon: Icons.search,
                 label: 'بحث',
               ),
@@ -67,7 +74,7 @@ class _BuildCustomBottomNavBarState extends State<BuildCustomBottomNavBar> {
             Expanded(
               child: BuildNavItem(
                 cubit: widget.cubit,
-                index: 3,
+                index: 4,
                 icon: Icons.home,
                 label: 'الرئيسية',
               ),

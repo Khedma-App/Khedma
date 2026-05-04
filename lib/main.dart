@@ -13,7 +13,10 @@ import 'package:khedma/screens/auth_screens/service_provider_register_screen.dar
 import 'package:khedma/screens/auth_screens/service_provider_screen.dart';
 import 'package:khedma/screens/auth_screens/service_requester_register_screen.dart';
 import 'package:khedma/screens/auth_screens/welcome_screen.dart';
+import 'package:khedma/screens/edit_profile_screen.dart';
 import 'package:khedma/screens/main_layout_screen.dart';
+import 'package:khedma/screens/order_history_screen.dart';
+import 'package:khedma/screens/profile_screen.dart';
 import 'package:khedma/screens/search_screen.dart';
 import 'package:khedma/screens/service_sections_screen.dart';
 import 'package:khedma/services/provider_service.dart';
@@ -58,9 +61,8 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => HomeCubit()),
         BlocProvider(
-          create: (context) => ProvidersCubit(
-            providerService: ProviderService(),
-          ),
+          create: (context) =>
+              ProvidersCubit(providerService: ProviderService()),
         ),
       ],
       child: MaterialApp(
@@ -87,6 +89,9 @@ class MyApp extends StatelessWidget {
           RecoveryFlow.id: (context) => RecoveryFlow(),
           SearchScreen.id: (context) => SearchScreen(),
           ServiceSectionsScreen.id: (context) => ServiceSectionsScreen(),
+          OrderHistoryScreen.id: (context) => OrderHistoryScreen(),
+          ProfileScreen.id: (context) => ProfileScreen(),
+          EditProfileScreen.id: (context) => EditProfileScreen(),
         },
       ),
     );

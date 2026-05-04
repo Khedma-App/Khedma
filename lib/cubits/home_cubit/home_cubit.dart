@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:khedma/models/service_item.dart';
 import 'package:khedma/screens/messages_screens/messages_layout_screen.dart';
 import 'package:khedma/screens/more_screen.dart';
+import 'package:khedma/screens/order_history_screen.dart';
 import 'package:khedma/screens/search_screen.dart';
 import 'home_states.dart';
 import '../../screens/home_screen.dart';
@@ -14,10 +15,11 @@ class HomeCubit extends Cubit<HomeStates> {
 
   static HomeCubit get(context) => BlocProvider.of(context);
 
-  int currentIndex = 3;
+  int currentIndex = 0;
   List<Widget> screens = [
     MoreScreen(),
     MessagesLayoutScreen(),
+    OrderHistoryScreen(),
     SearchScreen(),
     HomeScreen(),
   ];
@@ -108,9 +110,8 @@ class HomeCubit extends Cubit<HomeStates> {
 
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
-        currentLocation = place.administrativeArea ??
-            place.locality ??
-            'منطقة غير معروفة';
+        currentLocation =
+            place.administrativeArea ?? place.locality ?? 'منطقة غير معروفة';
       }
 
       if (!isClosed) emit(HomeLocationUpdatedState());
@@ -123,9 +124,29 @@ class HomeCubit extends Cubit<HomeStates> {
 
 // القائمة الأساسية للخدمات
 final List<ServiceModel> allServices = [
-  ServiceModel(title: "نقاش", imagePath: "assets/icons/النقاشه.png", count: "0"),
-  ServiceModel(title: "سباك", imagePath: "assets/icons/السباكه.png", count: "0"),
-  ServiceModel(title: "كهربائي", imagePath: "assets/icons/الكهرباء.png", count: "0"),
-  ServiceModel(title: "نجار", imagePath: "assets/icons/النجاره.png", count: "0"),
-  ServiceModel(title: "حداد", imagePath: "assets/icons/الحداده.png", count: "0"),
+  ServiceModel(
+    title: "نقاش",
+    imagePath: "assets/icons/النقاشه.png",
+    count: "0",
+  ),
+  ServiceModel(
+    title: "سباك",
+    imagePath: "assets/icons/السباكه.png",
+    count: "0",
+  ),
+  ServiceModel(
+    title: "كهربائي",
+    imagePath: "assets/icons/الكهرباء.png",
+    count: "0",
+  ),
+  ServiceModel(
+    title: "نجار",
+    imagePath: "assets/icons/النجاره.png",
+    count: "0",
+  ),
+  ServiceModel(
+    title: "حداد",
+    imagePath: "assets/icons/الحداده.png",
+    count: "0",
+  ),
 ];

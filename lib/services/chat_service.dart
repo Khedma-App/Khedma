@@ -352,9 +352,14 @@ class ChatService {
       final userDoc =
           await _firestore.collection('users').doc(myUid).get();
       final userData = userDoc.data() ?? {};
-      final myName =
+      String myName =
           '${userData['firstName'] ?? ''} ${userData['lastName'] ?? ''}'
               .trim();
+
+      // Fallback: try FirebaseAuth displayName
+      if (myName.isEmpty) {
+        myName = currentUser?.displayName ?? '';
+      }
 
       // 1. Get or create the chat room.
       final room = await getOrCreateChatRoom(
@@ -464,5 +469,148 @@ class ChatService {
     } catch (e) {
       throw AppException.unexpected(e);
     }
+  }
+
+  // ─── Provider Orders Stream ────────────────────────────────────────────────
+
+  /// Real-time stream of service requests addressed to the provider.
+  ///
+  /// Returns enriched maps containing room metadata + latest request payload.
+  /// Each map has: `chatRoomId`, `messageId`, `clientName`, `clientUid`,
+  /// `requestPayload`, `timestamp`, `messageType`.
+  Stream<List<Map<String, dynamic>>> watchProviderRequests(String providerUid) {
+    return _chatRooms
+        .where('participants', arrayContains: providerUid)
+        .snapshots()
+        .asyncMap((roomsSnapshot) async {
+      final List<Map<String, dynamic>> allRequests = [];
+
+      for (final roomDoc in roomsSnapshot.docs) {
+        final room = ChatRoomModel.fromMap(roomDoc.data(), id: roomDoc.id);
+        final clientUid = room.getOtherUid(providerUid);
+        String clientName = room.getOtherName(providerUid);
+
+        // ── Fallback: fetch real name from users collection ──
+        if (clientName == 'مستخدم' && clientUid.isNotEmpty) {
+          try {
+            final userDoc =
+                await _firestore.collection('users').doc(clientUid).get();
+            if (userDoc.exists) {
+              final data = userDoc.data() ?? {};
+              final realName =
+                  '${data['firstName'] ?? ''} ${data['lastName'] ?? ''}'
+                      .trim();
+              if (realName.isNotEmpty) clientName = realName;
+            }
+          } catch (_) {}
+        }
+
+        // Get ALL service_request/modification messages in this room.
+        final messagesSnapshot = await roomDoc.reference
+            .collection('messages')
+            .orderBy('timestamp', descending: true)
+            .get();
+
+        for (final msgDoc in messagesSnapshot.docs) {
+          final data = msgDoc.data();
+          final msgType = data['messageType'] as String? ?? 'text';
+          if (msgType != 'service_request' && msgType != 'modification') {
+            continue;
+          }
+
+          final payload =
+              Map<String, dynamic>.from(data['requestPayload'] ?? {});
+          final status = payload['status'] as String? ?? 'pending';
+
+          // Only include pending and accepted requests.
+          if (status != 'pending' && status != 'accepted') continue;
+
+          allRequests.add({
+            'chatRoomId': roomDoc.id,
+            'messageId': msgDoc.id,
+            'clientName': clientName,
+            'clientUid': clientUid,
+            'clientImage': room.getOtherImage(providerUid),
+            'requestPayload': payload,
+            'timestamp': data['timestamp'],
+            'messageType': msgType,
+            'status': status,
+          });
+
+          // DO NOT break — collect ALL active requests from this room.
+        }
+      }
+
+      return allRequests;
+    });
+  }
+
+  // ─── Client Orders Stream ─────────────────────────────────────────────────
+
+  /// Real-time stream of all service requests the client has sent.
+  ///
+  /// Returns enriched maps with: `chatRoomId`, `messageId`, `providerName`,
+  /// `requestPayload`, `timestamp`, `status`.
+  Stream<List<Map<String, dynamic>>> watchClientOrders(String clientUid) {
+    return _chatRooms
+        .where('participants', arrayContains: clientUid)
+        .snapshots()
+        .asyncMap((roomsSnapshot) async {
+      final List<Map<String, dynamic>> allOrders = [];
+
+      for (final roomDoc in roomsSnapshot.docs) {
+        final room = ChatRoomModel.fromMap(roomDoc.data(), id: roomDoc.id);
+        final providerUid = room.getOtherUid(clientUid);
+        String providerName = room.getOtherName(clientUid);
+
+        // ── Fallback: fetch real name from users collection ──
+        if (providerName == 'مستخدم' && providerUid.isNotEmpty) {
+          try {
+            final userDoc =
+                await _firestore.collection('users').doc(providerUid).get();
+            if (userDoc.exists) {
+              final data = userDoc.data() ?? {};
+              final realName =
+                  '${data['firstName'] ?? ''} ${data['lastName'] ?? ''}'
+                      .trim();
+              if (realName.isNotEmpty) providerName = realName;
+            }
+          } catch (_) {}
+        }
+
+        // Get ALL service_request messages in this room.
+        final messagesSnapshot = await roomDoc.reference
+            .collection('messages')
+            .orderBy('timestamp', descending: true)
+            .get();
+
+        for (final msgDoc in messagesSnapshot.docs) {
+          final data = msgDoc.data();
+          final msgType = data['messageType'] as String? ?? 'text';
+          if (msgType != 'service_request' && msgType != 'modification') {
+            continue;
+          }
+
+          final payload =
+              Map<String, dynamic>.from(data['requestPayload'] ?? {});
+
+          allOrders.add({
+            'chatRoomId': roomDoc.id,
+            'messageId': msgDoc.id,
+            'providerName': providerName,
+            'providerUid': providerUid,
+            'providerImage': room.getOtherImage(clientUid),
+            'requestPayload': payload,
+            'timestamp': data['timestamp'],
+            'messageType': msgType,
+            'status': payload['status'] as String? ?? 'pending',
+          });
+
+          // DO NOT break — collect ALL orders from this room.
+        }
+      }
+
+      return allOrders;
+    });
   }
 }

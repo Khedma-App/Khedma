@@ -76,27 +76,27 @@ class MyApp extends StatelessWidget {
           builder: (context) {
             initScreenSize(context);
 
-            return RequestsFactorScreen(); /*seenWelcome ? const AuthWrapper() : WelcomeScreen();*/
+            return seenWelcome ? const AuthWrapper() : WelcomeScreen();
           },
         ),
 
         routes: {
-          // ServiceProviderScreen.id: (context) => ServiceProviderScreen(),
-          // MainLayoutScreen.id: (context) => MainLayoutScreen(),
-          // WelcomeScreen.id: (context) => WelcomeScreen(),
-          // AuthScreen.id: (context) => const AuthScreen(),
-          // ServiceProviderRegisterScreen.id: (context) =>
-          //     ServiceProviderRegisterScreen(),
-          // ServiceRequesterRegisterScreen.id: (context) =>
-          //     ServiceRequesterRegisterScreen(),
-          // RecoveryFlow.id: (context) => RecoveryFlow(),
-          // SearchScreen.id: (context) => SearchScreen(),
-          // ServiceSectionsScreen.id: (context) => ServiceSectionsScreen(),
-          // OrderHistoryScreen.id: (context) => OrderHistoryScreen(),
-          // ProfileScreen.id: (context) => ProfileScreen(),
-          // EditProfileScreen.id: (context) => EditProfileScreen(),
-          //  ProfileUpdateScreen.id:(context)=>ProfileUpdateScreen(),
-          //  RequestsFactorScreen.id:(context)=>RequestsFactorScreen(),
+          ServiceProviderScreen.id: (context) => ServiceProviderScreen(),
+          MainLayoutScreen.id: (context) => MainLayoutScreen(),
+          WelcomeScreen.id: (context) => WelcomeScreen(),
+          AuthScreen.id: (context) => const AuthScreen(),
+          ServiceProviderRegisterScreen.id: (context) =>
+              ServiceProviderRegisterScreen(),
+          ServiceRequesterRegisterScreen.id: (context) =>
+              ServiceRequesterRegisterScreen(),
+          RecoveryFlow.id: (context) => RecoveryFlow(),
+          SearchScreen.id: (context) => SearchScreen(),
+          ServiceSectionsScreen.id: (context) => ServiceSectionsScreen(),
+          OrderHistoryScreen.id: (context) => OrderHistoryScreen(),
+          ProfileScreen.id: (context) => ProfileScreen(),
+          EditProfileScreen.id: (context) => EditProfileScreen(),
+          ProfileUpdateScreen.id: (context) => ProfileUpdateScreen(),
+          RequestsFactorScreen.id: (context) => RequestsFactorScreen(),
         },
       ),
     );

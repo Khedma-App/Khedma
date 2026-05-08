@@ -48,7 +48,9 @@ class _ServiceProviderInfoScreenState extends State<ServiceProviderInfoScreen> {
     super.didChangeDependencies();
     for (var imageUrl in _workImages) {
       if (imageUrl.startsWith('http')) {
-        precacheImage(NetworkImage(imageUrl), context);
+        precacheImage(NetworkImage(imageUrl), context).catchError((_) {
+          // Silently handle network errors (offline / DNS failure)
+        });
       }
     }
   }

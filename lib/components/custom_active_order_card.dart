@@ -2,7 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 
 class CustomActiveOrderCard extends StatelessWidget {
-  const CustomActiveOrderCard({super.key});
+  final String jobTitle;
+  final String clientName;
+  final String location;
+  final String price;
+  final String contractId;
+  final VoidCallback onConfirmComplete;
+  final VoidCallback onViewDetails;
+
+  const CustomActiveOrderCard({
+    super.key,
+    required this.jobTitle,
+    required this.clientName,
+    required this.location,
+    required this.price,
+    required this.onConfirmComplete,
+    required this.onViewDetails,
+    this.contractId = '',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +101,7 @@ class CustomActiveOrderCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "تشطيب شقة 95 متر ",
+                            jobTitle,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -104,7 +121,7 @@ class CustomActiveOrderCard extends StatelessWidget {
                               ),
                               SizedBox(width: kSize(4)),
                               Text(
-                                "محمد السعيد",
+                                clientName,
                                 maxLines: 2,
                                 softWrap: true,
                                 style: TextStyle(
@@ -123,7 +140,7 @@ class CustomActiveOrderCard extends StatelessWidget {
                               SizedBox(width: kSize(4)),
                               Flexible(
                                 child: Text(
-                                  "بورسعيد",
+                                  location,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontFamily: 'Cairo',
@@ -148,7 +165,7 @@ class CustomActiveOrderCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: "1,500 ",
+                                text: "$price ",
                                 style: TextStyle(
                                   fontFamily: 'Cairo',
                                   fontSize: kSize(17),
@@ -168,14 +185,15 @@ class CustomActiveOrderCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Text(
-                          "KH-2026-00847 :عقد",
-                          style: TextStyle(
-                            fontSize: kSize(9),
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
+                        if (contractId.isNotEmpty)
+                          Text(
+                            "$contractId :عقد",
+                            style: TextStyle(
+                              fontSize: kSize(9),
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ],
@@ -189,7 +207,7 @@ class CustomActiveOrderCard extends StatelessWidget {
                       flex: 3,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(kSize(10)),
-                        onTap: () {},
+                        onTap: onConfirmComplete,
                         child: Container(
                           height: kHeight(46),
                           decoration: BoxDecoration(
@@ -225,7 +243,7 @@ class CustomActiveOrderCard extends StatelessWidget {
                       flex: 2,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(kSize(10)),
-                        onTap: () {},
+                        onTap: onViewDetails,
                         child: Container(
                           height: kHeight(46),
                           decoration: BoxDecoration(

@@ -2,17 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 
 class CustomPendingRequestCard extends StatelessWidget {
-  const CustomPendingRequestCard({super.key});
+  final String clientName;
+  final String serviceDescription;
+  final String estimatedPrice;
+  final DateTime? timestamp;
+  final VoidCallback onAccept;
+  final VoidCallback onReject;
+
+  const CustomPendingRequestCard({
+    super.key,
+    required this.clientName,
+    required this.serviceDescription,
+    required this.estimatedPrice,
+    required this.onAccept,
+    required this.onReject,
+    this.timestamp,
+  });
+
+  String _timeAgo() {
+    if (timestamp == null) return '';
+    final diff = DateTime.now().difference(timestamp!);
+    if (diff.inMinutes < 60) return 'منذ ${diff.inMinutes} دقيقة';
+    if (diff.inHours < 24) return 'منذ ${diff.inHours} ساعة';
+    return 'منذ ${diff.inDays} يوم';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: kHeight(180),
       width: kWidth(280),
-      margin: EdgeInsets.symmetric(
-        horizontal: kSize(18),
-        vertical: kHeight(10),
-      ),
+      margin: EdgeInsets.symmetric(horizontal: kSize(15), vertical: kHeight(5)),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF),
@@ -50,7 +69,7 @@ class CustomPendingRequestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "أحمد خالد",
+                      clientName,
                       style: TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: kSize(14),
@@ -60,7 +79,7 @@ class CustomPendingRequestCard extends StatelessWidget {
                     ),
                     SizedBox(height: kHeight(4)),
                     Text(
-                      "إصلاح تسريب مياه",
+                      serviceDescription,
                       style: TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: kSize(12),
@@ -82,7 +101,7 @@ class CustomPendingRequestCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  "منذ ساعة",
+                  _timeAgo(),
                   style: TextStyle(
                     fontFamily: 'Cairo',
                     fontSize: kSize(10),
@@ -104,7 +123,7 @@ class CustomPendingRequestCard extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  "150 - 200 ج",
+                  "$estimatedPrice ج",
                   style: TextStyle(
                     fontFamily: 'Cairo',
                     fontSize: kSize(14),
@@ -133,7 +152,7 @@ class CustomPendingRequestCard extends StatelessWidget {
                 flex: 2,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
-                  onTap: () {},
+                  onTap: onReject,
                   child: Container(
                     height: 45,
                     decoration: BoxDecoration(
@@ -158,7 +177,7 @@ class CustomPendingRequestCard extends StatelessWidget {
                 flex: 3,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
-                  onTap: () {},
+                  onTap: onAccept,
                   child: Container(
                     height: 45,
                     decoration: BoxDecoration(

@@ -23,7 +23,7 @@ class CustomRequestsFactorHeader extends StatelessWidget {
             children: [
               Image.asset(
                 "assets/images/logo.png",
-                height: kHeight(35),
+                height: kHeight(31),
                 width: kWidth(100),
                 color: Colors.white,
               ),

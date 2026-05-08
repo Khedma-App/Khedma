@@ -90,9 +90,9 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('خطأ: $e')));
       }
     }
   }
@@ -106,9 +106,9 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('خطأ: $e')));
       }
     }
   }
@@ -256,8 +256,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             color: Color(0xFFE89A24),
                             width: 1.5,
                           ),
-                          padding:
-                              EdgeInsets.symmetric(vertical: kHeight(12)),
+                          padding: EdgeInsets.symmetric(vertical: kHeight(12)),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -301,8 +300,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: kPrimaryColor,
                           foregroundColor: Colors.white,
-                          padding:
-                              EdgeInsets.symmetric(vertical: kHeight(12)),
+                          padding: EdgeInsets.symmetric(vertical: kHeight(12)),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -347,53 +345,59 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE5E5E5),
+      backgroundColor: const Color(0xFFFAFAFA),
       appBar: _buildAppBar(context),
-      body: StreamBuilder<List<MessageModel>>(
-        stream: _chatService.getMessagesStream(widget.chatRoomId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/bacgraundChat.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: StreamBuilder<List<MessageModel>>(
+          stream: _chatService.getMessagesStream(widget.chatRoomId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final messages = snapshot.data ?? [];
-          final chatUnlocked = _isChatUnlocked(messages);
+            final messages = snapshot.data ?? [];
+            final chatUnlocked = _isChatUnlocked(messages);
 
-          // Auto-scroll when new messages arrive
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _scrollToBottom();
-          });
+            // Auto-scroll when new messages arrive
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _scrollToBottom();
+            });
 
-          return Column(
-            children: [
-              // ── Messages list ──
-              Expanded(
-                child: messages.isEmpty
-                    ? Center(
-                        child: Text(
-                          'ابدأ المحادثة الآن!',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[500],
+            return Column(
+              children: [
+                // ── Messages list ──
+                Expanded(
+                  child: messages.isEmpty
+                      ? Center(
+                          child: Text(
+                            'ابدأ المحادثة الآن!',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[500],
+                            ),
                           ),
+                        )
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(16),
+                          itemCount: messages.length,
+                          itemBuilder: (context, index) {
+                            return _buildMessageItem(messages[index]);
+                          },
                         ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) {
-                          return _buildMessageItem(messages[index]);
-                        },
-                      ),
-              ),
-              // ── Bottom input / lock bar ──
-              chatUnlocked
-                  ? _buildMessageInput()
-                  : _buildLockedInput(),
-            ],
-          );
-        },
+                ),
+                // ── Bottom input / lock bar ──
+                chatUnlocked ? _buildMessageInput() : _buildLockedInput(),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -426,8 +430,9 @@ class _ChatScreenState extends State<ChatScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isMe) _smallAvatar(),
@@ -527,14 +532,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     _cardInfoRow('نوع الخدمة', p['serviceType'] ?? ''),
                     SizedBox(height: kHeight(6)),
-                    _cardDescriptionRow(
-                        'الوصف', p['description'] ?? ''),
+                    _cardDescriptionRow('الوصف', p['description'] ?? ''),
                     SizedBox(height: kHeight(6)),
                     _cardInfoRow('التاريخ', p['date'] ?? ''),
                     if ((p['price'] as String?)?.isNotEmpty == true) ...[
                       SizedBox(height: kHeight(6)),
                       _cardInfoRow(
-                          'السعر المبدئي', '${p['price']} ج ${p['pricingUnit'] ?? ''}'),
+                        'السعر المبدئي',
+                        '${p['price']} ج ${p['pricingUnit'] ?? ''}',
+                      ),
                     ],
                     SizedBox(height: kHeight(6)),
                     // Address
@@ -1022,8 +1028,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     decoration: const InputDecoration(
                       hintText: '...ماذا تريد',
                       border: InputBorder.none,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 20),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
                     ),
                   ),
                 ),

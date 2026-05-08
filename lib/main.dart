@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:khedma/components/work_note_bottom_sheet.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
 import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
@@ -17,6 +18,8 @@ import 'package:khedma/screens/edit_profile_screen.dart';
 import 'package:khedma/screens/main_layout_screen.dart';
 import 'package:khedma/screens/order_history_screen.dart';
 import 'package:khedma/screens/profile_screen.dart';
+import 'package:khedma/screens/profile_update_screen.dart';
+import 'package:khedma/screens/requests_factor_screen.dart';
 import 'package:khedma/screens/search_screen.dart';
 import 'package:khedma/screens/service_sections_screen.dart';
 import 'package:khedma/services/provider_service.dart';
@@ -73,25 +76,27 @@ class MyApp extends StatelessWidget {
           builder: (context) {
             initScreenSize(context);
 
-            return seenWelcome ? const AuthWrapper() : WelcomeScreen();
+            return RequestsFactorScreen(); /*seenWelcome ? const AuthWrapper() : WelcomeScreen();*/
           },
         ),
 
         routes: {
-          ServiceProviderScreen.id: (context) => ServiceProviderScreen(),
-          MainLayoutScreen.id: (context) => MainLayoutScreen(),
-          WelcomeScreen.id: (context) => WelcomeScreen(),
-          AuthScreen.id: (context) => const AuthScreen(),
-          ServiceProviderRegisterScreen.id: (context) =>
-              ServiceProviderRegisterScreen(),
-          ServiceRequesterRegisterScreen.id: (context) =>
-              ServiceRequesterRegisterScreen(),
-          RecoveryFlow.id: (context) => RecoveryFlow(),
-          SearchScreen.id: (context) => SearchScreen(),
-          ServiceSectionsScreen.id: (context) => ServiceSectionsScreen(),
-          OrderHistoryScreen.id: (context) => OrderHistoryScreen(),
-          ProfileScreen.id: (context) => ProfileScreen(),
-          EditProfileScreen.id: (context) => EditProfileScreen(),
+          // ServiceProviderScreen.id: (context) => ServiceProviderScreen(),
+          // MainLayoutScreen.id: (context) => MainLayoutScreen(),
+          // WelcomeScreen.id: (context) => WelcomeScreen(),
+          // AuthScreen.id: (context) => const AuthScreen(),
+          // ServiceProviderRegisterScreen.id: (context) =>
+          //     ServiceProviderRegisterScreen(),
+          // ServiceRequesterRegisterScreen.id: (context) =>
+          //     ServiceRequesterRegisterScreen(),
+          // RecoveryFlow.id: (context) => RecoveryFlow(),
+          // SearchScreen.id: (context) => SearchScreen(),
+          // ServiceSectionsScreen.id: (context) => ServiceSectionsScreen(),
+          // OrderHistoryScreen.id: (context) => OrderHistoryScreen(),
+          // ProfileScreen.id: (context) => ProfileScreen(),
+          // EditProfileScreen.id: (context) => EditProfileScreen(),
+          //  ProfileUpdateScreen.id:(context)=>ProfileUpdateScreen(),
+          //  RequestsFactorScreen.id:(context)=>RequestsFactorScreen(),
         },
       ),
     );

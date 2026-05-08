@@ -37,38 +37,79 @@ class ProvidersCubit extends Cubit<ProvidersStates> {
 
   static ProvidersCubit get(context) => BlocProvider.of(context);
 
+  // ─── Retry (manual) ───────────────────────────────────────────────────────
+
+  /// Resets the cubit and retries initialization from scratch.
+  /// Call this from a retry button in the UI.
+  void retry() {
+    _providersSub?.cancel();
+    _providersSub = null;
+    _initialized = false;
+    init();
+  }
+
   // ─── Initialization ───────────────────────────────────────────────────────
 
   /// Call once to load the user's role and subscribe to the providers stream.
   /// Subsequent calls are no-ops (idempotent).
   ///
-  /// Forces a token refresh before any Firestore call to prevent the
-  /// cold-start race condition where `currentUser` exists but the
-  /// ID token hasn't been resolved yet (causes permission-denied).
+  /// Optimized for physical devices:
+  /// - Starts the Firestore stream IMMEDIATELY using the cached token
+  /// - Token refresh + role fetch happen in the background (non-blocking)
+  /// - 15-second safety net prevents infinite loading state
   Future<void> init() async {
     if (_initialized) return;
     _initialized = true;
 
     emit(ProvidersLoadingState());
+    debugPrint('🔄 ProvidersCubit: init() started');
 
-    // ── Guard: wait for a valid auth token before touching Firestore ──
+    // ── Guard: check for authenticated user ──
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
+      debugPrint('❌ ProvidersCubit: No currentUser — aborting');
       emit(ProvidersErrorState('لم يتم تسجيل الدخول'));
-      _initialized = false; // allow retry after login
+      _initialized = false;
       return;
     }
+    debugPrint('✅ ProvidersCubit: User found: ${user.uid}');
 
+    // ── Start stream IMMEDIATELY (non-blocking) ──
+    // The cached token from FirebaseAuth is almost always valid.
+    // Don't wait for a network round-trip before showing data.
+    debugPrint('🔄 ProvidersCubit: Subscribing to providers stream...');
+    _subscribeToProviders();
+
+    // ── Background: refresh token + fetch role (fire-and-forget) ──
+    _backgroundInit(user);
+  }
+
+  /// Runs token refresh and role fetch in the background.
+  /// Does NOT block the UI or the stream.
+  Future<void> _backgroundInit(User user) async {
+    // Token refresh (best-effort)
     try {
-      // Force-refresh the ID token so Firestore rules see a valid request.auth.
-      await user.getIdToken(true);
+      debugPrint('🔄 ProvidersCubit: [BG] Refreshing ID token...');
+      await user.getIdToken(true).timeout(const Duration(seconds: 10));
+      debugPrint('✅ ProvidersCubit: [BG] Token refreshed');
+    } on TimeoutException {
+      debugPrint('⚠️ ProvidersCubit: [BG] Token refresh timed out');
     } catch (e) {
-      debugPrint('⚠️ Token refresh failed: $e');
-      // Continue anyway — the token might still be valid from cache.
+      debugPrint('⚠️ ProvidersCubit: [BG] Token refresh failed: $e');
     }
 
-    await _fetchUserRole();
-    _subscribeToProviders();
+    // Role fetch (best-effort)
+    try {
+      debugPrint('🔄 ProvidersCubit: [BG] Fetching user role...');
+      await _fetchUserRole().timeout(const Duration(seconds: 10));
+      debugPrint('✅ ProvidersCubit: [BG] Role → isClient=$isClient');
+    } on TimeoutException {
+      debugPrint('⚠️ ProvidersCubit: [BG] Role fetch timed out → default Client');
+      isClient = true;
+    } catch (e) {
+      debugPrint('⚠️ ProvidersCubit: [BG] Role fetch failed: $e → default Client');
+      isClient = true;
+    }
   }
 
   // ─── Internals ────────────────────────────────────────────────────────────
@@ -83,13 +124,23 @@ class ProvidersCubit extends Cubit<ProvidersStates> {
   void _subscribeToProviders() {
     _providersSub = _providerService.watchProviders().listen(
       (providers) {
+        debugPrint('✅ ProvidersCubit: Stream emitted ${providers.length} providers');
         if (!isClosed) emit(ProvidersLoadedState(providers));
       },
       onError: (e) {
-        debugPrint('⛔ ProvidersCubit stream error: $e');
+        debugPrint('⛔ ProvidersCubit: Stream error: $e');
         if (!isClosed) emit(ProvidersErrorState('فشل تحميل مقدمي الخدمات\n$e'));
       },
     );
+
+    // ── Safety net: if the stream doesn't emit within 15 seconds,
+    //    emit an empty loaded state so the UI is not stuck. ──
+    Future.delayed(const Duration(seconds: 15), () {
+      if (!isClosed && state is ProvidersLoadingState) {
+        debugPrint('⚠️ ProvidersCubit: 15s safety timeout — emitting empty list');
+        emit(ProvidersLoadedState([]));
+      }
+    });
   }
 
   // ─── Cleanup ──────────────────────────────────────────────────────────────

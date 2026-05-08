@@ -17,11 +17,11 @@ class HomeCubit extends Cubit<HomeStates> {
 
   int currentIndex = 0;
   List<Widget> screens = [
-    MoreScreen(),
-    MessagesLayoutScreen(),
-    OrderHistoryScreen(),
-    SearchScreen(),
-    HomeScreen(),
+    HomeScreen(),           // 0 — الرئيسية
+    SearchScreen(),         // 1 — بحث
+    OrderHistoryScreen(),   // 2 — طلباتي
+    MessagesLayoutScreen(), // 3 — المحادثات
+    MoreScreen(),           // 4 — المزيد
   ];
 
   void changeBottomNav(int index) {

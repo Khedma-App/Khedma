@@ -82,13 +82,31 @@ class HomeScreen extends StatelessWidget {
                             padding:
                                 EdgeInsets.symmetric(vertical: kHeight(20)),
                             child: Center(
-                              child: Text(
-                                state.message,
-                                style: TextStyle(
-                                  fontSize: kSize(16),
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    state.message,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: kSize(14),
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: kHeight(12)),
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      // Reset and retry
+                                      context.read<ProvidersCubit>().retry();
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    label: const Text('إعادة المحاولة'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.orange,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           );

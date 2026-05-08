@@ -33,11 +33,20 @@ class AuthWrapper extends StatelessWidget {
         }
 
         // Fetch User Data to decide routing (Provider vs User)
+        // Timeout after 10 seconds to prevent infinite loading.
         return FutureBuilder<UserModel>(
-          future: UserService().getUserById(user.uid),
+          future: UserService()
+              .getUserById(user.uid)
+              .timeout(const Duration(seconds: 10)),
           builder: (context, userSnapshot) {
              if (userSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(body: Center(child: CircularProgressIndicator()));
+             }
+
+             // ── Error / Timeout → go to MainLayout as safe fallback ──
+             if (userSnapshot.hasError) {
+                debugPrint('⚠️ AuthWrapper: Firestore read failed: ${userSnapshot.error}');
+                return const MainLayoutScreen();
              }
              
              if (userSnapshot.hasData) {
@@ -49,8 +58,8 @@ class AuthWrapper extends StatelessWidget {
                 return const MainLayoutScreen();
              }
              
-             // Fallback if document doesn't exist yet (e.g. during sign up flow)
-             return const Scaffold(body: Center(child: CircularProgressIndicator()));
+             // Fallback (doc doesn't exist yet) → go to MainLayout
+             return const MainLayoutScreen();
           }
         );
       },

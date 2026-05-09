@@ -5,7 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
 import 'package:khedma/models/service_item.dart';
 import 'package:khedma/screens/messages_screens/messages_layout_screen.dart';
-import 'package:khedma/screens/more_screen.dart';
+import 'package:khedma/screens/profile_screen.dart';
 import 'package:khedma/screens/order_history_screen.dart';
 import 'package:khedma/screens/requests_factor_screen.dart';
 import 'package:khedma/screens/search_screen.dart';
@@ -23,7 +23,7 @@ class HomeCubit extends Cubit<HomeStates> {
     SearchScreen(),              // 1 — بحث
     const _OrdersTabWrapper(),   // 2 — طلباتي (role-based)
     MessagesLayoutScreen(),      // 3 — المحادثات
-    MoreScreen(),                // 4 — المزيد
+    ProfileScreen(),              // 4 — المزيد
   ];
 
   void changeBottomNav(int index) {

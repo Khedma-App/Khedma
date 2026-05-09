@@ -21,10 +21,12 @@ class ProfileHeaderSection extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    return Stack(
-      alignment: Alignment.topCenter,
-      clipBehavior: Clip.none,
-      children: [
+    return SizedBox(
+      height: kHeight(260),
+      child: Stack(
+        alignment: Alignment.topCenter,
+        clipBehavior: Clip.none,
+        children: [
         Positioned(
           top: kHeight(150),
           left: 0,
@@ -115,7 +117,7 @@ class ProfileHeaderSection extends StatelessWidget {
           ),
         ),
 
-        // 4. زر التعديل (Edit Icon)
+        // 4. زر التعديل (Edit Icon) → EditProfileScreen
         Positioned(
           top: kHeight(195),
           right: screenWidth * 0.36,
@@ -141,6 +143,7 @@ class ProfileHeaderSection extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
 }

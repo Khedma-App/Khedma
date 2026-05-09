@@ -1,6 +1,6 @@
 # 📘 خدمة (Khedma) — Project Reference Document
 
-> **آخر تحديث:** 2026-05-09  
+> **آخر تحديث:** 2026-05-09 (v2)  
 > **النسخة:** 1.0.0  
 > **البيئة:** Flutter SDK ^3.9.2 · Firebase · Supabase
 
@@ -75,15 +75,15 @@ lib/
 │   ├── main_layout_screen.dart          # الهيكل الرئيسي + شريط التنقل السفلي
 │   ├── home_screen.dart                 # الصفحة الرئيسية (مقدمي الخدمة + الخدمات)
 │   ├── search_screen.dart               # البحث عن مقدمي خدمة
-│   ├── requests_factor_screen.dart      # طلباتي (للمقدم) ← بيانات Firestore
-│   ├── order_history_screen.dart        # طلباتي (للطالب) ← بيانات Firestore
+│   ├── requests_factor_screen.dart      # طلباتي (للمقدم) ← بيانات Firestore + أفقي
+│   ├── order_history_screen.dart        # طلباتي (للطالب) ← بيانات Firestore + فلتر
 │   ├── booking_details_screen.dart      # نموذج الحجز
 │   ├── service_provider_info_screen.dart # صفحة تفاصيل مقدم الخدمة
 │   ├── service_sections_screen.dart     # أقسام الخدمات
-│   ├── profile_screen.dart              # الملف الشخصي
+│   ├── profile_screen.dart              # الملف الشخصي (تبويب 4) + تسجيل خروج
 │   ├── edit_profile_screen.dart         # تعديل الملف الشخصي
 │   ├── profile_update_screen.dart       # تحديث بيانات الملف
-│   ├── more_screen.dart                 # المزيد (إعدادات + تسجيل خروج)
+│   ├── more_screen.dart                 # (لم تعد مستخدمة — تم استبدالها بـ ProfileScreen)
 │   └── add_work.dart                    # إضافة عمل سابق
 │
 └── components/                          # 52+ عنصر واجهة قابل لإعادة الاستخدام
@@ -92,7 +92,9 @@ lib/
     ├── custom_pending_request_card.dart  # بطاقة طلب معلق (بيانات ديناميكية)
     ├── custom_active_order_card.dart     # بطاقة طلب جاري (بيانات ديناميكية)
     ├── custom_stat_card.dart             # بطاقة الإحصائيات
-    ├── custom_orders_summary_header.dart # رأس ملخص الطلبات (بيانات ديناميكية)
+    ├── custom_orders_summary_header.dart # رأس ملخص الطلبات (فلتر قابل للنقر)
+    ├── custom_profile_header.dart        # هيدر الملف الشخصي + زر تعديل
+    ├── custom_logout_button.dart         # زر تسجيل الخروج
     ├── request_of_service_cards/         # بطاقات التفاوض داخل المحادثة
     └── ...                               # بقية العناصر
 ```
@@ -170,11 +172,16 @@ lib/
 | **1** | بحث | `SearchScreen` | بحث + فلترة |
 | **2** | طلباتي | `_OrdersTabWrapper` | **حسب الدور** (انظر أدناه) |
 | **3** | المحادثات | `MessagesLayoutScreen` | كل المحادثات + المفضلة |
-| **4** | المزيد | `MoreScreen` | الملف الشخصي + تسجيل الخروج |
+| **4** | المزيد | `ProfileScreen` | الملف الشخصي + تسجيل خروج مع تأكيد |
 
 ### تبويب "طلباتي" (فهرس 2) — حسب الدور
-- **إذا كان المستخدم طالب خدمة (`isClient`):** → `OrderHistoryScreen` (سجل الطلبات)
-- **إذا كان المستخدم مقدم خدمة:** → `RequestsFactorScreen` (طلبات واردة + جارية)
+- **إذا كان المستخدم طالب خدمة (`isClient`):** → `OrderHistoryScreen` (سجل الطلبات + فلتر بالنقر على الكروت)
+- **إذا كان المستخدم مقدم خدمة:** → `RequestsFactorScreen` (طلبات واردة + جارية — عرض أفقي)
+
+### تبويب "المزيد" (فهرس 4) — `ProfileScreen`
+- يعرض الاسم + رقم الهاتف + صورة الملف الشخصي
+- **زر القلم** أسفل الصورة → `EditProfileScreen`
+- **تسجيل الخروج** → `AlertDialog` تأكيد → `FirebaseAuth.signOut()` → `AuthScreen`
 
 ---
 
@@ -242,8 +249,8 @@ lib/
 | `submitBookingRequest()` | إرسال الحجز الكامل (high-level) |
 | `getChatRoomsStream()` | بث المحادثات في الوقت الفعلي |
 | `getMessagesStream()` | بث الرسائل في الوقت الفعلي |
-| `watchProviderRequests()` | بث طلبات المقدم (pending + accepted) |
-| `watchClientOrders()` | بث طلبات الطالب (كل الحالات) |
+| `watchProviderRequests()` | بث طلبات المقدم (pending + accepted) — fallback اسم من `users` |
+| `watchClientOrders()` | بث طلبات الطالب (كل الحالات) — fallback اسم من `users` |
 | `markMessagesAsRead()` | تحديث حالة القراءة |
 
 ### `UserService`
@@ -331,10 +338,10 @@ main()
                       ├── [0] HomeScreen
                       ├── [1] SearchScreen
                       ├── [2] _OrdersTabWrapper
-                      │   ├── isClient → OrderHistoryScreen
-                      │   └── isProvider → RequestsFactorScreen
+                      │   ├── isClient → OrderHistoryScreen (فلتر بالكروت)
+                      │   └── isProvider → RequestsFactorScreen (أفقي)
                       ├── [3] MessagesLayoutScreen
-                      └── [4] MoreScreen
+                      └── [4] ProfileScreen (+ تسجيل خروج + تعديل)
 ```
 
 ---
@@ -365,15 +372,39 @@ main()
 3. **Room ID**: deterministic → `sorted(uid1, uid2).join('_')` — يمنع إنشاء غرف مكررة
 4. **المحادثة مقفلة**: حتى يقبل المقدم الطلب (`status == 'accepted'`)، لا يمكن إرسال رسائل نصية
 5. **Safety Net**: `ProvidersCubit` يحتوي على timeout 15 ثانية لمنع التعليق على الأجهزة الفيزيائية
-6. **الأسماء**: إذا ظهر "مستخدم" بدل الاسم الحقيقي → يتم جلبه من `users/{uid}` كـ fallback
+6. **الأسماء**: إذا ظهر "مستخدم" بدل الاسم الحقيقي → يتم جلبه من `users/{uid}` كـ fallback (في `watchProviderRequests` + `watchClientOrders` + `submitBookingRequest`)
+7. **precacheImage**: ملفوف في `catchError` لمنع crash عند فقدان الاتصال
+8. **Positioned في Stack**: عناصر `Positioned` خارج حدود الـ Stack لا تستقبل أحداث اللمس — يجب لف الـ Stack في `SizedBox` بارتفاع كافي
+9. **فلتر الطلبات**: كروت الإحصائيات في `OrderHistoryScreen` قابلة للنقر كفلتر (toggle) — نقر ثاني يلغي الفلتر
+
+---
+
+## 🔄 سجل التحديثات
+
+### 2026-05-09 (v2)
+- ✅ **فلتر الطلبات**: كروت الإحصائيات (معلق · مكتملة · جارية · نزاع) أصبحت قابلة للنقر كفلتر
+- ✅ **عرض أفقي**: أقسام "طلبات جارية" و"تنتظر ردك" في `RequestsFactorScreen` أصبحت أفقية
+- ✅ **تبويب المزيد**: تم استبدال `MoreScreen` بـ `ProfileScreen`
+- ✅ **تسجيل الخروج**: مع `AlertDialog` للتأكيد → `FirebaseAuth.signOut()`
+- ✅ **زر التعديل**: أيقونة القلم أسفل الصورة → `EditProfileScreen`
+- ✅ **إصلاح اللمس**: `ProfileHeaderSection` Stack ملفوف في `SizedBox(height: kHeight(260))`
+- ✅ **فصل "معلق"**: الطلبات المعلقة لها عدد مستقل بدلاً من الإجمالي
+- ✅ **precacheImage**: معالجة أخطاء الشبكة بهدوء
+- ✅ **Name fallback**: `watchProviderRequests` + `watchClientOrders` يجلبان الاسم من `users/{uid}` عند ظهور "مستخدم"
+
+### 2026-05-08 (v1)
+- ✅ إنشاء الملف المرجعي الأولي
+- ✅ نظام الطلبات حسب الدور (مقدم/طالب)
+- ✅ إزالة `break` من streams لجمع كل الطلبات
 
 ---
 
 ## 📋 المهام المعلقة
 
-- [ ] ربط `ProfileScreen` و `EditProfileScreen` ببيانات Firestore الحقيقية
+- [ ] ربط `ProfileScreen` و `EditProfileScreen` ببيانات Firestore الحقيقية (حالياً hardcoded)
 - [ ] إضافة إشعارات push (FCM)
 - [ ] نظام التقييم والمراجعات بعد إتمام الخدمة
 - [ ] حساب الدخل الشهري الفعلي في `RequestsFactorScreen`
 - [ ] نظام الدفع والمحاسبة
 - [ ] اختبار `retry()` على أجهزة فيزيائية متعددة
+- [ ] حذف `more_screen.dart` من المشروع (لم تعد مستخدمة)

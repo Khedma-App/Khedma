@@ -25,10 +25,38 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   bool _isLoading = true;
 
   // Stats
-  int _totalCount = 0;
+  int _pendingCount = 0;
   int _completedCount = 0;
   int _activeCount = 0;
   int _disputeCount = 0;
+
+  // Filter
+  String? _activeFilter;
+
+  /// Map filter keys to Arabic status labels
+  static const _filterToStatus = {
+    'pending': 'معلق',
+    'active': 'جارية',
+    'completed': 'مكتملة',
+    'dispute': 'ملغية',
+  };
+
+  List<OrderModel> get _filteredOrders {
+    if (_activeFilter == null) return _orders;
+
+    if (_activeFilter == 'dispute') {
+      // "نزاع/ملغية" includes both
+      return _orders.where((o) => o.status == 'ملغية' || o.status == 'نزاع').toList();
+    }
+
+    if (_activeFilter == 'active') {
+      // "جارية" includes accepted + modified
+      return _orders.where((o) => o.status == 'جارية' || o.status == 'تعديل').toList();
+    }
+
+    final targetStatus = _filterToStatus[_activeFilter];
+    return _orders.where((o) => o.status == targetStatus).toList();
+  }
 
   String get _myUid => FirebaseAuth.instance.currentUser?.uid ?? '';
 
@@ -44,7 +72,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         if (!mounted) return;
 
         final List<OrderModel> orders = [];
-        int completed = 0, active = 0, dispute = 0;
+        int completed = 0, active = 0, dispute = 0, pendingCount = 0;
 
         for (final data in ordersData) {
           final payload = data['requestPayload'] as Map<String, dynamic>;
@@ -70,9 +98,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
               bottomText = 'العمل جاري حالياً';
               break;
             case 'pending':
-              displayStatus = 'في الانتظار';
+              displayStatus = 'معلق';
               statusColor = Colors.orange;
-              active++;
+              pendingCount++;
               bottomText = 'في انتظار رد مقدم الخدمة';
               break;
             case 'rejected':
@@ -107,7 +135,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
         setState(() {
           _orders = orders;
-          _totalCount = orders.length;
+          _pendingCount = pendingCount;
           _completedCount = completed;
           _activeCount = active;
           _disputeCount = dispute;
@@ -130,15 +158,21 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final displayOrders = _filteredOrders;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
           CustomOrdersSummaryHeader(
-            totalCount: _totalCount,
+            pendingCount: _pendingCount,
             completedCount: _completedCount,
             activeCount: _activeCount,
             disputeCount: _disputeCount,
+            activeFilter: _activeFilter,
+            onFilterChanged: (filter) {
+              setState(() => _activeFilter = filter);
+            },
           ),
           SizedBox(height: kHeight(20)),
           Expanded(
@@ -146,10 +180,12 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                 ? const Center(
                     child: CircularProgressIndicator(color: Color(0xFFE19113)),
                   )
-                : _orders.isEmpty
+                : displayOrders.isEmpty
                     ? Center(
                         child: Text(
-                          'لا توجد طلبات حالياً',
+                          _activeFilter != null
+                              ? 'لا توجد طلبات في هذه الفئة'
+                              : 'لا توجد طلبات حالياً',
                           style: TextStyle(
                             fontFamily: 'Cairo',
                             fontSize: kSize(16),
@@ -159,9 +195,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                         ),
                       )
                     : ListView.builder(
-                        itemCount: _orders.length,
+                        itemCount: displayOrders.length,
                         itemBuilder: (context, index) {
-                          return CustomBuildOderItem(order: _orders[index]);
+                          return CustomBuildOderItem(order: displayOrders[index]);
                         },
                       ),
           ),

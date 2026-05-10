@@ -392,27 +392,25 @@ class ChatService {
 
   /// Real-time stream of all chat rooms the user participates in,
   /// ordered by the most recent message (server-side scaled).
+  /// Builds a paginated query for chat rooms.
+  Query getChatRoomsQuery(String myUid, {DocumentSnapshot? lastDoc}) {
+    Query query = _chatRooms
+        .where('participants', arrayContains: myUid)
+        .orderBy('lastMessageTime', descending: true)
+        .limit(20);
+    if (lastDoc != null) {
+      query = query.startAfterDocument(lastDoc);
+    }
+    return query;
+  }
+
+  /// Real-time stream of all chat rooms the user participates in (Legacy/Optional limit)
   Stream<List<ChatRoomModel>> getChatRoomsStream(String myUid) {
     return _chatRooms
         .where('participants', arrayContains: myUid)
         .orderBy('lastMessageTime', descending: true)
         .limit(20)
         .snapshots()
-        .handleError((error) {
-          if (error is FirebaseException &&
-              error.code == 'failed-precondition') {
-            print('\n======================================================');
-            print('🔥 FIRESTORE INDEX REQUIRED 🔥');
-            print(
-              'Please copy and paste the link below into your browser to create the composite index:',
-            );
-            print('======================================================\n');
-
-            print(error.message);
-            print('======================================================\n');
-          }
-          throw error;
-        })
         .map((snapshot) {
           return snapshot.docs.map((doc) {
             return ChatRoomModel.fromMap(doc.data(), id: doc.id);
@@ -505,10 +503,11 @@ class ChatService {
           } catch (_) {}
         }
 
-        // Get ALL service_request/modification messages in this room.
+        // Get limited service_request/modification messages in this room.
         final messagesSnapshot = await roomDoc.reference
             .collection('messages')
             .orderBy('timestamp', descending: true)
+            .limit(50)
             .get();
 
         for (final msgDoc in messagesSnapshot.docs) {
@@ -578,10 +577,11 @@ class ChatService {
           } catch (_) {}
         }
 
-        // Get ALL service_request messages in this room.
+        // Get limited service_request messages in this room.
         final messagesSnapshot = await roomDoc.reference
             .collection('messages')
             .orderBy('timestamp', descending: true)
+            .limit(50)
             .get();
 
         for (final msgDoc in messagesSnapshot.docs) {

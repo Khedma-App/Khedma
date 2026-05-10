@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:khedma/core/constants.dart';
 
 class CustomAuthField extends StatelessWidget {
@@ -7,6 +8,7 @@ class CustomAuthField extends StatelessWidget {
   final VoidCallback onVerifyPressed;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomAuthField({
     super.key,
@@ -15,6 +17,7 @@ class CustomAuthField extends StatelessWidget {
     required this.onVerifyPressed,
     this.controller,
     this.validator,
+    this.inputFormatters,
   });
 
   @override
@@ -36,6 +39,7 @@ class CustomAuthField extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
         textAlign: TextAlign.right,
         validator: validator,
         style: TextStyle(fontSize: kSize(14), fontWeight: FontWeight.w600),

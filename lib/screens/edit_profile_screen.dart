@@ -5,6 +5,8 @@ import 'package:khedma/components/custom_action_buttons.dart';
 import 'package:khedma/components/custom_auth_field.dart';
 import 'package:khedma/components/custom_profile_text_field.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/core/helpers/input_formatters.dart';
+import 'package:khedma/core/helpers/validation_helper.dart';
 
 class EditProfileScreen extends StatefulWidget {
   static String id = 'edit_profile';
@@ -199,16 +201,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               CustomProfileTextField(
                 label: "الاسم",
                 controller: _nameController,
-                validator: (v) => v!.isEmpty ? "من فضلك اكتب الاسم" : null,
+                validator: (v) => ValidationHelper.validateName(v, fieldName: 'الاسم'),
               ),
 
               CustomAuthField(
                 hintText: "رقم الهاتف",
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
+                inputFormatters: [PhoneNumberFormatter()],
                 onVerifyPressed: () {},
-                validator: (v) =>
-                    v!.length < 11 ? "رقم الموبايل مش كامل" : null,
+                validator: ValidationHelper.validatePhone,
               ),
 
               CustomAuthField(
@@ -216,24 +218,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 onVerifyPressed: () {},
-                validator: (v) => !v!.contains("@") ? "الإيميل غير صحيح" : null,
+                validator: ValidationHelper.validateEmail,
               ),
 
               CustomProfileTextField(
                 label: "كلمة السر",
                 isPassword: true,
                 controller: _passController,
-                validator: (v) => v!.length < 6
-                    ? "كلمة السر لازم تكون 6 أرقام أو أكتر"
-                    : null,
+                validator: ValidationHelper.validatePassword,
               ),
 
               CustomProfileTextField(
                 label: "تأكيد كلمة السر",
                 isPassword: true,
                 controller: _confirmPassController,
-                validator: (v) =>
-                    v != _passController.text ? "كلمة السر غير متطابقة" : null,
+                validator: (v) => ValidationHelper.validateConfirmPassword(
+                  v,
+                  _passController.text,
+                ),
               ),
 
               SizedBox(height: kHeight(30)),

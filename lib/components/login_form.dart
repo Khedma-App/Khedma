@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/components/customt_login_text_form_field.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/core/helpers/validation_helper.dart';
 import 'package:khedma/cubits/auth_cubit/auth_cubit.dart';
 import 'package:khedma/screens/auth_screens/recovery_flow.dart';
 import 'package:khedma/screens/auth_screens/service_provider_screen.dart';
@@ -63,7 +64,7 @@ class _LoginFormState extends State<LoginForm> {
                 width: kWidth(300),
                 hint: 'البريد الإلكتروني او رقم الهاتف',
                 controller: emailController,
-                validator: _validateEmail,
+                validator: ValidationHelper.validateEmail,
                 useEnabledColor: true,
               ),
               SizedBox(height: kHeight(20)),
@@ -74,7 +75,7 @@ class _LoginFormState extends State<LoginForm> {
                 hint: 'كلمة المرور',
                 obscureText: true,
                 controller: passwordController,
-                validator: _validatePassword,
+                validator: ValidationHelper.validatePassword,
                 useEnabledColor: true,
               ),
               Padding(
@@ -150,19 +151,4 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  // ─── Validators (UI logic — stays here) ──────────────────────────────────
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) return 'ادخل البريد الإلكتروني';
-    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-      return 'ادخل بريد إلكتروني صحيح';
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'ادخل كلمة المرور';
-    if (value.length < 6) return 'كلمة المرور قصيرة جداً';
-    return null;
-  }
 }

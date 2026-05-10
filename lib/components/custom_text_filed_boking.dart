@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:khedma/core/constants.dart';
 
 class Custom_Text_Field_Booking_Screen extends StatelessWidget {
   final String hintText;
   final TextEditingController? controller;
   final double? width;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const Custom_Text_Field_Booking_Screen({
     super.key,
     required this.hintText,
     this.controller,
     this.width,
+    this.keyboardType,
+    this.inputFormatters,
   });
 
   @override
@@ -26,6 +31,8 @@ class Custom_Text_Field_Booking_Screen extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
         textAlign: TextAlign.right,
         textAlignVertical: TextAlignVertical.center,
         textDirection: TextDirection.rtl,

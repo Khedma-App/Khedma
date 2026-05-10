@@ -1,6 +1,6 @@
 # 📘 خدمة (Khedma) — Project Reference Document
 
-> **آخر تحديث:** 2026-05-09 (v2)  
+> **آخر تحديث:** 2026-05-10 (v3)  
 > **النسخة:** 1.0.0  
 > **البيئة:** Flutter SDK ^3.9.2 · Firebase · Supabase
 
@@ -21,6 +21,9 @@ lib/
 │
 ├── core/
 │   ├── constants.dart                 # ألوان + أبعاد متجاوبة (kHeight, kWidth, kSize)
+│   ├── helpers/
+│   │   ├── validation_helper.dart     # ValidationHelper — مركزي لجميع قواعد التحقق
+│   │   └── input_formatters.dart      # PhoneNumberFormatter + PriceFormatter
 │   └── errors/
 │       └── app_exception.dart         # الأخطاء المخصصة
 │
@@ -86,11 +89,16 @@ lib/
 │   ├── more_screen.dart                 # (لم تعد مستخدمة — تم استبدالها بـ ProfileScreen)
 │   └── add_work.dart                    # إضافة عمل سابق
 │
+├── l10n/                                # ملفات الترجمة (Localization)
+│   ├── app_ar.arb                       # النصوص بالعربية
+│   ├── app_en.arb                       # النصوص بالإنجليزية
+│   └── app_localizations.dart           # كود الترجمة المولّد تلقائياً
+│
 └── components/                          # 52+ عنصر واجهة قابل لإعادة الاستخدام
     ├── build_custom_bottom_nav_bar.dart  # شريط التنقل السفلي
     ├── service_provider_card.dart        # بطاقة مقدم الخدمة
-    ├── custom_pending_request_card.dart  # بطاقة طلب معلق (بيانات ديناميكية)
-    ├── custom_active_order_card.dart     # بطاقة طلب جاري (بيانات ديناميكية)
+    ├── custom_pending_request_card.dart  # بطاقة طلب معلق (+ الوقت المقترح)
+    ├── custom_active_order_card.dart     # بطاقة طلب جاري (+ الوقت المقترح)
     ├── custom_stat_card.dart             # بطاقة الإحصائيات
     ├── custom_orders_summary_header.dart # رأس ملخص الطلبات (فلتر قابل للنقر)
     ├── custom_profile_header.dart        # هيدر الملف الشخصي + زر تعديل
@@ -151,6 +159,7 @@ lib/
   "addressDetail": "شارع عباس العقاد",
   "pricingUnit": "بالساعة",
   "price": "150",
+  "suggestedTime": "5 يوم",
   "status": "pending | accepted | modified | rejected",
   "providerName": "أحمد محمد",
   "notes": "ملاحظات إضافية"
@@ -295,6 +304,9 @@ lib/
 | `flutter_native_splash` | ^2.4.7 | شاشة البداية |
 | `intl` | ^0.20.2 | التنسيق والترجمة |
 | `dotted_border` | ^3.1.0 | حدود منقطة |
+| `cached_network_image` | ^3.3.1 | تحميل الصور بالتخزين المؤقت |
+| `shimmer` | ^3.0.0 | تأثير التحميل (Shimmer) |
+| `flutter_localizations` | SDK | دعم الترجمة المدمج |
 
 ---
 
@@ -381,6 +393,20 @@ main()
 
 ## 🔄 سجل التحديثات
 
+### 2026-05-10 (v3)
+- ✅ **نظام التحقق المركزي**: `ValidationHelper` كمصدر موحد لجميع قواعد التحقق (الاسم، البريد، الهاتف، السعر، كلمة المرور، الوصف)
+- ✅ **`validateConfirmPassword`**: للتحقق من تطابق كلمات المرور في التسجيل والملف الشخصي
+- ✅ **منسقات الإدخال**: `PhoneNumberFormatter` (أرقام فقط، 11 حرف) + `PriceFormatter` (أرقام + فاصلة عشرية)
+- ✅ **ترحيل النماذج**: جميع شاشات التسجيل والتعديل تستخدم `ValidationHelper` بدلاً من الدوال المحلية
+- ✅ **حقل الوقت المقترح للتنفيذ**: أُضيف في `BookingDetailsScreen` (مدة + يوم/شهر) مع validation كامل
+- ✅ **`suggestedTime` في الـ Payload**: يُرسل ضمن `requestPayload` ويظهر في `_buildServiceRequestCard` في الشات
+- ✅ **بطاقات العامل**: `CustomPendingRequestCard` + `CustomActiveOrderCard` تعرضان الوقت المقترح
+- ✅ **إصلاح عرض الصور**: صور الأعمال تستخدم `BoxFit.contain` مع خلفية ضبابية (`BackdropFilter`)
+- ✅ **صور شخصية أفضل**: `Alignment.topCenter` لمنع قص الوجوه في `ServiceProviderCard` و `ServiceProviderInfoScreen`
+- ✅ **CachedNetworkImage**: استبدال `Image.network` بـ `CachedNetworkImage` في معرض الأعمال لأداء أفضل
+- ✅ **دعم الترجمة (l10n)**: إعداد `flutter_localizations` + `generate: true` + ملفات `.arb` للعربية والإنجليزية
+- ✅ **تأمين البيانات**: `UserService.updateUserFields` يفرض `trim()` + type safety قبل الكتابة لـ Firestore
+
 ### 2026-05-09 (v2)
 - ✅ **فلتر الطلبات**: كروت الإحصائيات (معلق · مكتملة · جارية · نزاع) أصبحت قابلة للنقر كفلتر
 - ✅ **عرض أفقي**: أقسام "طلبات جارية" و"تنتظر ردك" في `RequestsFactorScreen` أصبحت أفقية
@@ -408,3 +434,7 @@ main()
 - [ ] نظام الدفع والمحاسبة
 - [ ] اختبار `retry()` على أجهزة فيزيائية متعددة
 - [ ] حذف `more_screen.dart` من المشروع (لم تعد مستخدمة)
+- [ ] معالجة تحذيرات `deprecated_member_use` (استبدال `.withOpacity` بـ `.withValues`)
+- [ ] معالجة تحذيرات `avoid_print` (استبدال `print` بـ logging framework)
+- [ ] توسيع ملفات الترجمة `.arb` لتشمل جميع نصوص التطبيق
+- [ ] اختبار تدفقات التسجيل End-to-End مع قواعد التحقق الجديدة

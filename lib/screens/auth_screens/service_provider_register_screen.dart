@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/components/customt_login_text_form_field.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/core/helpers/validation_helper.dart';
 import 'package:khedma/cubits/auth_cubit/auth_cubit.dart';
 import 'package:khedma/screens/auth_screens/auth_wrapper.dart';
 import 'package:khedma/services/auth_service.dart';
@@ -127,7 +128,7 @@ class _ServiceProviderRegisterScreenState
                                                     TextInputType.name,
                                                 hint: 'الاســم الاخير',
                                                 isCenter: true,
-                                                validator: _validateLastName,
+                                                validator: (v) => ValidationHelper.validateName(v, fieldName: 'الاسم الأخير'),
                                                 controller: lastNameController,
                                                 width: kWidth(160),
                                               ),
@@ -139,7 +140,7 @@ class _ServiceProviderRegisterScreenState
                                                 hint: 'الاســم الاول',
                                                 isCenter: true,
                                                 controller: firstNameController,
-                                                validator: _validateFirstName,
+                                                validator: (v) => ValidationHelper.validateName(v, fieldName: 'الاسم الأول'),
                                                 width: kWidth(160),
                                               ),
                                             ],
@@ -151,7 +152,7 @@ class _ServiceProviderRegisterScreenState
                                             keyboardType: TextInputType.number,
                                             hint: 'البريد الالكتروني',
                                             controller: emailController,
-                                            validator: _validateEmail,
+                                            validator: ValidationHelper.validateEmail,
                                             width: kWidth(329),
                                             icon: Container(
                                               padding: const EdgeInsets.all(
@@ -171,7 +172,7 @@ class _ServiceProviderRegisterScreenState
                                                 TextInputType.visiblePassword,
                                             hint: 'كلمــــــــة المــــــــرور',
                                             controller: passwordController,
-                                            validator: _validatePassword,
+                                            validator: ValidationHelper.validatePassword,
                                             width: kWidth(329),
                                             icon: const Icon(Icons.lock),
                                           ),
@@ -276,7 +277,7 @@ class _ServiceProviderRegisterScreenState
                                                         child: Text(value),
                                                       );
                                                     }).toList(),
-                                                    validator: _validateGender,
+                                                    validator: (v) => ValidationHelper.validateRequired(v, 'النوع'),
                                                     onChanged: (value) {
                                                       setState(() {
                                                         selectedGender = value;
@@ -291,7 +292,7 @@ class _ServiceProviderRegisterScreenState
                                                   hint: 'الســــــن',
                                                   isCenter: true,
                                                   controller: ageController,
-                                                  validator: _validateAge,
+                                                  validator: ValidationHelper.validateAge,
                                                   width: kWidth(160),
                                                 ),
                                               ],
@@ -419,47 +420,4 @@ class _ServiceProviderRegisterScreenState
     ).show();
   }
 
-  // ─── Validators ───────────────────────────────────────────────────────────
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) return 'ادخل البريد الإلكتروني';
-    if (!RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    ).hasMatch(value)) {
-      return 'الرجاء إدخال بريد إلكتروني صالح';
-    }
-    return null;
-  }
-
-  String? _validateGender(String? value) {
-    if (value == null || value.isEmpty) return 'من فضلك اختر النوع';
-    return null;
-  }
-
-  String? _validateFirstName(String? value) {
-    if (value == null || value.isEmpty) return 'ادخل الاسم الأول';
-    if (value.length < 2) return 'الاسم الأول قصير جداً';
-    return null;
-  }
-
-  String? _validateLastName(String? value) {
-    if (value == null || value.isEmpty) return 'ادخل الاسم الأخير';
-    if (value.length < 2) return 'الاسم الأخير قصير جداً';
-    return null;
-  }
-
-  String? _validateAge(String? value) {
-    if (value == null || value.isEmpty) return 'ادخل السن';
-    final age = int.tryParse(value);
-    if (age == null || age < 18 || age > 70) {
-      return 'الرجاء إدخال سن صحيح بين 18 و 70';
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'ادخل كلمة مرور';
-    if (value.length < 6) return 'كلمة المرور قصيرة جداً';
-    return null;
-  }
 }

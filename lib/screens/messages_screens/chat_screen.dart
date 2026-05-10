@@ -542,6 +542,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         '${p['price']} ج ${p['pricingUnit'] ?? ''}',
                       ),
                     ],
+                    if ((p['suggestedTime'] as String?)?.isNotEmpty == true) ...[
+                      SizedBox(height: kHeight(6)),
+                      _cardInfoRow(
+                        'الوقت المقترح للتنفيذ',
+                        p['suggestedTime'],
+                      ),
+                    ],
                     SizedBox(height: kHeight(6)),
                     // Address
                     Row(

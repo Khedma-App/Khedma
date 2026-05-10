@@ -4,7 +4,9 @@ import 'package:khedma/components/custom_logout_button.dart';
 import 'package:khedma/components/custom_profile_header.dart';
 import 'package:khedma/components/custom_profile_option_item.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/l10n/app_localizations.dart';
 import 'package:khedma/screens/auth_screens/auth_screen.dart';
+import 'about_us_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -79,10 +81,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (confirmed == true && mounted) {
       await FirebaseAuth.instance.signOut();
       if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          AuthScreen.id,
-          (route) => false,
-        );
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil(AuthScreen.id, (route) => false);
       }
     }
   }
@@ -143,11 +144,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.headset_mic,
                     onTap: () {},
                   ),
+                  CustomProfileOptionItem(
+                    title: "من نحن",
+                    icon: Icons.info_outline,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AboutUsScreen(),
+                        ),
+                      );
+                    },
+                  ),
 
                   SizedBox(height: kHeight(100)),
-                  CustomLogoutButton(
-                    onTap: _confirmLogout,
-                  ),
+                  CustomLogoutButton(onTap: _confirmLogout),
                   SizedBox(height: kHeight(40)),
                 ],
               ),
@@ -158,4 +169,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-

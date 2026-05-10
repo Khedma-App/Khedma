@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:khedma/components/custom_search_app_bar.dart';
 import 'package:khedma/components/custom_service_item.dart';
+import 'package:khedma/components/empty_state_widget.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
 import 'package:khedma/cubits/home_cubit/home_states.dart';
 import 'package:khedma/core/constants.dart';
@@ -54,11 +55,10 @@ class _SearchScreenState extends State<SearchScreen> {
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return Center(
-                  child: Text(
-                    'لا توجد بيانات متاحة',
-                    style: TextStyle(fontSize: kSize(18), color: Colors.grey),
-                  ),
+                return const EmptyStateWidget(
+                  icon: Icons.search_off_outlined,
+                  title: 'لا توجد بيانات متاحة',
+                  subtitle: 'لم يتم العثور على تخصصات',
                 );
               }
 
@@ -96,27 +96,38 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: filtered.length,
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.symmetric(vertical: kHeight(10)),
-                      itemBuilder: (context, index) {
-                        final service = filtered[index];
-                        return GestureDetector(
-                          onTap: () {
-                            // عند الضغط على المهنة، اذهب لصفحة العمال مع تمرير المهنة
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ServiceSectionsScreen(
-                                  profession: service.title,
-                                ),
-                              ),
-                            );
-                          },
-                          child: ServiceItem(service: service),
-                        );
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        // Dummy refresh for stream UX
+                        await Future.delayed(const Duration(seconds: 1));
                       },
+                      child: filtered.isEmpty && query.isNotEmpty
+                          ? const EmptyStateWidget(
+                              icon: Icons.search_off_outlined,
+                              title: 'لا توجد نتائج',
+                              subtitle: 'جرب كلمات بحث مختلفة',
+                            )
+                          : ListView.builder(
+                              itemCount: filtered.length,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: EdgeInsets.symmetric(vertical: kHeight(10)),
+                              itemBuilder: (context, index) {
+                                final service = filtered[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ServiceSectionsScreen(
+                                          profession: service.title,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: ServiceItem(service: service),
+                                );
+                              },
+                            ),
                     ),
                   ),
                 ],

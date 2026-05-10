@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:khedma/core/errors/app_exception.dart';
+import 'package:khedma/core/helpers/validation_helper.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/models/user_model.dart';
 
@@ -72,14 +73,39 @@ class UserService {
   /// Use this for targeted field updates (e.g. `{'isFirstTime': false}`).
   Future<void> updateUserFields(String uid, Map<String, dynamic> fields) async {
     try {
-      await _users.doc(uid).update(fields);
+      // Sanitize data before saving
+      final sanitizedUpdates = <String, dynamic>{};
+      
+      fields.forEach((key, value) {
+        if (value is String) {
+          // Trim whitespace
+          sanitizedUpdates[key] = value.trim();
+          
+          // Additional validation based on field
+          if (key == 'email') {
+            if (ValidationHelper.validateEmail(value) != null) {
+              throw AppException('البريد الإلكتروني غير صحيح');
+            }
+          } else if (key == 'phone') {
+            if (ValidationHelper.validatePhone(value) != null) {
+              throw AppException('رقم الهاتف غير صحيح');
+            }
+          }
+        } else {
+          sanitizedUpdates[key] = value;
+        }
+      });
+      
+      await _users.doc(uid).update(sanitizedUpdates);
+    } on AppException {
+      rethrow;
     } on FirebaseException catch (e) {
       throw AppException(
         'فشل تحديث بيانات المستخدم',
         code: e.code,
       );
     } catch (e) {
-      throw AppException.unexpected(e);
+      throw AppException('فشل تحديث البيانات: ${e.toString()}');
     }
   }
 

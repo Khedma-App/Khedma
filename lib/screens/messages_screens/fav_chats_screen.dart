@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:khedma/components/empty_state_widget.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/cubits/messages_cubit/messages_cubit.dart';
 import 'package:khedma/cubits/messages_cubit/messages_states.dart';
@@ -19,43 +21,43 @@ class FavChatsScreen extends StatelessWidget {
         final favList = cubit.favoriteChatRooms;
 
         if (favList.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.favorite_border, size: 60, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  'لا توجد محادثات مفضلة',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+          return const EmptyStateWidget(
+            icon: Icons.star_border_outlined,
+            title: 'لا توجد محادثات مفضلة',
+            subtitle: 'اضغط على أيقونة النجمة لإضافة محادثة للمفضلة',
           );
         }
 
-        // 🔥 استبدلنا Scaffold بـ Container
         return Container(
           color: Colors.grey[100],
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: favList.length,
-            itemBuilder: (context, index) {
-              final chat = favList[index];
-              final otherName = chat.getOtherName(myUid);
-              final otherImage = chat.getOtherImage(myUid);
-
-              return _buildFavoriteCard(
-                context,
-                name: otherName,
-                imageUrl: otherImage,
-                chatRoomId: chat.id,
-              );
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await cubit.loadChatRooms();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تم التحديث بنجاح', textAlign: TextAlign.right),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              }
             },
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: favList.length,
+              itemBuilder: (context, index) {
+                final chat = favList[index];
+                final otherName = chat.getOtherName(myUid);
+                final otherImage = chat.getOtherImage(myUid);
+
+                return _buildFavoriteCard(
+                  context,
+                  name: otherName,
+                  imageUrl: otherImage,
+                  chatRoomId: chat.id,
+                );
+              },
+            ),
           ),
         );
       },
@@ -109,8 +111,9 @@ class FavChatsScreen extends StatelessWidget {
                 CircleAvatar(
                   radius: 35,
                   backgroundColor: Colors.purple[50],
-                  backgroundImage:
-                      imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                  backgroundImage: imageUrl.isNotEmpty
+                      ? CachedNetworkImageProvider(imageUrl)
+                      : null,
                   child: imageUrl.isEmpty
                       ? const Icon(
                           Icons.person,

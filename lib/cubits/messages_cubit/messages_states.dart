@@ -16,3 +16,6 @@ class MessagesErrorState extends MessagesStates {
 
 /// Emitted when the user toggles between "الكل" and "المفضلة".
 class MessagesChangeViewModeState extends MessagesStates {}
+
+/// Emitted when loading more chat rooms (pagination).
+class MessagesLoadingMoreState extends MessagesStates {}

@@ -5,6 +5,7 @@ class CustomPendingRequestCard extends StatelessWidget {
   final String clientName;
   final String serviceDescription;
   final String estimatedPrice;
+  final String suggestedTime;
   final DateTime? timestamp;
   final VoidCallback onAccept;
   final VoidCallback onReject;
@@ -14,6 +15,7 @@ class CustomPendingRequestCard extends StatelessWidget {
     required this.clientName,
     required this.serviceDescription,
     required this.estimatedPrice,
+    required this.suggestedTime,
     required this.onAccept,
     required this.onReject,
     this.timestamp,
@@ -120,26 +122,55 @@ class CustomPendingRequestCard extends StatelessWidget {
               color: const Color(0xFFF8F5F1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
+            child: Column(
               children: [
-                Text(
-                  "$estimatedPrice ج",
-                  style: TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize: kSize(14),
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFFE19113),
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      "$estimatedPrice ج",
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: kSize(14),
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFE19113),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      ":التكلفة المتوقعة",
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: kSize(12),
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ],
                 ),
-                const Spacer(),
-                Text(
-                  ":التكلفة المتوقعة",
-                  style: TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize: kSize(12),
-                    color: Colors.grey[700],
+                if (suggestedTime.isNotEmpty) ...[
+                  SizedBox(height: kHeight(4)),
+                  Row(
+                    children: [
+                      Text(
+                        suggestedTime,
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: kSize(14),
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFE19113),
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        ":الوقت المقترح",
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: kSize(12),
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                ],
               ],
             ),
           ),

@@ -6,6 +6,7 @@ class CustomActiveOrderCard extends StatelessWidget {
   final String clientName;
   final String location;
   final String price;
+  final String suggestedTime;
   final String contractId;
   final VoidCallback onConfirmComplete;
   final VoidCallback onViewDetails;
@@ -16,6 +17,7 @@ class CustomActiveOrderCard extends StatelessWidget {
     required this.clientName,
     required this.location,
     required this.price,
+    required this.suggestedTime,
     required this.onConfirmComplete,
     required this.onViewDetails,
     this.contractId = '',
@@ -185,6 +187,29 @@ class CustomActiveOrderCard extends StatelessWidget {
                             ],
                           ),
                         ),
+                        if (suggestedTime.isNotEmpty) ...[
+                          SizedBox(height: kHeight(4)),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                suggestedTime,
+                                style: TextStyle(
+                                  fontFamily: 'Cairo',
+                                  fontSize: kSize(12),
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              SizedBox(width: kSize(4)),
+                              Icon(
+                                Icons.access_time,
+                                size: kSize(14),
+                                color: Colors.grey,
+                              ),
+                            ],
+                          ),
+                        ],
                         if (contractId.isNotEmpty)
                           Text(
                             "$contractId :عقد",

@@ -7,6 +7,7 @@ import 'package:khedma/core/constants.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
 import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
 import 'package:khedma/firebase_options.dart';
+import 'package:khedma/l10n/app_localizations.dart';
 import 'package:khedma/screens/auth_screens/auth_screen.dart';
 import 'package:khedma/screens/auth_screens/auth_wrapper.dart';
 import 'package:khedma/screens/auth_screens/recovery_flow.dart';
@@ -25,6 +26,7 @@ import 'package:khedma/screens/service_sections_screen.dart';
 import 'package:khedma/services/provider_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

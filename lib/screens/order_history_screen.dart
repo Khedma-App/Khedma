@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khedma/components/custom_build_oder_item.dart';
 import 'package:khedma/components/custom_orders_summary_header.dart';
+import 'package:khedma/components/empty_state_widget.dart';
+import 'package:khedma/components/shimmer_loading.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/order_model.dart';
 import 'package:khedma/services/chat_service.dart';
@@ -177,28 +179,38 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           SizedBox(height: kHeight(20)),
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFFE19113)),
+                ? ListView.builder(
+                    itemCount: 3,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    itemBuilder: (_, __) => const ShimmerOrderCard(),
                   )
                 : displayOrders.isEmpty
-                    ? Center(
-                        child: Text(
-                          _activeFilter != null
-                              ? 'لا توجد طلبات في هذه الفئة'
-                              : 'لا توجد طلبات حالياً',
-                          style: TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: kSize(16),
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                    ? EmptyStateWidget(
+                        icon: Icons.receipt_long_outlined,
+                        title: 'لا توجد طلبات',
+                        subtitle: _activeFilter != null
+                            ? 'لا توجد طلبات في هذه الفئة'
+                            : 'اطلب خدمة من مقدمي الخدمة المتاحين',
                       )
-                    : ListView.builder(
-                        itemCount: displayOrders.length,
-                        itemBuilder: (context, index) {
-                          return CustomBuildOderItem(order: displayOrders[index]);
+                    : RefreshIndicator(
+                        onRefresh: () async {
+                          // Dummy refresh for UX since Stream is real-time
+                          await Future.delayed(const Duration(seconds: 1));
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('تم التحديث بنجاح', textAlign: TextAlign.right),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          }
                         },
+                        child: ListView.builder(
+                          itemCount: displayOrders.length,
+                          itemBuilder: (context, index) {
+                            return CustomBuildOderItem(order: displayOrders[index]);
+                          },
+                        ),
                       ),
           ),
         ],

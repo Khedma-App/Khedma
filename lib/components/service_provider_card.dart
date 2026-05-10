@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/service_provider_model.dart';
@@ -80,10 +81,14 @@ class ServiceProviderCard extends StatelessWidget {
                         borderRadius: BorderRadius.only(
                           topRight: Radius.circular(kSize(16)),
                         ),
-                        child: Image.network(
-                          worker.profileImageUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: worker.profileImageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Image.asset(
+                          alignment: Alignment.topCenter,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          errorWidget: (_, __, ___) => Image.asset(
                             'assets/images/naqash.jpg',
                             fit: BoxFit.cover,
                           ),
@@ -92,6 +97,7 @@ class ServiceProviderCard extends StatelessWidget {
                     : Image.asset(
                         'assets/images/naqash.jpg',
                         fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
                       ),
               ),
             ),

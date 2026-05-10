@@ -1,3 +1,5 @@
+import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/core/constants.dart';
@@ -113,17 +115,34 @@ class _ServiceProviderInfoScreenState extends State<ServiceProviderInfoScreen> {
                     itemCount: _workImages.length,
                     itemBuilder: (context, index) {
                       final img = _workImages[index];
-                      if (img.startsWith('http')) {
-                        return Image.network(
-                          img,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Image.asset(
-                            'assets/images/naqash.jpg',
-                            fit: BoxFit.cover,
+                      final isNetwork = img.startsWith('http');
+                      return Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // 1. Blurred Background
+                          isNetwork
+                              ? CachedNetworkImage(imageUrl: img, fit: BoxFit.cover)
+                              : Image.asset(img, fit: BoxFit.cover),
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
+                            child: Container(color: Colors.black.withValues(alpha: 0.2)),
                           ),
-                        );
-                      }
-                      return Image.asset(img, fit: BoxFit.cover);
+                          // 2. Foreground Contained Image
+                          isNetwork
+                              ? CachedNetworkImage(
+                                  imageUrl: img,
+                                  fit: BoxFit.contain,
+                                  placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                  errorWidget: (_, __, ___) => Image.asset(
+                                    'assets/images/naqash.jpg',
+                                    fit: BoxFit.contain,
+                                  ),
+                                )
+                              : Image.asset(img, fit: BoxFit.contain),
+                        ],
+                      );
                     },
                   ),
                 ),
@@ -209,10 +228,11 @@ class _ServiceProviderInfoScreenState extends State<ServiceProviderInfoScreen> {
                       shape: BoxShape.circle,
                       image: DecorationImage(
                         image: widget.worker.profileImageUrl.startsWith('http')
-                            ? NetworkImage(widget.worker.profileImageUrl)
+                            ? CachedNetworkImageProvider(widget.worker.profileImageUrl)
                                 as ImageProvider
                             : const AssetImage('assets/images/naqash.jpg'),
                         fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
                       ),
                       border: Border.all(color: Colors.white, width: 2),
                     ),

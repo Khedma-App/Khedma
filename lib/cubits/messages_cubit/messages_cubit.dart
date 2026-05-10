@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/models/chat_room_model.dart';
 import 'package:khedma/services/chat_service.dart';
@@ -41,27 +42,76 @@ class MessagesCubit extends Cubit<MessagesStates> {
   List<ChatRoomModel> get favoriteChatRooms =>
       chatRooms.where((r) => r.isFavorite).toList();
 
-  // ─── Stream Subscription ──────────────────────────────────────────────────
+  // ─── Pagination ───────────────────────────────────────────────────────────
 
-  StreamSubscription<List<ChatRoomModel>>? _chatRoomsSub;
+  DocumentSnapshot? _lastDocument;
+  bool hasMore = true;
+  bool _isLoadingMore = false;
 
-  /// Starts listening to the user's chat rooms.
-  ///
-  /// Call this once from the UI after the cubit is created.
-  void loadChatRooms() {
+  /// Loads the initial batch of chat rooms.
+  Future<void> loadChatRooms() async {
     emit(MessagesLoadingState());
+    try {
+      _lastDocument = null;
+      hasMore = true;
+      _allChatRooms.clear();
 
-    _chatRoomsSub = _chatService.getChatRoomsStream(myUid).listen(
-      (rooms) {
-        _allChatRooms = rooms;
-        if (!isClosed) emit(ChatRoomsLoadedState());
-      },
-      onError: (error) {
-        if (!isClosed) {
-          emit(MessagesErrorState('فشل تحميل المحادثات'));
+      final query = _chatService.getChatRoomsQuery(myUid);
+      final snapshot = await query.get();
+
+      if (snapshot.docs.isNotEmpty) {
+        _lastDocument = snapshot.docs.last;
+        _allChatRooms = snapshot.docs
+            .map((doc) => ChatRoomModel.fromMap(
+                doc.data() as Map<String, dynamic>,
+                id: doc.id))
+            .toList();
+        if (snapshot.docs.length < 20) {
+          hasMore = false;
         }
-      },
-    );
+      } else {
+        hasMore = false;
+      }
+      
+      if (!isClosed) emit(ChatRoomsLoadedState());
+    } catch (e) {
+      if (!isClosed) emit(MessagesErrorState('فشل تحميل المحادثات'));
+    }
+  }
+
+  /// Loads the next batch of chat rooms.
+  Future<void> loadMoreChats() async {
+    if (!hasMore || _isLoadingMore) return;
+    
+    _isLoadingMore = true;
+    emit(MessagesLoadingMoreState());
+
+    try {
+      final query = _chatService.getChatRoomsQuery(myUid, lastDoc: _lastDocument);
+      final snapshot = await query.get();
+
+      if (snapshot.docs.isNotEmpty) {
+        _lastDocument = snapshot.docs.last;
+        final newRooms = snapshot.docs
+            .map((doc) => ChatRoomModel.fromMap(
+                doc.data() as Map<String, dynamic>,
+                id: doc.id))
+            .toList();
+        _allChatRooms.addAll(newRooms);
+        
+        if (snapshot.docs.length < 20) {
+          hasMore = false;
+        }
+      } else {
+        hasMore = false;
+      }
+      
+      if (!isClosed) emit(ChatRoomsLoadedState());
+    } catch (e) {
+      if (!isClosed) emit(MessagesErrorState('فشل تحميل المزيد من المحادثات'));
+    } finally {
+      _isLoadingMore = false;
+    }
   }
 
   // ─── Toggle View ──────────────────────────────────────────────────────────
@@ -91,7 +141,6 @@ class MessagesCubit extends Cubit<MessagesStates> {
 
   @override
   Future<void> close() {
-    _chatRoomsSub?.cancel();
     return super.close();
   }
 }

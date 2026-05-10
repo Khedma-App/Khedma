@@ -3,6 +3,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:khedma/components/custom_text_filed_boking.dart';
 import 'package:khedma/components/service_provider_card.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/core/helpers/input_formatters.dart';
+import 'package:khedma/core/helpers/validation_helper.dart';
 import 'package:khedma/models/service_data.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/screens/messages_screens/chat_screen.dart';
@@ -23,7 +25,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   //  States
   String? selectedDate;
   String? selectedPricingUnit;
+  String? selectedTimeUnit;
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _suggestedTimeController = TextEditingController();
 
   String? selectedGovernorate;
   String? selectedCity;
@@ -72,9 +76,56 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   /// All Firebase logic lives in the service layer — this method only
   /// collects UI state and handles navigation.
   Future<void> _submitBooking() async {
-    // Basic validation
-    if (_serviceDescriptionController.text.trim().isEmpty) {
-      _showSnackBar('يرجى كتابة وصف الخدمة المطلوبة');
+    // Detailed validation
+    final descriptionError = ValidationHelper.validateDescription(
+      _serviceDescriptionController.text,
+    );
+    if (descriptionError != null) {
+      _showSnackBar(descriptionError);
+      return;
+    }
+
+    if (selectedGovernorate == null || selectedCity == null) {
+      _showSnackBar('يرجى اختيار المحافظة والمدينة');
+      return;
+    }
+
+    final addressError = ValidationHelper.validateRequired(
+      _addressDetailController.text,
+      'العنوان بالتفصيل',
+    );
+    if (addressError != null) {
+      _showSnackBar(addressError);
+      return;
+    }
+
+    final priceError = ValidationHelper.validatePrice(_priceController.text);
+    if (priceError != null) {
+      _showSnackBar(priceError);
+      return;
+    }
+
+    if (selectedPricingUnit == null) {
+      _showSnackBar('يرجى اختيار وحدة التسعير');
+      return;
+    }
+
+    if (selectedDate == null) {
+      _showSnackBar('يرجى اختيار موعد بدء العمل');
+      return;
+    }
+
+    final suggestedTimeError = ValidationHelper.validateRequired(
+      _suggestedTimeController.text,
+      'الوقت المقترح للتنفيذ',
+    );
+    if (suggestedTimeError != null) {
+      _showSnackBar(suggestedTimeError);
+      return;
+    }
+
+    if (selectedTimeUnit == null) {
+      _showSnackBar('يرجى اختيار وحدة الوقت (يوم/شهر)');
       return;
     }
 
@@ -94,6 +145,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         'addressDetail': _addressDetailController.text.trim(),
         'pricingUnit': selectedPricingUnit ?? '',
         'price': _priceController.text.trim(),
+        'suggestedTime': '${_suggestedTimeController.text.trim()} ${selectedTimeUnit}',
       };
 
       // All Firebase logic is inside submitBookingRequest.
@@ -110,10 +162,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => ChatScreen(
-            chatRoomId: room.id,
-            userName: worker.fullName,
-          ),
+          builder: (_) =>
+              ChatScreen(chatRoomId: room.id, userName: worker.fullName),
         ),
       );
     } catch (e) {
@@ -127,6 +177,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   @override
   void dispose() {
     _priceController.dispose();
+    _suggestedTimeController.dispose();
     _addressDetailController.dispose();
     _serviceDescriptionController.dispose();
     super.dispose();
@@ -501,9 +552,13 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       SizedBox(width: kWidth(10)),
                       // حقل إدخال القيمة المالية
                       Custom_Text_Field_Booking_Screen(
-                        hintText: 'اضف السعر المناسب للخدمة',
+                        hintText: "السعر المتوقع",
                         controller: _priceController,
-                        width: 190,
+                        width: kWidth(130),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [PriceFormatter()],
                       ),
                     ],
                   ),
@@ -559,9 +614,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       }
                     },
                     child: Container(
-                      width: kWidth(120),
-                      height: kHeight(35),
-                      padding: EdgeInsets.symmetric(horizontal: kWidth(8)),
+                      width: double.infinity,
+                      height: kHeight(40),
+                      padding: EdgeInsets.symmetric(horizontal: kWidth(15)),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF5F5F5),
                         border: Border.all(
@@ -574,15 +629,15 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Icon(
-                            Icons.arrow_drop_down_rounded,
-                            color: const Color(0xFF424242),
-                            size: kSize(24),
+                            Icons.calendar_today_rounded,
+                            size: kSize(18),
+                            color: const Color(0xFFE19113),
                           ),
                           Text(
-                            selectedDate ?? "التاريخ",
+                            selectedDate ?? "اختر التاريخ",
                             style: TextStyle(
                               fontFamily: 'Cairo',
-                              fontSize: kSize(11),
+                              fontSize: kSize(12),
                               color: selectedDate == null
                                   ? const Color(0xFFA0A0A0)
                                   : Colors.black,
@@ -592,6 +647,86 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         ],
                       ),
                     ),
+                  ),
+
+                  SizedBox(height: kHeight(20)),
+
+                  Text(
+                    'الوقت المقترح للتنفيذ',
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: kSize(16),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: kHeight(15)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // دروب داون لاختيار يوم / شهر
+                      Container(
+                        width: kWidth(110),
+                        height: kHeight(35),
+                        padding: EdgeInsets.symmetric(horizontal: kWidth(8)),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          border: Border.all(
+                            color: const Color(0xFFD1D1D1),
+                            width: 0.8,
+                          ),
+                          borderRadius: BorderRadius.circular(kSize(12)),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: DropdownButton<String>(
+                              isExpanded: true,
+                              icon: Icon(
+                                Icons.arrow_drop_down_rounded,
+                                color: const Color(0xFF424242),
+                                size: kSize(24),
+                              ),
+                              hint: Text(
+                                "الوحدة",
+                                style: TextStyle(
+                                  fontFamily: 'Cairo',
+                                  fontSize: kSize(10),
+                                  color: const Color(0xFFA0A0A0),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              value: selectedTimeUnit,
+                              items: ['يوم', 'شهر']
+                                  .map(
+                                    (val) => DropdownMenuItem(
+                                      value: val,
+                                      child: Text(
+                                        val,
+                                        style: TextStyle(
+                                          fontFamily: 'Cairo',
+                                          fontSize: kSize(11),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (val) =>
+                                  setState(() => selectedTimeUnit = val),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: kWidth(10)),
+                      // حقل إدخال المدة المقترحة
+                      Custom_Text_Field_Booking_Screen(
+                        hintText: "المدة",
+                        controller: _suggestedTimeController,
+                        width: kWidth(130),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -614,9 +749,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                       offset: const Offset(0, 4),
                     ),
                   ],
-                  color: _isSubmitting
-                      ? Colors.grey
-                      : const Color(0xFFF2991D),
+                  color: _isSubmitting ? Colors.grey : const Color(0xFFF2991D),
                   borderRadius: const BorderRadius.all(Radius.circular(30)),
                 ),
                 child: Center(

@@ -5,27 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/cubits/providers_cubit/providers_states.dart';
 import 'package:khedma/services/provider_service.dart';
 
-/// Manages the provider list stream and the current user's role.
-///
-/// ─── Usage ────────────────────────────────────────────────────────────────────
-/// ```dart
-/// // Read role synchronously (no async, no Firestore call):
-/// final isClient = context.read<ProvidersCubit>().isClient;
-///
-/// // React to provider list changes:
-/// BlocBuilder<ProvidersCubit, ProvidersStates>(
-///   builder: (context, state) {
-///     if (state is ProvidersLoadedState) { ... }
-///   },
-/// )
-/// ```
 class ProvidersCubit extends Cubit<ProvidersStates> {
   final ProviderService _providerService;
   StreamSubscription? _providersSub;
-
-  /// Whether the current user is a Client (`true`) or Provider (`false`).
-  /// Available synchronously after [init] completes.
-  bool isClient = true;
+ bool isClient = true;
 
   bool _initialized = false;
 
@@ -49,15 +32,7 @@ class ProvidersCubit extends Cubit<ProvidersStates> {
   }
 
   // ─── Initialization ───────────────────────────────────────────────────────
-
-  /// Call once to load the user's role and subscribe to the providers stream.
-  /// Subsequent calls are no-ops (idempotent).
-  ///
-  /// Optimized for physical devices:
-  /// - Starts the Firestore stream IMMEDIATELY using the cached token
-  /// - Token refresh + role fetch happen in the background (non-blocking)
-  /// - 15-second safety net prevents infinite loading state
-  Future<void> init() async {
+Future<void> init() async {
     if (_initialized) return;
     _initialized = true;
 
@@ -84,8 +59,6 @@ class ProvidersCubit extends Cubit<ProvidersStates> {
     _backgroundInit(user);
   }
 
-  /// Runs token refresh and role fetch in the background.
-  /// Does NOT block the UI or the stream.
   Future<void> _backgroundInit(User user) async {
     // Token refresh (best-effort)
     try {

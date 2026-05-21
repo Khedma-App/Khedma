@@ -40,7 +40,18 @@ class _LoginFormState extends State<LoginForm> {
 
       listener: (context, state) {
         if (state is AuthLoginSuccessState) {
-          // Native routing is correctly handled by AuthWrapper via stream listeners.
+          final user = state.user;
+          if (user.isProvider && user.isFirstTime) {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              ServiceProviderScreen.id,
+              (route) => false,
+            );
+          } else {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              MainLayoutScreen.id,
+              (route) => false,
+            );
+          }
         } else if (state is AuthErrorState) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

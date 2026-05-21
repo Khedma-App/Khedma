@@ -71,11 +71,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
   // ─── Submit Booking ─────────────────────────────────────────────────────────
 
-  /// Collects form data and delegates to [ChatService.submitBookingRequest].
-  ///
-  /// All Firebase logic lives in the service layer — this method only
-  /// collects UI state and handles navigation.
-  Future<void> _submitBooking() async {
+ Future<void> _submitBooking() async {
     // Detailed validation
     final descriptionError = ValidationHelper.validateDescription(
       _serviceDescriptionController.text,

@@ -4,10 +4,6 @@ import 'package:khedma/core/helpers/validation_helper.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/models/user_model.dart';
 
-/// Handles all Firestore read/write operations for the `users` collection.
-///
-/// - Never touches Firebase Auth — that is [AuthService]'s responsibility.
-/// - Throws [AppException] on failure so the Cubit can emit a clean error state.
 class UserService {
   final FirebaseFirestore _firestore;
 
@@ -19,12 +15,7 @@ class UserService {
   CollectionReference<Map<String, dynamic>> get _users =>
       _firestore.collection('users');
 
-  // ─── Create ───────────────────────────────────────────────────────────────
-
-  /// Writes a new user document to Firestore immediately after sign-up.
-  ///
-  /// Uses [UserModel.toMap] so the Firestore schema stays in sync with the model.
-  Future<void> createUserDocument(UserModel user) async {
+ Future<void> createUserDocument(UserModel user) async {
     try {
       await _users.doc(user.uid).set({
         ...user.toMap(),
@@ -40,12 +31,7 @@ class UserService {
     }
   }
 
-  // ─── Read ─────────────────────────────────────────────────────────────────
-
-  /// Fetches the user document for [uid] and returns a [UserModel].
-  ///
-  /// Throws [AppException.userDocNotFound] if the document does not exist.
-  Future<UserModel> getUserById(String uid) async {
+ Future<UserModel> getUserById(String uid) async {
     try {
       final doc = await _users.doc(uid).get();
 
@@ -66,12 +52,7 @@ class UserService {
     }
   }
 
-  // ─── Update ───────────────────────────────────────────────────────────────
-
-  /// Partially updates a user document with the given [fields].
-  ///
-  /// Use this for targeted field updates (e.g. `{'isFirstTime': false}`).
-  Future<void> updateUserFields(String uid, Map<String, dynamic> fields) async {
+ Future<void> updateUserFields(String uid, Map<String, dynamic> fields) async {
     try {
       // Sanitize data before saving
       final sanitizedUpdates = <String, dynamic>{};
@@ -109,8 +90,6 @@ class UserService {
     }
   }
 
-  /// Marks a provider's `isFirstTime` flag as false after they complete
-  /// their profile setup screen.
   Future<void> markFirstTimeComplete(String uid) async {
     await updateUserFields(uid, {'isFirstTime': false});
   }
@@ -119,12 +98,7 @@ class UserService {
   Future<void> markProfileCompleted(String uid) async {
     await updateUserFields(uid, {'profileCompleted': true});
   }
-
-  /// Saves a provider's completed [ServiceProviderModel] profile data
-  /// into the `providerData` sub-map and marks their profile as completed.
-  ///
-  /// Also increments the profession counter in `professions_stats`.
-  Future<void> saveProviderProfile({
+Future<void> saveProviderProfile({
     required String uid,
     required ServiceProviderModel profile,
   }) async {

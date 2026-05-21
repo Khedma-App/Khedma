@@ -1,28 +1,10 @@
-/// A clean wrapper that converts Firebase/network errors into user-facing
-/// Arabic messages.
-///
-/// Usage in a Service:
-/// ```dart
-/// } on FirebaseAuthException catch (e) {
-///   throw AppException.fromAuthCode(e.code);
-/// } catch (e) {
-///   throw AppException.unexpected(e);
-/// }
-/// ```
-///
-/// Usage in a Cubit:
-/// ```dart
-/// } on AppException catch (e) {
-///   emit(AuthErrorState(e.message));
-/// }
-/// ```
+
 class AppException implements Exception {
   final String message;
   final String? code;
 
   const AppException(this.message, {this.code});
 
-  // ─── Named constructors ───────────────────────────────────────────────────
 
   /// Translates a [FirebaseAuthException] code to an Arabic message.
   factory AppException.fromAuthCode(String code) {

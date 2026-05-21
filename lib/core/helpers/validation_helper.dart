@@ -61,7 +61,7 @@ class ValidationHelper {
   /// Description: min 10 chars.
   static String? validateDescription(String? value) {
     if (value == null || value.trim().isEmpty) return 'الوصف مطلوب';
-    if (value.trim().length < 10) return 'الوصف يجب أن يكون 10 أحرف على الأقل';
+    if (value.trim().length < 8) return 'الوصف يجب أن يكون 8 أحرف على الأقل';
     return null;
   }
 

@@ -56,13 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _messageController.clear();
   }
 
-  // ─── Chat lock logic ────────────────────────────────────────────────────
-
-  /// Determines if the text input should be unlocked.
-  ///
-  /// Scans messages in reverse to find the latest request/modification.
-  /// If its status is 'accepted', chat is unlocked. Otherwise locked.
-  bool _isChatUnlocked(List<MessageModel> messages) {
+ bool _isChatUnlocked(List<MessageModel> messages) {
     // No messages → unlocked (empty chat from direct navigation)
     if (messages.isEmpty) return true;
 

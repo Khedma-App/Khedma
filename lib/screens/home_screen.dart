@@ -20,7 +20,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // ── Top Header (branding, location, search) ──
+         
           BlocBuilder<HomeCubit, HomeStates>(
             buildWhen: (_, curr) => curr is HomeLocationUpdatedState,
             builder: (context, _) {
@@ -47,14 +47,12 @@ class HomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: kHeight(15)),
 
-                    // "عمال ذات ثقة" banner
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 25.0),
                       child: TrustedWorkersBanner(),
                     ),
                     SizedBox(height: kHeight(15)),
 
-                    // Section title "الاقرب لك"
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: kWidth(25)),
                       child: Row(

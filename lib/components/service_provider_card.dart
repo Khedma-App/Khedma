@@ -14,15 +14,10 @@ class ServiceProviderCard extends StatelessWidget {
 
   final ServiceProviderModel worker;
 
-  /// Whether the current user is a Client (true) or a Provider (false).
-  /// Controls visibility of the 'اطلب خدمة' button.
   final bool isClient;
 
-  /// Optional callback for the favorite button.
-  /// If null, the heart icon is still displayed but does nothing.
-  final VoidCallback? onFavoriteTapped;
+   final VoidCallback? onFavoriteTapped;
 
-  // ─── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +44,7 @@ class ServiceProviderCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // ── LEFT: Profile image + Availability + Rating ──
                 _buildImageSection(),
-                // ── RIGHT: Info rows + Action buttons ──
                 Expanded(child: _buildInfoSection(context)),
               ],
             ),

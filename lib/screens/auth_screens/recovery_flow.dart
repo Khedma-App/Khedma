@@ -30,7 +30,6 @@ class _RecoveryFlowState extends State<RecoveryFlow> {
   Widget build(BuildContext context) {
     initScreenSize(context);
 
-    // RecoveryFlow is a separate route — provides its own AuthCubit.
     return BlocProvider(
       create: (_) => AuthCubit(
         authService: AuthService(),

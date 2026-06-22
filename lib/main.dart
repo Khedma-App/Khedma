@@ -24,6 +24,7 @@ import 'package:khedma/screens/requests_factor_screen.dart';
 import 'package:khedma/screens/search_screen.dart';
 import 'package:khedma/screens/service_sections_screen.dart';
 import 'package:khedma/services/provider_service.dart';
+import 'package:khedma/screens/service_contract_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -45,6 +46,7 @@ void main() async {
   );
   // StorageService storageService = StorageService();
 
+  // runApp(MyApp());
   runApp(MyApp(seenWelcome: seenWelcome));
 
   SystemChrome.setSystemUIOverlayStyle(
@@ -99,6 +101,7 @@ class MyApp extends StatelessWidget {
           EditProfileScreen.id: (context) => EditProfileScreen(),
           ProfileUpdateScreen.id: (context) => ProfileUpdateScreen(),
           RequestsFactorScreen.id: (context) => RequestsFactorScreen(),
+          ServiceContractScreen.id: (context) => ServiceContractScreen(),
         },
       ),
     );

@@ -12,6 +12,8 @@
 #include <firebase_auth/firebase_auth_plugin_c_api.h>
 #include <firebase_core/firebase_core_plugin_c_api.h>
 #include <geolocator_windows/geolocator_windows.h>
+#include <passkeys_windows/passkeys_windows_plugin.h>
+#include <printing/printing_plugin.h>
 #include <rive_native/rive_native_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 
@@ -28,6 +30,10 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("FirebaseCorePluginCApi"));
   GeolocatorWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("GeolocatorWindows"));
+  PasskeysWindowsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("PasskeysWindowsPlugin"));
+  PrintingPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("PrintingPlugin"));
   RiveNativePluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("RiveNativePlugin"));
   UrlLauncherWindowsRegisterWithRegistrar(

@@ -52,6 +52,9 @@ dependencies:
   shimmer: ^3.0.0
   flutter_localizations:
     sdk: flutter
+  pdf: ^3.13.0
+  printing: ^5.15.0
+  screenshot: ^3.0.0
 
 dev_dependencies:
   flutter_test:

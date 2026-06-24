@@ -10,6 +10,33 @@ class HomeHeader extends StatelessWidget {
 
   const HomeHeader({super.key, required this.currentLocation});
 
+  String _cleanLocationName(String location) {
+    String result = location;
+    // Remove common words like "Governorate", "محافظة", "مركز"
+    result = result
+        .replaceAll(RegExp(r'Governorate|governorate|محافظة|مركز|حي', caseSensitive: false), '')
+        .trim();
+        
+    // Map English names to Arabic for standard appearance
+    final lower = result.toLowerCase();
+    if (lower.contains('cairo')) return 'القاهرة';
+    if (lower.contains('giza')) return 'الجيزة';
+    if (lower.contains('alexandria')) return 'الإسكندرية';
+    if (lower.contains('luxor')) return 'الأقصر';
+    if (lower.contains('aswan')) return 'أسوان';
+    if (lower.contains('suez')) return 'السويس';
+    if (lower.contains('port said')) return 'بورسعيد';
+    if (lower.contains('damietta')) return 'دمياط';
+    if (lower.contains('ismailia')) return 'الإسماعيلية';
+    if (lower.contains('fayoum')) return 'الفيوم';
+    if (lower.contains('minya')) return 'المنيا';
+    if (lower.contains('asyut')) return 'أسيوط';
+    if (lower.contains('sohag')) return 'سوهاج';
+    if (lower.contains('qena')) return 'قنا';
+    
+    return result.isNotEmpty ? result : 'غير معروف';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -91,14 +118,17 @@ class HomeHeader extends StatelessWidget {
                 SizedBox(width: kWidth(15)),
                 // Current location text
                 Expanded(
-                  child: Text(
-                    currentLocation,
-                    style: TextStyle(
-                      fontSize: kSize(14),
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      _cleanLocationName(currentLocation),
+                      style: TextStyle(
+                        fontSize: kSize(13),
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 SizedBox(width: kWidth(5)),
@@ -109,7 +139,7 @@ class HomeHeader extends StatelessWidget {
                 SizedBox(width: kWidth(10)),
                 // Search field
                 Container(
-                  width: kWidth(220),
+                  width: kWidth(170),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),

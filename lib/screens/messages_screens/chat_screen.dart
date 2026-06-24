@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/message_model.dart';
 import 'package:khedma/services/chat_service.dart';
+import 'package:khedma/screens/work_note_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatRoomId;
@@ -24,6 +26,9 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatService _chatService = ChatService();
 
   String get _myUid => FirebaseAuth.instance.currentUser?.uid ?? '';
+
+  // Store latest messages for data extraction
+  List<MessageModel> _currentMessages = [];
 
   @override
   void initState() {
@@ -356,6 +361,7 @@ class _ChatScreenState extends State<ChatScreen> {
             }
 
             final messages = snapshot.data ?? [];
+            _currentMessages = messages;
             final chatUnlocked = _isChatUnlocked(messages);
 
             // Auto-scroll when new messages arrive
@@ -1003,38 +1009,48 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: CircleAvatar(
-                    backgroundColor: const Color(0xFFE6911F),
-                    radius: 25,
-                    child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white),
-                      onPressed: _sendMessage,
-                    ),
+          Row(
+            children: [
+              // Clipboard icon (bottom-left)
+              _buildClipboardIcon(),
+              const SizedBox(width: 8),
+              // Text input field
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: CircleAvatar(
+                          backgroundColor: const Color(0xFFE6911F),
+                          radius: 25,
+                          child: IconButton(
+                            icon: const Icon(Icons.send, color: Colors.white),
+                            onPressed: _sendMessage,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _messageController,
+                          textAlign: TextAlign.right,
+                          onSubmitted: (_) => _sendMessage(),
+                          decoration: const InputDecoration(
+                            hintText: '...ماذا تريد',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    textAlign: TextAlign.right,
-                    onSubmitted: (_) => _sendMessage(),
-                    decoration: const InputDecoration(
-                      hintText: '...ماذا تريد',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1048,29 +1064,158 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildLockedInput() {
     return Container(
       padding: const EdgeInsets.all(12),
-      child: Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'في انتظار الاتفاق على الخدمة',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                  fontFamily: 'Cairo',
-                  fontWeight: FontWeight.w600,
+      child: Row(
+        children: [
+          // Clipboard icon (bottom-left)
+          _buildClipboardIcon(),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'في انتظار الاتفاق على الخدمة',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                        fontFamily: 'Cairo',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(Icons.lock_outline, color: Colors.grey[500], size: 20),
+                  ],
                 ),
               ),
-              const SizedBox(width: 8),
-              Icon(Icons.lock_outline, color: Colors.grey[500], size: 20),
-            ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CLIPBOARD ICON (bottom-left)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildClipboardIcon() {
+    return GestureDetector(
+      onTap: () {
+        _openWorkNoteScreen();
+      },
+      child: Container(
+        width: 46,
+        height: 46,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFFE6911F), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Icon(
+          Icons.assignment_outlined,
+          color: Color(0xFFE6911F),
+          size: 24,
+        ),
+      ),
+    );
+  }
+
+  /// Extract the latest agreed price from chat messages.
+  /// Looks for the most recent accepted service_request or modification.
+  double _getLatestAgreedPrice() {
+    for (int i = _currentMessages.length - 1; i >= 0; i--) {
+      final msg = _currentMessages[i];
+      if ((msg.messageType == 'service_request' || msg.messageType == 'modification') &&
+          msg.requestStatus == 'accepted') {
+        final p = msg.requestPayload ?? {};
+        final priceStr = p['price'] as String? ?? '';
+        return double.tryParse(priceStr) ?? 0.0;
+      }
+    }
+    // Fallback: get price from the first service_request
+    for (int i = 0; i < _currentMessages.length; i++) {
+      final msg = _currentMessages[i];
+      if (msg.messageType == 'service_request') {
+        final p = msg.requestPayload ?? {};
+        final priceStr = p['price'] as String? ?? '';
+        return double.tryParse(priceStr) ?? 0.0;
+      }
+    }
+    return 0.0;
+  }
+
+  /// Extract the service type (job) from the first service request.
+  String _getServiceType() {
+    for (final msg in _currentMessages) {
+      if (msg.messageType == 'service_request') {
+        return msg.requestPayload?['serviceType'] as String? ?? '';
+      }
+    }
+    return '';
+  }
+
+  void _openWorkNoteScreen() async {
+    // Get the other participant's data from the chatRoom document
+    String workerImage = '';
+    String orderId = '';
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('chatRooms')
+          .doc(widget.chatRoomId)
+          .get();
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
+        final images = data['participantImages'] as Map<String, dynamic>? ?? {};
+        // The other participant (not me) is the worker
+        for (final entry in images.entries) {
+          if (entry.key != _myUid) {
+            workerImage = entry.value as String? ?? '';
+            break;
+          }
+        }
+
+        // Generate order ID from creation timestamp
+        final createdAt = (data['createdAt'] as Timestamp?)?.toDate();
+        if (createdAt != null) {
+          final year = createdAt.year;
+          final month = createdAt.month.toString().padLeft(2, '0');
+          final day = createdAt.day.toString().padLeft(2, '0');
+          final hash = widget.chatRoomId.hashCode.abs() % 100000;
+          orderId = 'T-$year$month$day-${hash.toString().padLeft(5, '0')}';
+        }
+      }
+    } catch (_) {}
+
+    if (orderId.isEmpty) {
+      orderId = 'T-${DateTime.now().year}-${widget.chatRoomId.hashCode.abs() % 100000}';
+    }
+
+    if (!mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WorkNoteScreen(
+          workerName: widget.userName,
+          workerImage: workerImage,
+          workerJob: _getServiceType(),
+          orderId: orderId,
+          agreedPrice: _getLatestAgreedPrice(),
+          chatRoomId: widget.chatRoomId,
         ),
       ),
     );

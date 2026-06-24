@@ -110,11 +110,15 @@ class ProfileHeaderSection extends StatelessWidget {
               ),
               child: CircleAvatar(
                 radius: kSize(55),
+                backgroundColor: const Color(0xFFF0F0F0),
                 backgroundImage: userImagePath.startsWith('http')
                     ? CachedNetworkImageProvider(userImagePath)
                     : userImagePath.startsWith('assets')
                         ? AssetImage(userImagePath)
                         : null,
+                child: (!userImagePath.startsWith('http') && !userImagePath.startsWith('assets'))
+                    ? Icon(Icons.person, size: kSize(50), color: Colors.grey[400])
+                    : null,
               ),
             ),
           ),

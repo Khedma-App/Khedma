@@ -108,8 +108,10 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 flutter_native_splash:
   color: "#E19113"
-  image: assets/images/logo.png
+  image: assets/icons/خِدمة 1.png
+  android_gravity: center
+  ios_content_mode: scaleAspectFit
   android_12:
     color: "#E19113"
-    image: assets/images/logo.png
+    image: assets/icons/خِدمة 1.png
   web: false

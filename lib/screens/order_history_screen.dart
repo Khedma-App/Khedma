@@ -52,8 +52,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     }
 
     if (_activeFilter == 'active') {
-      // "جارية" includes accepted + modified
-      return _orders.where((o) => o.status == 'جارية' || o.status == 'تعديل').toList();
+      // "جارية" includes only accepted orders
+      return _orders.where((o) => o.status == 'جارية').toList();
     }
 
     final targetStatus = _filterToStatus[_activeFilter];
@@ -114,8 +114,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             case 'modified':
               displayStatus = 'تعديل';
               statusColor = Colors.orange;
-              active++;
-              bottomText = 'تم طلب تعديل';
+              pendingCount++;
+              bottomText = 'تم طلب تعديل - في انتظار الرد';
               break;
             default:
               displayStatus = 'مكتملة';

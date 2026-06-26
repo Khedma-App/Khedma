@@ -13,7 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/screens/main_layout_screen.dart';
 import 'package:khedma/services/user_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' hide User;
+import 'package:khedma/services/storage_service.dart';
 
 class ServiceProviderScreen extends StatefulWidget {
   const ServiceProviderScreen({super.key});
@@ -231,33 +231,21 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
 
     try {
       User user = FirebaseAuth.instance.currentUser!;
-      final supabase = Supabase.instance.client;
-
+      final storageService = StorageService();
       String profileUrl = '';
 
       if (_image != null) {
-        String fileName =
-            'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        String path = '${user.uid}/$fileName';
-        await supabase.storage.from('Provider_images').upload(path, _image!);
-        profileUrl = supabase.storage
-            .from('Provider_images')
-            .getPublicUrl(path);
+        profileUrl = await storageService.uploadProfileImage(user.uid, _image!);
       }
 
       List<String> uploadedUrls = [];
       if (_workImages.isNotEmpty) {
         for (int i = 0; i < _workImages.length; i++) {
-          File imageFile = _workImages[i];
-          String fileName =
-              'work_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
-          String path = '${user.uid}/$fileName';
-          await supabase.storage
-              .from('Provider_images')
-              .upload(path, imageFile);
-          final String publicUrl = supabase.storage
-              .from('Provider_images')
-              .getPublicUrl(path);
+          final publicUrl = await storageService.uploadWorkImage(
+            user.uid,
+            _workImages[i],
+            i,
+          );
           uploadedUrls.add(publicUrl);
         }
       }
@@ -305,6 +293,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
       }
     } catch (e) {
       debugPrint('Error: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('حدث خطأ أثناء الحفظ: $e'),

@@ -4,17 +4,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/cubits/providers_cubit/providers_states.dart';
 import 'package:khedma/services/provider_service.dart';
+import 'package:khedma/models/service_provider_model.dart';
 
 class ProvidersCubit extends Cubit<ProvidersStates> {
   final ProviderService _providerService;
   StreamSubscription? _providersSub;
- bool isClient = true;
+  bool isClient = true;
 
   bool _initialized = false;
 
   ProvidersCubit({required ProviderService providerService})
-      : _providerService = providerService,
-        super(ProvidersInitialState());
+    : _providerService = providerService,
+      super(ProvidersInitialState());
 
   // ─── Convenience accessor ─────────────────────────────────────────────────
 
@@ -32,7 +33,7 @@ class ProvidersCubit extends Cubit<ProvidersStates> {
   }
 
   // ─── Initialization ───────────────────────────────────────────────────────
-Future<void> init() async {
+  Future<void> init() async {
     if (_initialized) return;
     _initialized = true;
 
@@ -77,10 +78,14 @@ Future<void> init() async {
       await _fetchUserRole().timeout(const Duration(seconds: 10));
       debugPrint('✅ ProvidersCubit: [BG] Role → isClient=$isClient');
     } on TimeoutException {
-      debugPrint('⚠️ ProvidersCubit: [BG] Role fetch timed out → default Client');
+      debugPrint(
+        '⚠️ ProvidersCubit: [BG] Role fetch timed out → default Client',
+      );
       isClient = true;
     } catch (e) {
-      debugPrint('⚠️ ProvidersCubit: [BG] Role fetch failed: $e → default Client');
+      debugPrint(
+        '⚠️ ProvidersCubit: [BG] Role fetch failed: $e → default Client',
+      );
       isClient = true;
     }
   }
@@ -94,11 +99,56 @@ Future<void> init() async {
     isClient = role != 'provider';
   }
 
+  List<ServiceProviderModel> allProviders = [];
+  String searchQuery = '';
+
+  void setSearchQuery(String query) {
+    searchQuery = query;
+    _emitFiltered();
+  }
+
+  // ─── Favorites ────────────────────────────────────────────────────────────
+
+  final Set<String> _favoriteProviderIds = {};
+
+  void toggleFavorite(String providerId) {
+    if (_favoriteProviderIds.contains(providerId)) {
+      _favoriteProviderIds.remove(providerId);
+    } else {
+      _favoriteProviderIds.add(providerId);
+    }
+    _emitFiltered();
+  }
+
+  void _emitFiltered() {
+    if (isClosed) return;
+
+    final providersWithFavs = allProviders.map((p) {
+      return p.copyWith(isFavorite: _favoriteProviderIds.contains(p.id));
+    }).toList();
+
+    if (searchQuery.isEmpty) {
+      emit(ProvidersLoadedState(providersWithFavs));
+    } else {
+      final q = searchQuery.trim().toLowerCase();
+      final filtered = providersWithFavs.where((p) {
+        return p.fullName.toLowerCase().contains(q) ||
+            p.profession.toLowerCase().contains(q) ||
+            p.city.toLowerCase().contains(q) ||
+            p.governorate.toLowerCase().contains(q);
+      }).toList();
+      emit(ProvidersLoadedState(filtered));
+    }
+  }
+
   void _subscribeToProviders() {
     _providersSub = _providerService.watchProviders().listen(
       (providers) {
-        debugPrint('✅ ProvidersCubit: Stream emitted ${providers.length} providers');
-        if (!isClosed) emit(ProvidersLoadedState(providers));
+        debugPrint(
+          '✅ ProvidersCubit: Stream emitted ${providers.length} providers',
+        );
+        allProviders = providers;
+        _emitFiltered();
       },
       onError: (e) {
         debugPrint('⛔ ProvidersCubit: Stream error: $e');
@@ -110,8 +160,11 @@ Future<void> init() async {
     //    emit an empty loaded state so the UI is not stuck. ──
     Future.delayed(const Duration(seconds: 15), () {
       if (!isClosed && state is ProvidersLoadingState) {
-        debugPrint('⚠️ ProvidersCubit: 15s safety timeout — emitting empty list');
-        emit(ProvidersLoadedState([]));
+        debugPrint(
+          '⚠️ ProvidersCubit: 15s safety timeout — emitting empty list',
+        );
+        allProviders = [];
+        _emitFiltered();
       }
     });
   }

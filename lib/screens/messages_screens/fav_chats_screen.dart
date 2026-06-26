@@ -108,13 +108,15 @@ class FavChatsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                CircleAvatar(
+                 CircleAvatar(
                   radius: 35,
                   backgroundColor: Colors.purple[50],
-                  backgroundImage: imageUrl.isNotEmpty
-                      ? CachedNetworkImageProvider(imageUrl)
-                      : null,
-                  child: imageUrl.isEmpty
+                  backgroundImage: imageUrl.startsWith('http')
+                      ? CachedNetworkImageProvider(imageUrl) as ImageProvider
+                      : imageUrl.startsWith('assets')
+                          ? AssetImage(imageUrl)
+                          : null,
+                  child: (!imageUrl.startsWith('http') && !imageUrl.startsWith('assets'))
                       ? const Icon(
                           Icons.person,
                           size: 20,

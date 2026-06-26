@@ -29,6 +29,15 @@ class ProviderService {
           final data = doc.data();
           final providerData = data['providerData'];
           if (providerData is Map<String, dynamic>) {
+            // Fallback: Check root document if profile image is missing or empty in providerData
+            var imgUrl = providerData['profileImageUrl'];
+            if (imgUrl == null || imgUrl.toString().trim().isEmpty) {
+              imgUrl = data['profileImageUrl'] ?? data['personalImage'] ?? data['image'];
+              if (imgUrl != null && imgUrl.toString().trim().isNotEmpty) {
+                providerData['profileImageUrl'] = imgUrl.toString().trim();
+              }
+            }
+
             providers.add(ServiceProviderModel.fromMap(
               providerData,
               documentId: doc.id,

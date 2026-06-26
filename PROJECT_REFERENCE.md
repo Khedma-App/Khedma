@@ -1,8 +1,8 @@
 # 📘 خدمة (Khedma) — Project Reference Document
 
-> **آخر تحديث:** 2026-05-10 (v3)  
-> **النسخة:** 1.0.0  
-> **البيئة:** Flutter SDK ^3.9.2 · Firebase · Supabase
+> **آخر تحديث:** 2026-06-26 (v4)  
+> **النسخة:** 1.1.0  
+> **البيئة:** Flutter SDK ^3.9.2 · Firebase
 
 ---
 
@@ -16,7 +16,7 @@
 
 ```
 lib/
-├── main.dart                          # نقطة البداية + إعداد Firebase/Supabase
+├── main.dart                          # نقطة البداية + إعداد Firebase
 ├── firebase_options.dart              # إعدادات Firebase التلقائية
 │
 ├── core/
@@ -33,15 +33,18 @@ lib/
 │   ├── chat_room_model.dart           # ChatRoomModel (المحادثات)
 │   ├── message_model.dart             # MessageModel (text/service_request/modification/status_update)
 │   ├── order_model.dart               # OrderModel (عرض الطلبات في الواجهة)
+│   ├── review_model.dart              # نماذج التقييم والمراجعات
 │   ├── service_data.dart              # بيانات أنواع الخدمات الثابتة
 │   └── service_item.dart              # ServiceModel (عنصر الخدمة في الصفحة الرئيسية)
 │
 ├── services/                          # طبقة البيانات (Firestore / Auth)
-│   ├── auth_service.dart              # تسجيل الدخول / إنشاء الحساب / Firebase Auth
+│   ├── auth_service.dart              # تسجيل الدخول / إنشاء الحساب / Firebase Auth / Phone Auth
 │   ├── user_service.dart              # CRUD عمليات على مجموعة users
 │   ├── chat_service.dart              # المحادثات + الطلبات + streams
 │   ├── provider_service.dart          # جلب مقدمي الخدمة من Firestore
-│   └── get_area_current.dart          # خدمة الموقع الجغرافي
+│   ├── get_area_current.dart          # خدمة الموقع الجغرافي
+│   ├── notification_service.dart      # الإشعارات المحلية وعبر FCM
+│   └── storage_service.dart           # رفع الملفات والصور (Firebase Storage)
 │
 ├── cubits/                            # إدارة الحالة (BLoC/Cubit)
 │   ├── auth_cubit/
@@ -56,7 +59,8 @@ lib/
 │   ├── messages_cubit/
 │   │   ├── messages_cubit.dart        # إدارة المحادثات + المفضلة
 │   │   └── messages_states.dart
-│   └── list_cubit/                    # (احتياطي)
+│   └── list_cubit/
+│       └── favorite_list_cubit.dart   # إدارة قائمة المفضلة
 │
 ├── screens/
 │   ├── auth_screens/
@@ -73,7 +77,7 @@ lib/
 │   │   ├── all_chats_screens.dart       # كل المحادثات
 │   │   ├── fav_chats_screen.dart        # المحادثات المفضلة
 │   │   ├── chat_screen.dart             # شاشة المحادثة الفردية + نظام التفاوض
-│   │   └── my_requests_screen.dart      # placeholder (لم تُستخدم حالياً)
+│   │   └── my_requests_screen.dart      # (لم تُستخدم حالياً)
 │   │
 │   ├── main_layout_screen.dart          # الهيكل الرئيسي + شريط التنقل السفلي
 │   ├── home_screen.dart                 # الصفحة الرئيسية (مقدمي الخدمة + الخدمات)
@@ -86,15 +90,19 @@ lib/
 │   ├── profile_screen.dart              # الملف الشخصي (تبويب 4) + تسجيل خروج
 │   ├── edit_profile_screen.dart         # تعديل الملف الشخصي
 │   ├── profile_update_screen.dart       # تحديث بيانات الملف
+│   ├── about_us_screen.dart             # عن التطبيق
+│   ├── service_contract_screen.dart     # اتفاقية الخدمة
+│   ├── work_note_screen.dart            # شاشة تفاصيل طلب العمل / الملاحظات
 │   ├── more_screen.dart                 # (لم تعد مستخدمة — تم استبدالها بـ ProfileScreen)
 │   └── add_work.dart                    # إضافة عمل سابق
 │
 ├── l10n/                                # ملفات الترجمة (Localization)
 │   ├── app_ar.arb                       # النصوص بالعربية
 │   ├── app_en.arb                       # النصوص بالإنجليزية
-│   └── app_localizations.dart           # كود الترجمة المولّد تلقائياً
+│   ├── app_localizations.dart           # كود الترجمة المولّد تلقائياً
+│   └── app_localizations_*.dart         # الترجمات الفعلية
 │
-└── components/                          # 52+ عنصر واجهة قابل لإعادة الاستخدام
+└── components/                          # 50+ عنصر واجهة قابل لإعادة الاستخدام
     ├── build_custom_bottom_nav_bar.dart  # شريط التنقل السفلي
     ├── service_provider_card.dart        # بطاقة مقدم الخدمة
     ├── custom_pending_request_card.dart  # بطاقة طلب معلق (+ الوقت المقترح)
@@ -104,7 +112,11 @@ lib/
     ├── custom_profile_header.dart        # هيدر الملف الشخصي + زر تعديل
     ├── custom_logout_button.dart         # زر تسجيل الخروج
     ├── request_of_service_cards/         # بطاقات التفاوض داخل المحادثة
-    └── ...                               # بقية العناصر
+    │   ├── service_request_card.dart
+    │   ├── create_agreement_dialog.dart
+    │   ├── client_finish_work_dialog.dart
+    │   └── ...
+    └── ...                               # بقية العناصر (نماذج الإدخال وأزرار وغيرها)
 ```
 
 ---
@@ -274,10 +286,12 @@ lib/
 ### `AuthService`
 | الطريقة | الوصف |
 |---|---|
-| `signUp()` | إنشاء حساب Firebase Auth |
-| `signIn()` | تسجيل الدخول |
+| `signUp()` | إنشاء حساب Firebase Auth بالبريد الإلكتروني |
+| `signIn()` | تسجيل الدخول بالبريد الإلكتروني |
 | `signOut()` | تسجيل الخروج |
 | `resetPassword()` | إعادة تعيين كلمة المرور |
+| `verifyPhoneNumber()` | إرسال كود التحقق OTP للتسجيل/الدخول برقم الهاتف |
+| `verifyOTP()` | تأكيد كود OTP وإتمام المصادقة |
 
 ### `ProviderService`
 | الطريقة | الوصف |
@@ -294,7 +308,7 @@ lib/
 | `firebase_core` | ^4.4.0 | إعداد Firebase |
 | `firebase_auth` | ^6.1.4 | المصادقة |
 | `cloud_firestore` | ^6.1.2 | قاعدة البيانات |
-| `supabase_flutter` | ^2.12.0 | تخزين الصور |
+| `firebase_storage` | ^13.4.3 | تخزين الصور |
 | `shared_preferences` | ^2.5.4 | التخزين المحلي |
 | `geolocator` | ^14.0.2 | الموقع الجغرافي |
 | `geocoding` | ^4.0.0 | تحويل الإحداثيات لعناوين |
@@ -327,7 +341,6 @@ lib/
 ```
 main()
   ├── Firebase.initializeApp()
-  ├── Supabase.initialize()
   ├── SharedPreferences (seenWelcome)
   │
   └── MyApp
@@ -392,6 +405,13 @@ main()
 ---
 
 ## 🔄 سجل التحديثات
+
+### 2026-06-26 (v4)
+- ✅ **التسجيل برقم الهاتف (Phone Auth)**: دمج المصادقة برقم الهاتف مع إرسال كود التحقق (OTP) للمستخدمين (مقدمي الخدمة وطالبي الخدمة).
+- ✅ **توليد بريد وهمي**: إنشاء بريد إلكتروني تلقائي (`@khedma.local`) لربط حسابات الهاتف ببيانات المستخدم في Firestore بسهولة.
+- ✅ **إشعارات Push**: إضافة `notification_service.dart` لدعم الإشعارات المحلية وعبر FCM.
+- ✅ **إدارة الملفات**: إضافة `storage_service.dart` لإدارة رفع الملفات والصور.
+- ✅ **إصلاح الأخطاء**: معالجة أخطاء المصادقة وترجمتها للعربية (مثل `too-many-requests`) وحل أخطاء `isPhone`.
 
 ### 2026-05-10 (v3)
 - ✅ **نظام التحقق المركزي**: `ValidationHelper` كمصدر موحد لجميع قواعد التحقق (الاسم، البريد، الهاتف، السعر، كلمة المرور، الوصف)

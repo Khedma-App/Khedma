@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/core/utils/text_validator.dart';
 
 class FinishingWorkGest extends StatefulWidget {
   const FinishingWorkGest({super.key});
@@ -12,6 +13,22 @@ class _FinishingWorkGestState extends State<FinishingWorkGest> {
   // متغيرات لحفظ حالة التشيك بوكس
   bool isWorkFinished = false;
   bool isMoneyDelivered = false;
+  late TextEditingController amountController;
+  late TextEditingController notesController;
+
+  @override
+  void initState() {
+    super.initState();
+    amountController = TextEditingController();
+    notesController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    notesController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +150,7 @@ class _FinishingWorkGestState extends State<FinishingWorkGest> {
                             borderRadius: BorderRadius.circular(kSize(10)),
                           ),
                           child: TextField(
+                            controller: amountController,
                             textAlign: TextAlign.center, // توسيط النص أفقياً
                             style: TextStyle(
                               fontSize: kSize(12),
@@ -184,6 +202,8 @@ class _FinishingWorkGestState extends State<FinishingWorkGest> {
                             borderRadius: BorderRadius.circular(kSize(10)),
                           ),
                           child: TextField(
+                            controller: notesController,
+                            onChanged: (val) => TextValidator.validateExternalCommunication(context, val, notesController),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: kSize(12),
@@ -256,6 +276,12 @@ class _FinishingWorkGestState extends State<FinishingWorkGest> {
                         height: kHeight(35),
                         child: ElevatedButton(
                           onPressed: () {
+                            if (TextValidator.validateAll(context, [
+                              amountController.text,
+                              notesController.text,
+                            ])) {
+                              return;
+                            }
                             // منطق التأكيد هنا
                             Navigator.pop(context);
                           },

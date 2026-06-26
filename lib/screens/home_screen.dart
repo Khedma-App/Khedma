@@ -150,6 +150,9 @@ class HomeScreen extends StatelessWidget {
             builder: (context, _) {
               return HomeHeader(
                 currentLocation: HomeCubit.get(context).currentLocation,
+                onSearchChanged: (value) {
+                  context.read<ProvidersCubit>().setSearchQuery(value);
+                },
               );
             },
           ),
@@ -272,6 +275,9 @@ class HomeScreen extends StatelessWidget {
                                       child: ServiceProviderCard(
                                         worker: sortedProviders[index],
                                         isClient: isClient,
+                                        onFavoriteTapped: () {
+                                          ProvidersCubit.get(context).toggleFavorite(sortedProviders[index].id ?? '');
+                                        },
                                       ),
                                     );
                                   },

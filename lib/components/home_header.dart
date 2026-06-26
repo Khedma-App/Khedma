@@ -7,8 +7,9 @@ import 'package:khedma/core/constants.dart';
 /// current location display, and the search bar.
 class HomeHeader extends StatelessWidget {
   final String currentLocation;
+  final ValueChanged<String>? onSearchChanged;
 
-  const HomeHeader({super.key, required this.currentLocation});
+  const HomeHeader({super.key, required this.currentLocation, this.onSearchChanged});
 
   String _cleanLocationName(String location) {
     String result = location;
@@ -152,6 +153,7 @@ class HomeHeader extends StatelessWidget {
                     ],
                   ),
                   child: TextField(
+                    onChanged: onSearchChanged,
                     decoration: InputDecoration(
                       suffixIcon: Padding(
                         padding: EdgeInsets.only(

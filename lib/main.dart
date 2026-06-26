@@ -22,26 +22,28 @@ import 'package:khedma/screens/requests_factor_screen.dart';
 import 'package:khedma/screens/search_screen.dart';
 import 'package:khedma/screens/service_sections_screen.dart';
 import 'package:khedma/services/provider_service.dart';
+import 'package:khedma/screens/service_contract_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:khedma/services/notification_service.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    NotificationService.initialize().catchError((e) {
+      debugPrint('Notification init error: $e');
+    });
+  } catch (e) {
+    debugPrint('Firebase init error: $e');
+  }
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool seenWelcome = prefs.getBool('seenWelcome') ?? false;
-  await Supabase.initialize(
-    url: 'https://nmvxwdnbqlawzkncgbbb.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tdnh3ZG5icWxhd3prbmNnYmJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTUwOTUsImV4cCI6MjA4ODY3MTA5NX0.6mmykTnyAReosiLTA0hG3CIkODhGs0lVWse3BmZkmqU', // استبدله بـ Key مشروعك
-  );
-  final user = Supabase.instance.client.auth.currentUser;
-  print(
-    '====================================================================Current User: ${user?.email}',
-  );
+
   // StorageService storageService = StorageService();
 
+  // runApp(MyApp());
   runApp(MyApp(seenWelcome: seenWelcome));
 
   SystemChrome.setSystemUIOverlayStyle(
@@ -96,6 +98,7 @@ class MyApp extends StatelessWidget {
           EditProfileScreen.id: (context) => EditProfileScreen(),
           ProfileUpdateScreen.id: (context) => ProfileUpdateScreen(),
           RequestsFactorScreen.id: (context) => RequestsFactorScreen(),
+          ServiceContractScreen.id: (context) => ServiceContractScreen(),
         },
       ),
     );

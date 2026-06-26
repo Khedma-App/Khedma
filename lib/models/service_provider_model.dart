@@ -66,8 +66,9 @@ class ServiceProviderModel {
       profession: map['profession'] as String? ?? '',
       governorate: map['governorate'] as String? ?? '',
       city: map['city'] as String? ?? '',
-      profileImageUrl:
-          map['profileImageUrl'] as String? ?? 'assets/images/profile.png',
+      profileImageUrl: (map['profileImageUrl'] as String?)?.trim().isNotEmpty == true
+          ? (map['profileImageUrl'] as String).trim()
+          : 'assets/images/profile.png',
       pricingType: map['pricingType'] as String? ?? '',
       isAvailable: map['isAvailable'] as bool? ?? true,
       isFavorite: map['isFavorite'] as bool? ?? false,

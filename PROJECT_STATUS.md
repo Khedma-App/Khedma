@@ -1,7 +1,7 @@
 # 📋 KHEDMA — Project Status & Architecture Document
 
 > **Last Updated:** April 10, 2026
-> **Project Stack:** Flutter · Firebase (Auth + Firestore) · Supabase Storage · BLoC/Cubit
+> **Project Stack:** Flutter · Firebase (Auth + Firestore + Storage) · BLoC/Cubit
 > **Architecture Pattern:** Clean Architecture (Service → Cubit → UI)
 
 ---
@@ -32,10 +32,10 @@ Khedma follows a strict **3-layer Clean Architecture**. Each layer has a single,
                  │ calls ↓ / throws AppException ↑
 ┌────────────────▼─────────────────────────┐
 │             Service Layer                │
-│   (Data / Firebase / Supabase)           │
+│   (Data / Firebase / Storage)            │
 │   • AuthService, UserService,            │
-│     ChatService                          │
-│   • All Firebase & Supabase imports live │
+│     ChatService, StorageService          │
+│   • All Firebase imports live            │
 │     HERE and ONLY here                   │
 │   • Throws AppException on failure       │
 └──────────────────────────────────────────┘
@@ -45,7 +45,7 @@ Khedma follows a strict **3-layer Clean Architecture**. Each layer has a single,
 
 ### How Routing Works
 
-- **`main.dart`** — Initializes Firebase & Supabase, checks `SharedPreferences` for `seenWelcome` flag, then routes to either `WelcomeScreen` (first launch) or `AuthWrapper`.
+- **`main.dart`** — Initializes Firebase, checks `SharedPreferences` for `seenWelcome` flag, then routes to either `WelcomeScreen` (first launch) or `AuthWrapper`.
 - **`AuthWrapper`** — A `StreamBuilder` on `FirebaseAuth.authStateChanges()`. Reactively routes between `AuthScreen`, `ServiceProviderScreen` (first-time providers), and `MainLayoutScreen`. This is the core of our logout fix.
 - **`MainLayoutScreen`** — Shell widget driven by `HomeCubit`. Switches between 4 bottom-nav tabs: Home, Search, Messages, More.
 
@@ -154,7 +154,7 @@ service cloud.firestore {
 
 ### 👷 Provider Registration
 - **[DONE]** Multi-step form: Basic Info → Service Data → Pricing → Location & Availability.
-- **[DONE]** Profile image + work images uploaded to **Supabase Storage** (`Provider_images` bucket).
+- **[DONE]** Profile image + work images uploaded to **Firebase Storage** (`Provider_images` bucket).
 - **[DONE]** On submit: `users/{uid}` updated with full `providerData` map, `isFirstTime: false`, `profileCompleted: true`.
 - **[DONE]** `professions_stats/{profession}` counter incremented to power Search Screen counts.
 - **[DONE]** Fixed `permission-denied` crash during registration by adding `write` to `professions_stats` security rule.
@@ -197,7 +197,7 @@ service cloud.firestore {
    - Manage state via `HomeCubit` rather than `setState`.
 
 3. **Refactor `service_provider_screen.dart`** (`_publishService` method).
-   - Extract `FirebaseFirestore` + `Supabase` calls into `UserService.completeProviderProfile()`.
+   - Extract `FirebaseFirestore` + `FirebaseStorage` calls into `UserService.completeProviderProfile()`.
    - Call it from `AuthCubit.completeProviderProfile()` to keep the screen Firebase-free.
 
 ### 🟡 P1 — High Priority
@@ -214,7 +214,7 @@ service cloud.firestore {
 
 8. **Push Notifications (FCM)** — Firebase Cloud Messaging + Cloud Functions trigger on new `messages/` document. Required for background messaging.
 
-9. **In-Chat Image Sending** — Image picker → Supabase upload → `MessageModel.imageUrl` field → `ChatScreen` renders image bubbles.
+9. **In-Chat Image Sending** — Image picker → Firebase Storage upload → `MessageModel.imageUrl` field → `ChatScreen` renders image bubbles.
 
 10. **Ratings & Reviews System** — New `reviews/{reviewId}` collection. Post-job completion flow → star rating + text review displayed on `ServiceProviderInfoScreen`.
 

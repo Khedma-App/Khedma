@@ -6,6 +6,8 @@ import 'package:khedma/core/constants.dart';
 import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/screens/booking_details_screen.dart';
+import 'package:khedma/services/user_service.dart';
+import 'package:khedma/models/review_model.dart';
 
 class ServiceProviderInfoScreen extends StatefulWidget {
   const ServiceProviderInfoScreen({super.key, required this.worker});
@@ -226,15 +228,29 @@ class _ServiceProviderInfoScreenState extends State<ServiceProviderInfoScreen> {
                     height: kSize(60),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: widget.worker.profileImageUrl.startsWith('http')
-                            ? CachedNetworkImageProvider(widget.worker.profileImageUrl)
-                                as ImageProvider
-                            : const AssetImage('assets/images/naqash.jpg'),
-                        fit: BoxFit.cover,
-                        alignment: Alignment.topCenter,
-                      ),
                       border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: ClipOval(
+                      child: widget.worker.profileImageUrl.startsWith('http')
+                          ? CachedNetworkImage(
+                              imageUrl: widget.worker.profileImageUrl,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.topCenter,
+                              placeholder: (context, url) => const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              errorWidget: (_, __, ___) => Image.asset(
+                                'assets/images/profile.png',
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Image.asset(
+                              widget.worker.profileImageUrl.startsWith('assets')
+                                  ? widget.worker.profileImageUrl
+                                  : 'assets/images/profile.png',
+                              fit: BoxFit.cover,
+                              alignment: Alignment.topCenter,
+                            ),
                     ),
                   ),
                 ],
@@ -454,55 +470,89 @@ class _ServiceProviderInfoScreenState extends State<ServiceProviderInfoScreen> {
                   ),
                   const SizedBox(height: 10),
 
-                  //  الرأي
-                  Container(
-                    padding: EdgeInsets.all(kSize(12)),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
+                  // Dynamic Reviews
+                  if (widget.worker.id != null)
+                    FutureBuilder<List<ReviewModel>>(
+                      future: UserService().getProviderReviews(widget.worker.id!),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        
+                        final reviews = snapshot.data ?? [];
+                        if (reviews.isEmpty) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text('لا توجد آراء حتى الآن', style: TextStyle(fontFamily: 'Cairo', color: Colors.grey)),
+                            ),
+                          );
+                        }
 
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(kSize(15)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: kSize(30),
-                                ),
-                                Text(
-                                  ' 10',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              'أحمد ابراهيم',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: kSize(13),
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: reviews.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            final r = reviews[index];
+                            final avgRating = ((r.negotiationRating ?? 0) + (r.serviceRating ?? 0)) / 
+                                ((r.negotiationRating != null ? 1 : 0) + (r.serviceRating != null ? 1 : 0)).clamp(1, 2);
+                            final comment = r.serviceComment ?? r.negotiationComment ?? '';
+                            
+                            return Container(
+                              padding: EdgeInsets.all(kSize(12)),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF5F5F5),
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(kSize(15)),
                               ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                            fontSize: kSize(12),
-                          ),
-                          '“شغله ممتاز جداً”',
-                          textDirection: TextDirection.rtl,
-                        ),
-                      ],
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(Icons.star, color: Colors.amber, size: kSize(20)),
+                                          Text(
+                                            ' ${avgRating.toStringAsFixed(1)}',
+                                            style: const TextStyle(fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        r.clientName,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: kSize(13),
+                                          fontFamily: 'Cairo',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (comment.isNotEmpty) ...[
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      '“$comment”',
+                                      style: TextStyle(
+                                        color: Colors.grey[700],
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: kSize(12),
+                                        fontFamily: 'Cairo',
+                                      ),
+                                      textDirection: TextDirection.rtl,
+                                    ),
+                                  ]
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
-                  ),
                 ],
               ),
             ),

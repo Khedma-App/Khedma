@@ -5,6 +5,12 @@ import 'package:khedma/core/constants.dart';
 import 'package:khedma/models/message_model.dart';
 import 'package:khedma/services/chat_service.dart';
 import 'package:khedma/screens/work_note_screen.dart';
+import 'package:khedma/core/utils/text_validator.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:khedma/cubits/auth_cubit/auth_cubit.dart';
+import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
+import 'package:khedma/components/rating_dialog.dart';
+import 'package:khedma/services/user_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatRoomId;
@@ -52,6 +58,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
+    if (TextValidator.validateAll(context, [text])) {
+      _messageController.clear();
+      return;
+    }
+
     _chatService.sendMessage(
       chatRoomId: widget.chatRoomId,
       senderId: _myUid,
@@ -61,7 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _messageController.clear();
   }
 
- bool _isChatUnlocked(List<MessageModel> messages) {
+  bool _isChatUnlocked(List<MessageModel> messages) {
     // No messages → unlocked (empty chat from direct navigation)
     if (messages.isEmpty) return true;
 
@@ -232,6 +243,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 SizedBox(height: kHeight(6)),
                 TextField(
                   controller: notesCtrl,
+                  onChanged: (val) =>
+                      TextValidator.validateExternalCommunication(
+                        context,
+                        val,
+                        notesCtrl,
+                      ),
                   textAlign: TextAlign.right,
                   maxLines: 3,
                   decoration: InputDecoration(
@@ -273,6 +290,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
+                          if (TextValidator.validateAll(context, [
+                            dateCtrl.text,
+                            priceCtrl.text,
+                            notesCtrl.text,
+                          ])) {
+                            return;
+                          }
                           Navigator.pop(ctx);
                           try {
                             await _chatService.requestModification(
@@ -542,12 +566,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         '${p['price']} ج ${p['pricingUnit'] ?? ''}',
                       ),
                     ],
-                    if ((p['suggestedTime'] as String?)?.isNotEmpty == true) ...[
+                    if ((p['suggestedTime'] as String?)?.isNotEmpty ==
+                        true) ...[
                       SizedBox(height: kHeight(6)),
-                      _cardInfoRow(
-                        'الوقت المقترح للتنفيذ',
-                        p['suggestedTime'],
-                      ),
+                      _cardInfoRow('الوقت المقترح للتنفيذ', p['suggestedTime']),
                     ],
                     SizedBox(height: kHeight(6)),
                     // Address
@@ -976,15 +998,77 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               const SizedBox(width: 10),
-              CircleAvatar(
-                backgroundColor: Colors.purple[50],
-                child: const Icon(Icons.person, color: Colors.deepPurple),
+              GestureDetector(
+                onTap: () => _openRatingDialog(context),
+                child: CircleAvatar(
+                  backgroundColor: Colors.purple[50],
+                  child: const Icon(Icons.person, color: Colors.deepPurple),
+                ),
               ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RATING DIALOG LOGIC
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Future<void> _openRatingDialog(BuildContext context) async {
+    // 1. Only allow rating if the user is a client
+    final isClient = context.read<ProvidersCubit>().isClient;
+    if (!isClient) {
+      return; // Providers cannot rate clients
+    }
+
+    // 2. Determine target user ID
+    final parts = widget.chatRoomId.split('_');
+    final targetUserId = parts.length == 2
+        ? (parts.first == _myUid ? parts.last : parts.first)
+        : null;
+
+    if (targetUserId == null) return;
+
+    // 3. Ensure agreement is reached
+    if (!_isChatUnlocked(_currentMessages)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'لا يمكن تقييم العامل إلا بعد الموافقة على الطلب',
+            style: TextStyle(fontFamily: 'Cairo'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // 4. Fetch client user model dynamically and show Rating Dialog
+    try {
+      final clientUser = await UserService().getUserById(_myUid);
+      if (!context.mounted) return;
+
+      RatingDialog.show(
+        context,
+        providerId: targetUserId,
+        clientId: _myUid,
+        clientName: clientUser.fullName,
+        chatRoomId: widget.chatRoomId,
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'تعذر جلب بيانات المستخدم',
+            style: TextStyle(fontFamily: 'Cairo'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1037,12 +1121,20 @@ class _ChatScreenState extends State<ChatScreen> {
                       Expanded(
                         child: TextField(
                           controller: _messageController,
+                          onChanged: (val) =>
+                              TextValidator.validateExternalCommunication(
+                                context,
+                                val,
+                                _messageController,
+                              ),
                           textAlign: TextAlign.right,
                           onSubmitted: (_) => _sendMessage(),
                           decoration: const InputDecoration(
                             hintText: '...ماذا تريد',
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                            ),
                           ),
                         ),
                       ),
@@ -1139,7 +1231,8 @@ class _ChatScreenState extends State<ChatScreen> {
   double _getLatestAgreedPrice() {
     for (int i = _currentMessages.length - 1; i >= 0; i--) {
       final msg = _currentMessages[i];
-      if ((msg.messageType == 'service_request' || msg.messageType == 'modification') &&
+      if ((msg.messageType == 'service_request' ||
+              msg.messageType == 'modification') &&
           msg.requestStatus == 'accepted') {
         final p = msg.requestPayload ?? {};
         final priceStr = p['price'] as String? ?? '';
@@ -1201,7 +1294,8 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (_) {}
 
     if (orderId.isEmpty) {
-      orderId = 'T-${DateTime.now().year}-${widget.chatRoomId.hashCode.abs() % 100000}';
+      orderId =
+          'T-${DateTime.now().year}-${widget.chatRoomId.hashCode.abs() % 100000}';
     }
 
     if (!mounted) return;

@@ -45,13 +45,20 @@ dependencies:
   geolocator: ^14.0.2
   geocoding: ^4.0.0
   shared_preferences: ^2.5.4
-  supabase_flutter: ^2.12.0
   intl: ^0.20.2
   dotted_border: ^3.1.0
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0
   flutter_localizations:
     sdk: flutter
+  pdf: ^3.13.0
+  printing: ^5.13.0
+  screenshot: ^3.0.0
+  firebase_storage: ^13.4.3
+  firebase_messaging: ^16.4.1
+  flutter_local_notifications: ^22.0.1
+  googleapis_auth: ^2.3.2
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +70,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -79,6 +87,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/serviceAccountKey.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -115,3 +124,8 @@ flutter_native_splash:
     color: "#E19113"
     image: assets/icons/خِدمة 1.png
   web: false
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"

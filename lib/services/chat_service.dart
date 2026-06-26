@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:khedma/core/errors/app_exception.dart';
 import 'package:khedma/models/chat_room_model.dart';
 import 'package:khedma/models/message_model.dart';
+import 'package:khedma/services/notification_service.dart';
 
 /// Handles all Firestore operations for the real-time chat feature.
 ///
@@ -111,6 +112,17 @@ class ChatService {
       });
 
       await batch.commit();
+
+      // Send Push Notification
+      final parts = chatRoomId.split('_');
+      final targetUid = parts.firstWhere((id) => id != senderId, orElse: () => '');
+      if (targetUid.isNotEmpty) {
+        NotificationService.sendPushNotification(
+          targetUid: targetUid,
+          title: 'رسالة جديدة',
+          body: text,
+        );
+      }
     } on FirebaseException catch (e) {
       throw AppException('فشل إرسال الرسالة', code: e.code);
     } catch (e) {
@@ -155,6 +167,17 @@ class ChatService {
       });
 
       await batch.commit();
+
+      // Send Push Notification
+      final parts = chatRoomId.split('_');
+      final targetUid = parts.firstWhere((id) => id != senderId, orElse: () => '');
+      if (targetUid.isNotEmpty) {
+        NotificationService.sendPushNotification(
+          targetUid: targetUid,
+          title: 'طلب خدمة جديد',
+          body: 'لقد استلمت طلب خدمة جديد.',
+        );
+      }
     } on FirebaseException catch (e) {
       throw AppException('فشل إرسال طلب الخدمة', code: e.code);
     } catch (e) {
@@ -207,6 +230,17 @@ class ChatService {
       });
 
       await batch.commit();
+
+      // Send Push Notification
+      final parts = chatRoomId.split('_');
+      final targetUid = parts.firstWhere((id) => id != acceptedByUid, orElse: () => '');
+      if (targetUid.isNotEmpty) {
+        NotificationService.sendPushNotification(
+          targetUid: targetUid,
+          title: 'تم قبول طلبك',
+          body: 'تم قبول طلبك ✅ ... يمكنك الآن بدء المحادثة.',
+        );
+      }
     } on FirebaseException catch (e) {
       throw AppException('فشل قبول الطلب', code: e.code);
     } catch (e) {
@@ -263,6 +297,17 @@ class ChatService {
       });
 
       await batch.commit();
+
+      // Send Push Notification
+      final parts = chatRoomId.split('_');
+      final targetUid = parts.firstWhere((id) => id != senderId, orElse: () => '');
+      if (targetUid.isNotEmpty) {
+        NotificationService.sendPushNotification(
+          targetUid: targetUid,
+          title: 'طلب تعديل',
+          body: 'قام الطرف الآخر بطلب تعديل على الخدمة.',
+        );
+      }
     } on FirebaseException catch (e) {
       throw AppException('فشل إرسال طلب التعديل', code: e.code);
     } catch (e) {
@@ -315,6 +360,17 @@ class ChatService {
       });
 
       await batch.commit();
+
+      // Send Push Notification
+      final parts = chatRoomId.split('_');
+      final targetUid = parts.firstWhere((id) => id != rejectedByUid, orElse: () => '');
+      if (targetUid.isNotEmpty) {
+        NotificationService.sendPushNotification(
+          targetUid: targetUid,
+          title: 'تم إلغاء الطلب',
+          body: 'تم إلغاء الطلب من قبل الطرف الآخر.',
+        );
+      }
     } on FirebaseException catch (e) {
       throw AppException('فشل إلغاء الطلب', code: e.code);
     } catch (e) {

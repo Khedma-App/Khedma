@@ -283,11 +283,14 @@ class _EditProfileScreenState extends State<ProfileUpdateScreen> {
                               radius: kSize(55),
                               backgroundImage: _imageFile != null
                                   ? FileImage(_imageFile!)
-                                  : _profileImageUrl.isNotEmpty
-                                      ? CachedNetworkImageProvider(_profileImageUrl)
-                                          as ImageProvider
-                                      : null,
-                              child: (_imageFile == null && _profileImageUrl.isEmpty)
+                                  : _profileImageUrl.startsWith('http')
+                                      ? CachedNetworkImageProvider(_profileImageUrl) as ImageProvider
+                                      : _profileImageUrl.startsWith('assets')
+                                          ? AssetImage(_profileImageUrl)
+                                          : null,
+                              child: (_imageFile == null &&
+                                      !_profileImageUrl.startsWith('http') &&
+                                      !_profileImageUrl.startsWith('assets'))
                                   ? const Icon(Icons.person, size: 50)
                                   : null,
                             ),

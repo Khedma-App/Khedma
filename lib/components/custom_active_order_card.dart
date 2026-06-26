@@ -242,13 +242,18 @@ class CustomActiveOrderCard extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                "تأكيد إنهاء العمل",
-                                style: TextStyle(
-                                  fontFamily: 'Cairo',
-                                  color: Colors.white,
-                                  fontSize: kSize(13),
-                                  fontWeight: FontWeight.w700,
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    "تأكيد إنهاء العمل",
+                                    style: TextStyle(
+                                      fontFamily: 'Cairo',
+                                      color: Colors.white,
+                                      fontSize: kSize(13),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ),
                               ),
                               SizedBox(width: kSize(8)),
@@ -279,13 +284,16 @@ class CustomActiveOrderCard extends StatelessWidget {
                             ),
                           ),
                           child: const Center(
-                            child: Text(
-                              "عرض التفاصيل",
-                              style: TextStyle(
-                                fontFamily: 'Cairo',
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                "عرض التفاصيل",
+                                style: TextStyle(
+                                  fontFamily: 'Cairo',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
                               ),
                             ),
                           ),

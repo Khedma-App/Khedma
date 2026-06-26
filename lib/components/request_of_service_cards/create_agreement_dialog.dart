@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/core/utils/text_validator.dart';
 
 class CreateAgreementDialog extends StatefulWidget {
   const CreateAgreementDialog({super.key});
@@ -345,6 +346,7 @@ class _CreateAgreementDialogState extends State<CreateAgreementDialog> {
                           ),
                           child: TextField(
                             controller: detailsController,
+                            onChanged: (val) => TextValidator.validateExternalCommunication(context, val, detailsController),
                             textAlign: TextAlign.right,
                             style: TextStyle(
                               fontSize: kSize(12),

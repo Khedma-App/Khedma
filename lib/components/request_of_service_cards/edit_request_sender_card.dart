@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:intl/intl.dart';
+import 'package:khedma/core/utils/text_validator.dart';
 
 class EditRequestSenderCard extends StatefulWidget {
   const EditRequestSenderCard({super.key});
@@ -215,6 +216,11 @@ class _EditRequestSenderCardState extends State<EditRequestSenderCard> {
                           height: kHeight(90),
                           child: TextFormField(
                             controller: noteController,
+                            onChanged: (val) {
+                              if (noteController != null) {
+                                TextValidator.validateExternalCommunication(context, val, noteController!);
+                              }
+                            },
                             textAlign: TextAlign.right,
                             keyboardType: TextInputType.multiline,
                             maxLines: 5,
@@ -267,7 +273,19 @@ class _EditRequestSenderCardState extends State<EditRequestSenderCard> {
 
                       // edit button
                       GestureDetector(
-                        onTap: onSend,
+                        onTap: () {
+                          if (TextValidator.validateAll(context, [
+                            dateController.text,
+                            priceController.text,
+                            durationController.text,
+                            noteController?.text ?? '',
+                          ])) {
+                            return;
+                          }
+                          if (onSend != null) {
+                            onSend!();
+                          }
+                        },
                         child: Container(
                           height: kHeight(36),
                           width: kWidth(88),

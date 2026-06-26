@@ -43,10 +43,8 @@ class _ServiceRequesterRegisterScreenState
   Widget build(BuildContext context) {
     // This screen is a separate route, so it provides its own AuthCubit.
     return BlocProvider(
-      create: (_) => AuthCubit(
-        authService: AuthService(),
-        userService: UserService(),
-      ),
+      create: (_) =>
+          AuthCubit(authService: AuthService(), userService: UserService()),
       child: BlocConsumer<AuthCubit, AuthStates>(
         // Rebuild only when the loading status flips.
         buildWhen: (prev, curr) =>
@@ -72,7 +70,7 @@ class _ServiceRequesterRegisterScreenState
           final bool isLoading = state is AuthLoadingState;
 
           return Scaffold(
-            resizeToAvoidBottomInset: false,
+            resizeToAvoidBottomInset: true,
             body: Container(
               decoration: const BoxDecoration(
                 image: DecorationImage(
@@ -92,25 +90,24 @@ class _ServiceRequesterRegisterScreenState
                         child: Column(
                           children: [
                             const Spacer(),
-                            Column(
-                              children: [
-                                Container(
-                                  width: kScreenWidth,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(50),
-                                      topRight: Radius.circular(50),
+                            Form(
+                              key: formKey,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: kScreenWidth,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(50),
+                                        topRight: Radius.circular(50),
+                                      ),
                                     ),
-                                  ),
-                                  child: SingleChildScrollView(
-                                    physics: const ClampingScrollPhysics(),
-                                    child: Form(
-                                      key: formKey,
+                                    child: SingleChildScrollView(
+                                      physics: const ClampingScrollPhysics(),
                                       child: Column(
                                         children: [
                                           SizedBox(height: kHeight(29)),
-
                                           // title
                                           const Text(
                                             'طالب خِدمة',
@@ -132,9 +129,12 @@ class _ServiceRequesterRegisterScreenState
                                                 keyboardType:
                                                     TextInputType.name,
                                                 hint: 'الاســم الاخير',
-                                                controller:
-                                                    lastNameController,
-                                                validator: (v) => ValidationHelper.validateName(v, fieldName: 'الاسم الأخير'),
+                                                controller: lastNameController,
+                                                validator: (v) =>
+                                                    ValidationHelper.validateName(
+                                                      v,
+                                                      fieldName: 'الاسم الأخير',
+                                                    ),
                                                 isCenter: true,
                                                 width: kWidth(160),
                                               ),
@@ -146,9 +146,12 @@ class _ServiceRequesterRegisterScreenState
                                                 keyboardType:
                                                     TextInputType.name,
                                                 hint: 'الاســم الاول',
-                                                controller:
-                                                    firstNameController,
-                                                validator: (v) => ValidationHelper.validateName(v, fieldName: 'الاسم الأول'),
+                                                controller: firstNameController,
+                                                validator: (v) =>
+                                                    ValidationHelper.validateName(
+                                                      v,
+                                                      fieldName: 'الاسم الأول',
+                                                    ),
                                                 isCenter: true,
                                                 width: kWidth(160),
                                               ),
@@ -163,11 +166,13 @@ class _ServiceRequesterRegisterScreenState
                                                 TextInputType.emailAddress,
                                             hint: 'البريد الالكتروني',
                                             controller: emailController,
-                                            validator: ValidationHelper.validateEmail,
+                                            validator:
+                                                ValidationHelper.validateEmail,
                                             width: kWidth(329),
                                             icon: Container(
-                                              padding:
-                                                  const EdgeInsets.all(10.0),
+                                              padding: const EdgeInsets.all(
+                                                10.0,
+                                              ),
                                               width: kWidth(22),
                                               child: Image.asset(
                                                 'assets/images/egypt-image.png',
@@ -183,7 +188,8 @@ class _ServiceRequesterRegisterScreenState
                                                 TextInputType.visiblePassword,
                                             hint: 'كلمــــــــة المــــــــرور',
                                             controller: passwordController,
-                                            validator: ValidationHelper.validatePassword,
+                                            validator: ValidationHelper
+                                                .validatePassword,
                                             width: kWidth(329),
                                             icon: const Icon(Icons.lock),
                                           ),
@@ -204,15 +210,15 @@ class _ServiceRequesterRegisterScreenState
                                                   width: kWidth(155),
                                                   padding:
                                                       const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 2,
-                                                  ),
+                                                        horizontal: 8,
+                                                        vertical: 2,
+                                                      ),
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                      12,
-                                                    ),
+                                                          12,
+                                                        ),
                                                     boxShadow: const [
                                                       BoxShadow(
                                                         color: Color.fromRGBO(
@@ -226,52 +232,50 @@ class _ServiceRequesterRegisterScreenState
                                                       ),
                                                     ],
                                                   ),
-                                                  child:
-                                                      DropdownButtonFormField<
-                                                          String>(
+                                                  child: DropdownButtonFormField<String>(
                                                     value: selectedGender,
-                                                    decoration:
-                                                        InputDecoration(
+                                                    decoration: InputDecoration(
                                                       errorStyle:
                                                           const TextStyle(
-                                                        height: 0,
-                                                        color:
-                                                            Colors.transparent,
-                                                        fontSize: 0,
-                                                      ),
+                                                            height: 0,
+                                                            color: Colors
+                                                                .transparent,
+                                                            fontSize: 0,
+                                                          ),
                                                       errorBorder:
                                                           OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(12),
-                                                        borderSide:
-                                                            const BorderSide(
-                                                          color: Colors.red,
-                                                          width: 1,
-                                                        ),
-                                                      ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                            borderSide:
+                                                                const BorderSide(
+                                                                  color: Colors
+                                                                      .red,
+                                                                  width: 1,
+                                                                ),
+                                                          ),
                                                       suffixIcon:
-                                                          const SizedBox
-                                                              .shrink(),
+                                                          const SizedBox.shrink(),
                                                       prefixIcon: const Icon(
                                                         Icons.arrow_drop_down,
-                                                        color:
-                                                            Color(0xFF434343),
+                                                        color: Color(
+                                                          0xFF434343,
+                                                        ),
                                                       ),
-                                                      border:
-                                                          InputBorder.none,
+                                                      border: InputBorder.none,
                                                       filled: true,
                                                       fillColor: Colors.white,
                                                       contentPadding:
                                                           EdgeInsets.zero,
                                                     ),
-                                                    dropdownColor:
-                                                        Colors.white,
+                                                    dropdownColor: Colors.white,
                                                     hint: const Text(
                                                       'النـــــوع',
                                                       style: TextStyle(
-                                                        color:
-                                                            Color(0x80838383),
+                                                        color: Color(
+                                                          0x80838383,
+                                                        ),
                                                         fontSize: 12,
                                                         fontWeight:
                                                             FontWeight.w900,
@@ -279,15 +283,21 @@ class _ServiceRequesterRegisterScreenState
                                                       textAlign:
                                                           TextAlign.center,
                                                     ),
-                                                    items: ['ذكر', 'أنثى']
-                                                        .map((String value) {
+                                                    items: ['ذكر', 'أنثى'].map((
+                                                      String value,
+                                                    ) {
                                                       return DropdownMenuItem<
-                                                          String>(
+                                                        String
+                                                      >(
                                                         value: value,
                                                         child: Text(value),
                                                       );
                                                     }).toList(),
-                                                    validator: (v) => ValidationHelper.validateRequired(v, 'النوع'),
+                                                    validator: (v) =>
+                                                        ValidationHelper.validateRequired(
+                                                          v,
+                                                          'النوع',
+                                                        ),
                                                     onChanged: (value) {
                                                       setState(() {
                                                         selectedGender = value;
@@ -349,8 +359,8 @@ class _ServiceRequesterRegisterScreenState
                                                 color: Colors.orange,
                                                 borderRadius:
                                                     const BorderRadius.all(
-                                                  Radius.circular(30),
-                                                ),
+                                                      Radius.circular(30),
+                                                    ),
                                               ),
                                               child: Center(
                                                 child: isLoading
@@ -376,8 +386,8 @@ class _ServiceRequesterRegisterScreenState
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -417,5 +427,4 @@ class _ServiceRequesterRegisterScreenState
       },
     ).show();
   }
-
 }

@@ -13,7 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/screens/main_layout_screen.dart';
 import 'package:khedma/services/user_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' hide User;
+import 'package:khedma/services/storage_service.dart';
 
 class ServiceProviderScreen extends StatefulWidget {
   const ServiceProviderScreen({super.key});
@@ -127,16 +127,34 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
     );
   }
 
-  // فانكشن إضافة صور العمل
-  Future<void> _pickWorkImage(ImageSource source) async {
-    if (_workImages.length >= 5) return;
+  // فانكشن إضافة صور العمل (صورة واحدة من الكاميرا)
+  Future<void> _pickWorkImageFromCamera() async {
+    if (_workImages.length >= 4) return;
     final XFile? image = await _picker.pickImage(
-      source: source,
+      source: ImageSource.camera,
       imageQuality: 70,
     );
     if (image != null) {
       setState(() {
         _workImages.add(File(image.path));
+        _workImagesError = null;
+      });
+    }
+  }
+
+  // فانكشن إضافة عدة صور من المعرض مرة واحدة
+  Future<void> _pickMultipleWorkImages() async {
+    final int remaining = 4 - _workImages.length;
+    if (remaining <= 0) return;
+    final List<XFile> images = await _picker.pickMultiImage(
+      imageQuality: 70,
+      limit: remaining,
+    );
+    if (images.isNotEmpty) {
+      setState(() {
+        // Take only up to remaining slots
+        final toAdd = images.take(remaining).map((x) => File(x.path)).toList();
+        _workImages.addAll(toAdd);
         _workImagesError = null;
       });
     }
@@ -155,15 +173,15 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
               title: const Text('التقاط'),
               onTap: () {
                 Navigator.pop(context);
-                _pickWorkImage(ImageSource.camera);
+                _pickWorkImageFromCamera();
               },
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('المعرض'),
+              title: Text('اختيار من المعرض (حتى ${4 - _workImages.length} صور)'),
               onTap: () {
                 Navigator.pop(context);
-                _pickWorkImage(ImageSource.gallery);
+                _pickMultipleWorkImages();
               },
             ),
           ],
@@ -213,33 +231,21 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
 
     try {
       User user = FirebaseAuth.instance.currentUser!;
-      final supabase = Supabase.instance.client;
-
+      final storageService = StorageService();
       String profileUrl = '';
 
       if (_image != null) {
-        String fileName =
-            'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        String path = '${user.uid}/$fileName';
-        await supabase.storage.from('Provider_images').upload(path, _image!);
-        profileUrl = supabase.storage
-            .from('Provider_images')
-            .getPublicUrl(path);
+        profileUrl = await storageService.uploadProfileImage(user.uid, _image!);
       }
 
       List<String> uploadedUrls = [];
       if (_workImages.isNotEmpty) {
         for (int i = 0; i < _workImages.length; i++) {
-          File imageFile = _workImages[i];
-          String fileName =
-              'work_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
-          String path = '${user.uid}/$fileName';
-          await supabase.storage
-              .from('Provider_images')
-              .upload(path, imageFile);
-          final String publicUrl = supabase.storage
-              .from('Provider_images')
-              .getPublicUrl(path);
+          final publicUrl = await storageService.uploadWorkImage(
+            user.uid,
+            _workImages[i],
+            i,
+          );
           uploadedUrls.add(publicUrl);
         }
       }
@@ -287,6 +293,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
       }
     } catch (e) {
       debugPrint('Error: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('حدث خطأ أثناء الحفظ: $e'),

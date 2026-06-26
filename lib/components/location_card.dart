@@ -69,50 +69,55 @@ class LocationCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "المحافظة",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: kSize(12),
-                      ),
-                    ),
-                    SizedBox(height: kHeight(8)),
-                    Container(
-                      height: kHeight(40),
-                      width: kWidth(110),
-                      padding: EdgeInsets.symmetric(horizontal: kSize(12)),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF6F6F6),
-                        border: Border.all(
-                          color: governorateError != null
-                              ? Colors.red
-                              : Colors.grey.shade300,
-                        ),
-                        borderRadius: BorderRadius.circular(kSize(12)),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          isExpanded: true,
-                          hint: Text("المحافظة", style: hintStyle),
-                          value: selectedGovernorate,
-                          items: EgyptData.egyptData.keys
-                              .map(
-                                (gov) => DropdownMenuItem(
-                                  value: gov,
-                                  child: Text(gov),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: onGovernorateChanged,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "المحافظة",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: kSize(12),
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: kHeight(8)),
+                      Container(
+                        height: kHeight(40),
+                        padding: EdgeInsets.symmetric(horizontal: kSize(12)),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF6F6F6),
+                          border: Border.all(
+                            color: governorateError != null
+                                ? Colors.red
+                                : Colors.grey.shade300,
+                          ),
+                          borderRadius: BorderRadius.circular(kSize(12)),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            hint: Text("المحافظة", style: hintStyle),
+                            value: selectedGovernorate,
+                            items: EgyptData.egyptData.keys
+                                .map(
+                                  (gov) => DropdownMenuItem(
+                                    value: gov,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: AlignmentDirectional.centerStart,
+                                      child: Text(gov, style: TextStyle(fontSize: kSize(12))),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: onGovernorateChanged,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(width: kWidth(20)),
+                SizedBox(width: kWidth(12)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +132,6 @@ class LocationCard extends StatelessWidget {
                       SizedBox(height: kHeight(8)),
                       Container(
                         height: kHeight(40),
-                        width: kWidth(110),
                         padding: EdgeInsets.symmetric(horizontal: kSize(12)),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF6F6F6),
@@ -149,7 +153,11 @@ class LocationCard extends StatelessWidget {
                                       .map(
                                         (city) => DropdownMenuItem(
                                           value: city,
-                                          child: Text(city),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: AlignmentDirectional.centerStart,
+                                            child: Text(city, style: TextStyle(fontSize: kSize(12))),
+                                          ),
                                         ),
                                       )
                                       .toList(),
@@ -195,16 +203,18 @@ class LocationCard extends StatelessWidget {
             SizedBox(height: kHeight(5)),
             Row(
               children: [
-                Text(
-                  "اوقات العمل ( اختياري )",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: kSize(12),
+                Flexible(
+                  child: Text(
+                    "اوقات العمل ( اختياري )",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: kSize(12),
+                    ),
                   ),
                 ),
-                SizedBox(width: kWidth(10)),
+                SizedBox(width: kWidth(8)),
                 _buildTimeDropdown("من", selectedFrom, onFromTimeChanged),
-                SizedBox(width: kWidth(10)),
+                SizedBox(width: kWidth(8)),
                 _buildTimeDropdown("إلى", selectedTo, onToTimeChanged),
               ],
             ),

@@ -69,29 +69,29 @@ class ServiceProviderCard extends StatelessWidget {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: worker.profileImageUrl.startsWith('http')
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(kSize(16)),
-                        ),
-                        child: CachedNetworkImage(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(kSize(16)),
+                  ),
+                  child: worker.profileImageUrl.startsWith('http')
+                      ? CachedNetworkImage(
                           imageUrl: worker.profileImageUrl,
                           fit: BoxFit.cover,
-                          alignment: Alignment.topCenter,
                           placeholder: (context, url) => const Center(
                             child: CircularProgressIndicator(),
                           ),
                           errorWidget: (_, __, ___) => Image.asset(
-                            'assets/images/naqash.jpg',
+                            'assets/images/profile.png',
                             fit: BoxFit.cover,
                           ),
+                        )
+                      : Image.asset(
+                          worker.profileImageUrl.startsWith('assets')
+                              ? worker.profileImageUrl
+                              : 'assets/images/profile.png',
+                          fit: BoxFit.cover,
                         ),
-                      )
-                    : Image.asset(
-                        'assets/images/naqash.jpg',
-                        fit: BoxFit.cover,
-                        alignment: Alignment.topCenter,
-                      ),
+                ),
               ),
             ),
 

@@ -21,6 +21,20 @@ class AuthLoginSuccessState extends AuthStates {
 }
 class AuthSignUpSuccessState extends AuthStates {}
 
+class AuthOtpSentState extends AuthStates {
+  final String verificationId;
+  final String phoneNumber;
+  final String flow; // 'login', 'register_provider', 'register_requester'
+  final Map<String, dynamic>? registerData;
+
+  const AuthOtpSentState({
+    required this.verificationId,
+    required this.phoneNumber,
+    required this.flow,
+    this.registerData,
+  });
+}
+
 class AuthPasswordResetSentState extends AuthStates {}
 
 /// An operation failed. Carries the Arabic [message] from [AppException].

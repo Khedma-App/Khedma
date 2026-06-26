@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:khedma/core/errors/app_exception.dart';
 import 'package:khedma/models/user_model.dart';
 import 'package:khedma/services/auth_service.dart';
 import 'package:khedma/services/user_service.dart';
+import 'package:khedma/services/notification_service.dart';
+import 'package:khedma/core/helpers/validation_helper.dart';
 
 part 'auth_states.dart';
 
@@ -36,9 +39,9 @@ class AuthCubit extends Cubit<AuthStates> {
   AuthCubit({
     required AuthService authService,
     required UserService userService,
-  })  : _authService = authService,
-        _userService = userService,
-        super(AuthLoginTabState());
+  }) : _authService = authService,
+       _userService = userService,
+       super(AuthLoginTabState());
 
   // ─── Convenience accessor ─────────────────────────────────────────────────
 
@@ -58,20 +61,25 @@ class AuthCubit extends Cubit<AuthStates> {
   ///
   /// Emits [AuthLoadingState] → [AuthLoginSuccessState] on success.
   /// Emits [AuthErrorState] on any failure (wrong password, unverified email, etc.)
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String identifier, String? password}) async {
     emit(AuthLoadingState());
     try {
-      // Step 1: Firebase Auth sign-in (verifies email check is inside AuthService).
+      String emailToLogin = identifier;
+      if (ValidationHelper.isPhoneInput(identifier)) {
+        emailToLogin = ValidationHelper.generateProxyEmail(identifier);
+      }
+
+      // Step 1: Firebase Auth sign-in.
       final firebaseUser = await _authService.signIn(
-        email: email,
-        password: password,
+        email: emailToLogin,
+        password: password ?? '',
       );
 
       // Step 2: Fetch the full Firestore profile to get role + isFirstTime.
       final userModel = await _userService.getUserById(firebaseUser.uid);
+
+      // Save FCM token for push notifications.
+      await NotificationService.saveFCMToken();
 
       if (isClosed) return;
       emit(AuthLoginSuccessState(userModel));
@@ -91,42 +99,67 @@ class AuthCubit extends Cubit<AuthStates> {
   Future<void> registerProvider({
     required String firstName,
     required String lastName,
-    required String email,
-    required String password,
+    required String identifier,
+    String? password,
     required int age,
     required String gender,
   }) async {
     emit(AuthLoadingState());
     try {
-      // Step 1: Create the Firebase Auth account + send verification email.
-      final firebaseUser = await _authService.signUp(
-        email: email,
-        password: password,
-      );
+      if (ValidationHelper.isPhoneInput(identifier)) {
+        await _authService.verifyPhoneNumber(
+          phoneNumber: identifier,
+          codeSent: (verificationId) {
+            if (isClosed) return;
+            emit(
+              AuthOtpSentState(
+                verificationId: verificationId,
+                phoneNumber: identifier,
+                flow: 'register_provider',
+                registerData: {
+                  'firstName': firstName,
+                  'lastName': lastName,
+                  'identifier': identifier,
+                  'password': password ?? '',
+                  'age': age,
+                  'gender': gender,
+                },
+              ),
+            );
+          },
+          verificationFailed: (e) {
+            if (isClosed) return;
+            emit(AuthErrorState(e.message));
+          },
+        );
+      } else {
+        // Step 1: Create the Firebase Auth account + send verification email.
+        final firebaseUser = await _authService.signUp(
+          email: identifier,
+          password: password ?? '',
+        );
 
-      // Step 2: Build the typed UserModel to write to Firestore.
-      final userModel = UserModel(
-        uid: firebaseUser.uid,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        role: 'provider',
-        isFirstTime: true,
-        profileCompleted: false,
-        providerData: ProviderData(
-          age: age,
-          gender: gender,
-        ),
-      );
+        // Step 2: Build the typed UserModel to write to Firestore.
+        final userModel = UserModel(
+          uid: firebaseUser.uid,
+          firstName: firstName,
+          lastName: lastName,
+          email: identifier,
+          role: 'provider',
+          isFirstTime: true,
+          profileCompleted: false,
+          providerData: ProviderData(age: age, gender: gender),
+        );
 
-      // Step 3: Write the document to Firestore (user still authenticated here).
-      await _userService.createUserDocument(userModel);
+        // Step 3: Write the document to Firestore (user still authenticated here).
+        await _userService.createUserDocument(userModel);
 
-      // Step 4: Sign out AFTER the write — verification required before next login.
-      await _authService.signOut();
+        // Step 4: Sign out AFTER the write — verification required before next login.
+        await _authService.signOut();
 
-      if (isClosed) return;
-      emit(AuthSignUpSuccessState());
+        if (isClosed) return;
+        emit(AuthSignUpSuccessState());
+      }
     } on AppException catch (e) {
       if (isClosed) return;
       emit(AuthErrorState(e.message));
@@ -143,38 +176,173 @@ class AuthCubit extends Cubit<AuthStates> {
   Future<void> registerRequester({
     required String firstName,
     required String lastName,
-    required String email,
-    required String password,
+    required String identifier,
+    String? password,
     required String gender,
   }) async {
     emit(AuthLoadingState());
     try {
-      // Step 1: Create the Firebase Auth account.
-      final firebaseUser = await _authService.signUp(
-        email: email,
-        password: password,
-      );
+      if (ValidationHelper.isPhoneInput(identifier)) {
+        await _authService.verifyPhoneNumber(
+          phoneNumber: identifier,
+          codeSent: (verificationId) {
+            if (isClosed) return;
+            emit(
+              AuthOtpSentState(
+                verificationId: verificationId,
+                phoneNumber: identifier,
+                flow: 'register_requester',
+                registerData: {
+                  'firstName': firstName,
+                  'lastName': lastName,
+                  'identifier': identifier,
+                  'password': password ?? '',
+                  'gender': gender,
+                },
+              ),
+            );
+          },
+          verificationFailed: (e) {
+            if (isClosed) return;
+            emit(AuthErrorState(e.message));
+          },
+        );
+      } else {
+        // Step 1: Create the Firebase Auth account.
+        final firebaseUser = await _authService.signUp(
+          email: identifier,
+          password: password ?? '',
+        );
 
-      // Step 2: Build the UserModel (Client role, no age field).
-      final userModel = UserModel(
-        uid: firebaseUser.uid,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        role: 'Client',
-        isFirstTime: false, // Requesters go straight to the main app.
-        profileCompleted: false,
-        providerData: ProviderData(gender: gender),
-      );
+        // Step 2: Build the UserModel (Client role, no age field).
+        final userModel = UserModel(
+          uid: firebaseUser.uid,
+          firstName: firstName,
+          lastName: lastName,
+          email: identifier,
+          role: 'Client',
+          isFirstTime: false, // Requesters go straight to the main app.
+          profileCompleted: false,
+          providerData: ProviderData(gender: gender),
+        );
 
-      // Step 3: Write the document to Firestore (user still authenticated here).
-      await _userService.createUserDocument(userModel);
+        // Step 3: Write the document to Firestore (user still authenticated here).
+        await _userService.createUserDocument(userModel);
 
-      // Step 4: Sign out AFTER the write — verification required before next login.
-      await _authService.signOut();
+        // Step 4: Sign out AFTER the write — verification required before next login.
+        await _authService.signOut();
 
+        if (isClosed) return;
+        emit(AuthSignUpSuccessState());
+      }
+    } on AppException catch (e) {
       if (isClosed) return;
-      emit(AuthSignUpSuccessState());
+      emit(AuthErrorState(e.message));
+    }
+  }
+
+  // ─── Verify OTP ───────────────────────────────────────────────────────────
+
+  Future<void> verifyOtpAndComplete({
+    required String verificationId,
+    required String smsCode,
+    required String flow,
+    Map<String, dynamic>? registerData,
+  }) async {
+    emit(AuthLoadingState());
+    try {
+      final firebaseUser = await _authService.signInWithPhoneOTP(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+
+      if (flow == 'login') {
+        final userModel = await _userService.getUserById(firebaseUser.uid);
+        await NotificationService.saveFCMToken();
+        if (isClosed) return;
+        emit(AuthLoginSuccessState(userModel));
+      } else if (flow == 'register_provider') {
+        final proxyEmail = ValidationHelper.generateProxyEmail(
+          registerData!['identifier'],
+        );
+
+        try {
+          await _authService.upgradePhoneToEmail(
+            proxyEmail,
+            registerData['password'],
+          );
+        } catch (e) {
+          if (isClosed) return;
+          if (e is AppException) {
+            emit(AuthErrorState(e.message));
+          } else {
+            emit(AuthErrorState(e.toString()));
+          }
+          return;
+        }
+
+        final userModel = UserModel(
+          uid: firebaseUser.uid,
+          firstName: registerData['firstName'],
+          lastName: registerData['lastName'],
+          email: proxyEmail,
+          phone: registerData['identifier'],
+          role: 'provider',
+          isFirstTime: true,
+          profileCompleted: false,
+          providerData: ProviderData(
+            age: registerData['age'],
+            gender: registerData['gender'],
+          ),
+        );
+
+        await _userService.createUserDocument(userModel);
+
+        // For phone auth, sign out so they can log in via OTP,
+        // or we could emit LoginSuccessState directly.
+        // Keeping it consistent with email flow (forcing them to login again).
+        await _authService.signOut();
+
+        if (isClosed) return;
+        emit(AuthSignUpSuccessState());
+      } else if (flow == 'register_requester') {
+        final proxyEmail = ValidationHelper.generateProxyEmail(
+          registerData!['identifier'],
+        );
+
+        try {
+          await _authService.upgradePhoneToEmail(
+            proxyEmail,
+            registerData['password'],
+          );
+        } catch (e) {
+          if (isClosed) return;
+          if (e is AppException) {
+            emit(AuthErrorState(e.message));
+          } else {
+            emit(AuthErrorState(e.toString()));
+          }
+          return;
+        }
+
+        final userModel = UserModel(
+          uid: firebaseUser.uid,
+          firstName: registerData['firstName'],
+          lastName: registerData['lastName'],
+          email: proxyEmail,
+          phone: registerData['identifier'],
+          role: 'Client',
+          isFirstTime: false,
+          profileCompleted: false,
+          providerData: ProviderData(gender: registerData['gender']),
+        );
+
+        await _userService.createUserDocument(userModel);
+        await _authService.signOut();
+
+        if (isClosed) return;
+        emit(AuthSignUpSuccessState());
+      }
     } on AppException catch (e) {
       if (isClosed) return;
       emit(AuthErrorState(e.message));

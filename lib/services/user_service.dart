@@ -3,6 +3,7 @@ import 'package:khedma/core/errors/app_exception.dart';
 import 'package:khedma/core/helpers/validation_helper.dart';
 import 'package:khedma/models/service_provider_model.dart';
 import 'package:khedma/models/user_model.dart';
+import 'package:khedma/models/review_model.dart';
 
 class UserService {
   final FirebaseFirestore _firestore;
@@ -131,6 +132,90 @@ Future<void> saveProviderProfile({
       );
     } catch (e) {
       throw AppException.unexpected(e);
+    }
+  }
+
+  // ─── Reviews ──────────────────────────────────────────────────────────────
+
+  Future<ReviewModel?> getReviewByChatRoomId(String providerId, String chatRoomId) async {
+    try {
+      final snapshot = await _users
+          .doc(providerId)
+          .collection('reviews')
+          .where('chatRoomId', isEqualTo: chatRoomId)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return ReviewModel.fromMap(snapshot.docs.first.data(), id: snapshot.docs.first.id);
+      }
+      return null;
+    } catch (e) {
+      throw AppException('فشل جلب التقييم', code: 'fetch_review_error');
+    }
+  }
+
+  Future<List<ReviewModel>> getProviderReviews(String providerId) async {
+    try {
+      final snapshot = await _users
+          .doc(providerId)
+          .collection('reviews')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return snapshot.docs.map((doc) => ReviewModel.fromMap(doc.data(), id: doc.id)).toList();
+    } catch (e) {
+      throw AppException('فشل جلب التقييمات', code: 'fetch_reviews_error');
+    }
+  }
+
+  Future<void> submitReview(ReviewModel review) async {
+    try {
+      final providerRef = _users.doc(review.providerId);
+      final reviewRef = review.id.isEmpty
+          ? providerRef.collection('reviews').doc()
+          : providerRef.collection('reviews').doc(review.id);
+
+      // 1. Save or update the review
+      await reviewRef.set(review.toMap(), SetOptions(merge: true));
+
+      // 2. Fetch all reviews to recalculate the average
+      final allReviewsSnapshot = await providerRef.collection('reviews').get();
+      
+      final allReviewsData = allReviewsSnapshot.docs.map((doc) => doc.data()).toList();
+      
+      double totalScore = 0.0;
+      int ratingCount = 0;
+
+      for (var data in allReviewsData) {
+        final negotiation = (data['negotiationRating'] as num?)?.toDouble();
+        final service = (data['serviceRating'] as num?)?.toDouble();
+
+        // Calculate an average per review if both exist, otherwise use whichever exists
+        if (negotiation != null && service != null) {
+          totalScore += (negotiation + service) / 2;
+          ratingCount++;
+        } else if (negotiation != null) {
+          totalScore += negotiation;
+          ratingCount++;
+        } else if (service != null) {
+          totalScore += service;
+          ratingCount++;
+        }
+      }
+
+      final newAverage = ratingCount > 0 ? totalScore / ratingCount : 0.0;
+
+      // 3. Update the provider's overall rating
+      await providerRef.set({
+        'providerData': {
+          'rating': double.parse(newAverage.toStringAsFixed(1)),
+        }
+      }, SetOptions(merge: true));
+    } catch (e, stackTrace) {
+      print('submitReview error: $e');
+      print(stackTrace);
+      throw AppException('فشل حفظ التقييم: $e', code: 'submit_review_error');
     }
   }
 

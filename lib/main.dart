@@ -2,12 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:khedma/components/work_note_bottom_sheet.dart';
 import 'package:khedma/core/constants.dart';
 import 'package:khedma/cubits/home_cubit/home_cubit.dart';
 import 'package:khedma/cubits/providers_cubit/providers_cubit.dart';
 import 'package:khedma/firebase_options.dart';
-import 'package:khedma/l10n/app_localizations.dart';
 import 'package:khedma/screens/auth_screens/auth_screen.dart';
 import 'package:khedma/screens/auth_screens/auth_wrapper.dart';
 import 'package:khedma/screens/auth_screens/recovery_flow.dart';
@@ -26,24 +24,23 @@ import 'package:khedma/screens/service_sections_screen.dart';
 import 'package:khedma/services/provider_service.dart';
 import 'package:khedma/screens/service_contract_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:khedma/services/notification_service.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    NotificationService.initialize().catchError((e) {
+      debugPrint('Notification init error: $e');
+    });
+  } catch (e) {
+    debugPrint('Firebase init error: $e');
+  }
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool seenWelcome = prefs.getBool('seenWelcome') ?? false;
-  await Supabase.initialize(
-    url: 'https://nmvxwdnbqlawzkncgbbb.supabase.co', // استبدله بـ URL مشروعك
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tdnh3ZG5icWxhd3prbmNnYmJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTUwOTUsImV4cCI6MjA4ODY3MTA5NX0.6mmykTnyAReosiLTA0hG3CIkODhGs0lVWse3BmZkmqU', // استبدله بـ Key مشروعك
-  );
-  final user = Supabase.instance.client.auth.currentUser;
-  print(
-    '====================================================================Current User: ${user?.email}',
-  );
+
   // StorageService storageService = StorageService();
 
   // runApp(MyApp());

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/constants.dart';
+import 'package:khedma/core/utils/text_validator.dart';
 
 class ClientFinishWorkDialog extends StatefulWidget {
   const ClientFinishWorkDialog({super.key});
@@ -192,6 +193,7 @@ class _ClientFinishWorkDialogState extends State<ClientFinishWorkDialog> {
                           ),
                           child: TextField(
                             controller: notesController,
+                            onChanged: (val) => TextValidator.validateExternalCommunication(context, val, notesController),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: kSize(12),
@@ -264,6 +266,12 @@ class _ClientFinishWorkDialogState extends State<ClientFinishWorkDialog> {
                         height: kHeight(35),
                         child: ElevatedButton(
                           onPressed: () {
+                            if (TextValidator.validateAll(context, [
+                              amountController.text,
+                              notesController.text,
+                            ])) {
+                              return;
+                            }
                             // Logic الإرسال
                             //  Navigator.pop(context);
                           },

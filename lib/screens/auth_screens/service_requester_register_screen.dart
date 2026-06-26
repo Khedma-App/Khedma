@@ -25,16 +25,20 @@ class _ServiceRequesterRegisterScreenState
 
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   String? selectedGender;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
     firstNameController.dispose();
     lastNameController.dispose();
-    emailController.dispose();
+    phoneController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -52,13 +56,19 @@ class _ServiceRequesterRegisterScreenState
 
         // Listen only to operation outcomes.
         listenWhen: (prev, curr) =>
-            curr is AuthSignUpSuccessState || curr is AuthErrorState,
+            curr is AuthSignUpSuccessState || curr is AuthErrorState || curr is AuthOtpSentState,
 
         listener: (context, state) {
-          if (state is AuthSignUpSuccessState) {
+          if (state is AuthOtpSentState) {
+            _showOtpDialog(context, state);
+          } else if (state is AuthSignUpSuccessState) {
+            final bool isPhone = ValidationHelper.isPhoneInput(phoneController.text);
+            final msg = isPhone
+                ? 'تم إنشاء الحساب بنجاح\nيرجى تسجيل الدخول'
+                : 'تم إرسال رابط التحقق إلى بريدك الإلكتروني\nيرجى تفعيل الحساب ثم تسجيل الدخول';
             _showResultDialog(
               context,
-              'تم إرسال رابط التحقق إلى بريدك الإلكتروني\nيرجى تفعيل الحساب ثم تسجيل الدخول',
+              msg,
               DialogType.success,
             );
           } else if (state is AuthErrorState) {
@@ -163,11 +173,11 @@ class _ServiceRequesterRegisterScreenState
                                           // email
                                           CustomLoginTextFormField(
                                             keyboardType:
-                                                TextInputType.emailAddress,
-                                            hint: 'البريد الالكتروني',
-                                            controller: emailController,
-                                            validator:
-                                                ValidationHelper.validateEmail,
+                                                TextInputType.text,
+                                            hint: 'البريد الإلكتروني او الهاتف',
+                                            controller: phoneController,
+
+                                            validator: ValidationHelper.validateEmailOrPhone,
                                             width: kWidth(329),
                                             icon: Container(
                                               padding: const EdgeInsets.all(
@@ -193,7 +203,6 @@ class _ServiceRequesterRegisterScreenState
                                             width: kWidth(329),
                                             icon: const Icon(Icons.lock),
                                           ),
-
                                           SizedBox(height: kHeight(20)),
 
                                           // gender
@@ -329,8 +338,8 @@ class _ServiceRequesterRegisterScreenState
                                                                 lastNameController
                                                                     .text
                                                                     .trim(),
-                                                            email:
-                                                                emailController
+                                                            identifier:
+                                                                phoneController
                                                                     .text
                                                                     .trim(),
                                                             password:
@@ -404,6 +413,44 @@ class _ServiceRequesterRegisterScreenState
   }
 
   // ─── Dialog helper ────────────────────────────────────────────────────────
+
+  void _showOtpDialog(BuildContext context, AuthOtpSentState state) {
+    final otpController = TextEditingController();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('أدخل رمز التحقق (OTP)'),
+          content: TextField(
+            controller: otpController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(hintText: 'رمز التحقق'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (otpController.text.trim().isNotEmpty) {
+                  Navigator.pop(ctx);
+                  context.read<AuthCubit>().verifyOtpAndComplete(
+                        verificationId: state.verificationId,
+                        smsCode: otpController.text.trim(),
+                        flow: state.flow,
+                        registerData: state.registerData,
+                      );
+                }
+              },
+              child: const Text('تأكيد'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showResultDialog(
     BuildContext context,

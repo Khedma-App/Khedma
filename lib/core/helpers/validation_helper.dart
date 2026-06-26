@@ -30,6 +30,37 @@ class ValidationHelper {
     return null;
   }
 
+  /// Email or Phone validation.
+  static String? validateEmailOrPhone(String? value) {
+    if (value == null || value.trim().isEmpty) return 'البريد الإلكتروني أو رقم الهاتف مطلوب';
+    final clean = value.replaceAll(RegExp(r'[\s\-]'), '');
+    
+    bool isPhone = RegExp(r'^01[0125]\d{8}$').hasMatch(clean);
+    bool isEmail = RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(value);
+    
+    if (!isPhone && !isEmail) {
+      return 'يرجى إدخال بريد إلكتروني أو رقم هاتف صحيح';
+    }
+    return null;
+  }
+  
+  /// Helper to determine if a string is a phone number
+  static bool isPhoneInput(String value) {
+    final clean = value.replaceAll(RegExp(r'[\s\-]'), '');
+    return RegExp(r'^01[0125]\d{8}$').hasMatch(clean) || (clean.startsWith('01') && clean.length <= 11 && int.tryParse(clean) != null);
+  }
+
+  /// Generates a proxy email from a phone number for Firebase Email Auth
+  static String generateProxyEmail(String phone) {
+    String formattedPhone = phone.trim().replaceAll(RegExp(r'[\s\-]'), '');
+    if (formattedPhone.startsWith('01')) {
+      formattedPhone = '+20${formattedPhone.substring(1)}';
+    } else if (formattedPhone.startsWith('1')) {
+      formattedPhone = '+20$formattedPhone';
+    }
+    return '${formattedPhone.replaceAll('+', '')}@khedma.local';
+  }
+
   /// Password: min 8 chars, at least 1 letter + 1 digit.
   static String? validatePassword(String? value) {
     if (value == null || value.isEmpty) return 'كلمة المرور مطلوبة';

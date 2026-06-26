@@ -82,6 +82,8 @@ class CustomPendingRequestCard extends StatelessWidget {
                     SizedBox(height: kHeight(4)),
                     Text(
                       serviceDescription,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: kSize(12),
@@ -126,13 +128,15 @@ class CustomPendingRequestCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      "$estimatedPrice ج",
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: kSize(14),
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFE19113),
+                    Flexible(
+                      child: Text(
+                        "$estimatedPrice ج",
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: kSize(14),
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFE19113),
+                        ),
                       ),
                     ),
                     const Spacer(),
@@ -150,13 +154,15 @@ class CustomPendingRequestCard extends StatelessWidget {
                   SizedBox(height: kHeight(4)),
                   Row(
                     children: [
-                      Text(
-                        suggestedTime,
-                        style: TextStyle(
-                          fontFamily: 'Cairo',
-                          fontSize: kSize(14),
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFFE19113),
+                      Flexible(
+                        child: Text(
+                          suggestedTime,
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: kSize(14),
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFE19113),
+                          ),
                         ),
                       ),
                       const Spacer(),
@@ -191,11 +197,14 @@ class CustomPendingRequestCard extends StatelessWidget {
                       border: Border.all(color: const Color(0xFFD6D6D6)),
                     ),
                     child: const Center(
-                      child: Text(
-                        "رفض",
-                        style: TextStyle(
-                          fontFamily: 'Cairo',
-                          fontWeight: FontWeight.w600,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "رفض",
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -216,12 +225,15 @@ class CustomPendingRequestCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Center(
-                      child: Text(
-                        "تفاصيل وقبول",
-                        style: TextStyle(
-                          fontFamily: 'Cairo',
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "تفاصيل وقبول",
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),

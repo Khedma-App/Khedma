@@ -67,83 +67,98 @@ class ServiceDataCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'اسم الخدمة',
-                    style: TextStyle(
-                      fontSize: kSize(12),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: kHeight(2)),
-                  Container(
-                    height: kHeight(40),
-                    width: kWidth(110),
-                    padding: EdgeInsets.symmetric(horizontal: kWidth(12)),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF6F6F6),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: serviceError != null
-                            ? Colors.red
-                            : const Color(0xFFADADAD),
-                        width: kWidth(0.8),
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'اسم الخدمة',
+                      style: TextStyle(
+                        fontSize: kSize(12),
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    child: DropdownButton<String>(
-                      value: selectedService,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      hint: Text('اسم الخدمة', style: hintStyle),
-                      items: EgyptData.services
-                          .map(
-                            (s) => DropdownMenuItem(value: s, child: Text(s)),
-                          )
-                          .toList(),
-                      onChanged: onServiceChanged,
+                    SizedBox(height: kHeight(2)),
+                    Container(
+                      height: kHeight(40),
+                      padding: EdgeInsets.symmetric(horizontal: kWidth(12)),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF6F6F6),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: serviceError != null
+                              ? Colors.red
+                              : const Color(0xFFADADAD),
+                          width: kWidth(0.8),
+                        ),
+                      ),
+                      child: DropdownButton<String>(
+                        value: selectedService,
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        hint: Text('اسم الخدمة', style: hintStyle),
+                        items: EgyptData.services
+                            .map(
+                              (s) => DropdownMenuItem(
+                                value: s,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: AlignmentDirectional.centerStart,
+                                  child: Text(s, style: TextStyle(fontSize: kSize(12))),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: onServiceChanged,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              SizedBox(width: kWidth(20)),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "وصف الخدمة( اختياري )",
-                    style: TextStyle(
-                      fontSize: kSize(12),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: kHeight(1)),
-                  Container(
-                    height: kHeight(40),
-                    width: kWidth(160),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF6F6F6),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFFADADAD),
-                        width: kWidth(0.8),
+              SizedBox(width: kWidth(12)),
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "وصف الخدمة( اختياري )",
+                        style: TextStyle(
+                          fontSize: kSize(12),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                    child: TextField(
-                      controller: serviceDescriptionController,
-                      textAlign: TextAlign.center,
-                      textAlignVertical: TextAlignVertical.center,
-                      decoration: InputDecoration(
-                        hintText: 'مثال ( تشطيب شقق / دهان )',
-                        hintStyle: hintStyle,
-                        border: InputBorder.none,
-                        isCollapsed: true,
+                    SizedBox(height: kHeight(1)),
+                    Container(
+                      height: kHeight(40),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF6F6F6),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFADADAD),
+                          width: kWidth(0.8),
+                        ),
+                      ),
+                      child: TextField(
+                        controller: serviceDescriptionController,
+                        textAlign: TextAlign.center,
+                        textAlignVertical: TextAlignVertical.center,
+                        style: TextStyle(fontSize: kSize(12)),
+                        decoration: InputDecoration(
+                          hintText: 'مثال ( تشطيب شقق / دهان )',
+                          hintStyle: hintStyle,
+                          border: InputBorder.none,
+                          isCollapsed: true,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -155,47 +170,50 @@ class ServiceDataCard extends StatelessWidget {
           SizedBox(height: kHeight(10)),
           Row(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "عدد سنين الخبرة",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 3),
-                  Container(
-                    height: kHeight(40),
-                    width: kWidth(110),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF6F6F6),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: experienceError != null
-                            ? Colors.red
-                            : const Color(0xFFADADAD),
-                        width: 0.8,
-                      ),
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "عدد سنين الخبرة",
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
                     ),
-                    child: DropdownButton<int>(
-                      value: selectedExperience,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      hint: Text("سنين الخبرة", style: hintStyle),
-                      items: List.generate(
-                        10,
-                        (i) => DropdownMenuItem(
-                          value: i + 1,
-                          child: Text("${i + 1} سنوات"),
+                    const SizedBox(height: 3),
+                    Container(
+                      height: kHeight(40),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF6F6F6),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: experienceError != null
+                              ? Colors.red
+                              : const Color(0xFFADADAD),
+                          width: 0.8,
                         ),
                       ),
-                      onChanged: onExperienceChanged,
+                      child: DropdownButton<int>(
+                        value: selectedExperience,
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        hint: Text("سنين الخبرة", style: hintStyle),
+                        items: List.generate(
+                          10,
+                          (i) => DropdownMenuItem(
+                            value: i + 1,
+                            child: Text("${i + 1} سنوات"),
+                          ),
+                        ),
+                        onChanged: onExperienceChanged,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              SizedBox(width: kWidth(20)),
+              SizedBox(width: kWidth(12)),
               Expanded(
+                flex: 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -210,7 +228,6 @@ class ServiceDataCard extends StatelessWidget {
                     Container(
                       alignment: Alignment.center,
                       height: kHeight(40),
-                      width: kWidth(160),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF6F6F6),
                         borderRadius: BorderRadius.circular(12),
@@ -222,6 +239,7 @@ class ServiceDataCard extends StatelessWidget {
                       child: TextField(
                         controller: aboutController,
                         textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: kSize(12)),
                         decoration: InputDecoration(
                           hintText: 'مثال ( اعمل في الدهانات بأنواعها)',
                           hintStyle: hintStyle,
@@ -247,7 +265,6 @@ class ServiceDataCard extends StatelessWidget {
           ),
           SizedBox(height: kHeight(8)),
           Container(
-            width: kWidth(210),
             height: kHeight(30),
             decoration: BoxDecoration(
               color: const Color(0xFFF6F6F6),
@@ -257,6 +274,7 @@ class ServiceDataCard extends StatelessWidget {
             child: TextField(
               controller: companiesController,
               textAlign: TextAlign.center,
+              style: TextStyle(fontSize: kSize(12)),
               decoration: InputDecoration(
                 hintText: 'اكتب الشركات السابق لك العمل بها ان وجد',
                 hintStyle: hintStyle,
@@ -288,7 +306,7 @@ class ServiceDataCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (workImages.length < 5)
+                    if (workImages.length < 4)
                       GestureDetector(
                         onTap: onAddWorkImage,
                         child: Container(

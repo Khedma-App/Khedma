@@ -19,12 +19,54 @@ class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  void _showOtpDialog(BuildContext context, AuthOtpSentState state) {
+    final otpController = TextEditingController();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('أدخل رمز التحقق (OTP)'),
+          content: TextField(
+            controller: otpController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(hintText: 'رمز التحقق'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (otpController.text.trim().isNotEmpty) {
+                  Navigator.pop(ctx);
+                  context.read<AuthCubit>().verifyOtpAndComplete(
+                        verificationId: state.verificationId,
+                        smsCode: otpController.text.trim(),
+                        flow: state.flow,
+                        registerData: state.registerData,
+                      );
+                }
+              },
+              child: const Text('تأكيد'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -36,10 +78,12 @@ class _LoginFormState extends State<LoginForm> {
 
       // ✅ Listen ONLY to operation outcomes — routing and error display.
       listenWhen: (prev, curr) =>
-          curr is AuthLoginSuccessState || curr is AuthErrorState,
+          curr is AuthLoginSuccessState || curr is AuthErrorState || curr is AuthOtpSentState,
 
       listener: (context, state) {
-        if (state is AuthLoginSuccessState) {
+        if (state is AuthOtpSentState) {
+          _showOtpDialog(context, state);
+        } else if (state is AuthLoginSuccessState) {
           final user = state.user;
           if (user.isProvider && user.isFirstTime) {
             Navigator.of(context).pushNamedAndRemoveUntil(
@@ -75,7 +119,7 @@ class _LoginFormState extends State<LoginForm> {
                 width: kWidth(300),
                 hint: 'البريد الإلكتروني او رقم الهاتف',
                 controller: emailController,
-                validator: ValidationHelper.validateEmail,
+                validator: ValidationHelper.validateEmailOrPhone,
                 useEnabledColor: true,
               ),
               SizedBox(height: kHeight(20)),
@@ -118,7 +162,7 @@ class _LoginFormState extends State<LoginForm> {
                         FocusScope.of(context).unfocus();
                         if (formKey.currentState!.validate()) {
                           context.read<AuthCubit>().login(
-                                email: emailController.text,
+                                identifier: emailController.text,
                                 password: passwordController.text,
                               );
                         }

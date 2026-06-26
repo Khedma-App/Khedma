@@ -141,10 +141,12 @@ class AllChatsScreen extends StatelessWidget {
                         child: CircleAvatar(
                           radius: 30,
                           backgroundColor: Colors.purple[50],
-                          backgroundImage: otherImage.isNotEmpty
-                              ? CachedNetworkImageProvider(otherImage)
-                              : null,
-                          child: otherImage.isEmpty
+                          backgroundImage: otherImage.startsWith('http')
+                              ? CachedNetworkImageProvider(otherImage) as ImageProvider
+                              : otherImage.startsWith('assets')
+                                  ? AssetImage(otherImage)
+                                  : null,
+                          child: (!otherImage.startsWith('http') && !otherImage.startsWith('assets'))
                               ? Icon(
                                   Icons.person,
                                   size: 40,
@@ -219,16 +221,21 @@ class AllChatsScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.purple[50],
                 borderRadius: BorderRadius.circular(15),
-                image: imageUrl.isNotEmpty
+                image: imageUrl.startsWith('http')
                     ? DecorationImage(
                         image: CachedNetworkImageProvider(imageUrl),
                         fit: BoxFit.cover,
                       )
-                    : null,
+                    : imageUrl.startsWith('assets')
+                        ? DecorationImage(
+                            image: AssetImage(imageUrl),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
               ),
               child: Stack(
                 children: [
-                  if (imageUrl.isEmpty)
+                  if (!imageUrl.startsWith('http') && !imageUrl.startsWith('assets'))
                     const Center(
                       child: Icon(
                         Icons.person,

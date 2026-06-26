@@ -8,6 +8,7 @@ class AppException implements Exception {
 
   /// Translates a [FirebaseAuthException] code to an Arabic message.
   factory AppException.fromAuthCode(String code) {
+    print('FirebaseAuthException code: $code');
     return AppException(_authCodeToMessage(code), code: code);
   }
 
@@ -55,6 +56,15 @@ class AppException implements Exception {
         return 'تحقق من اتصالك بالإنترنت';
       case 'operation-not-allowed':
         return 'هذه العملية غير مسموح بها حالياً';
+      case 'invalid-phone-number':
+        return 'رقم الهاتف غير صالح';
+      case 'invalid-verification-code':
+        return 'رمز التحقق (OTP) غير صحيح';
+      case 'invalid-verification-id':
+      case 'session-expired':
+        return 'رمز التحقق منتهي الصلاحية، يرجى إعادة الإرسال';
+      case 'quota-exceeded':
+        return 'تم تجاوز الحد الأقصى للمحاولات';
       default:
         return 'حدث خطأ، يرجى المحاولة مجدداً';
     }

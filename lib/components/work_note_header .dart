@@ -62,7 +62,13 @@ class WorkNoteHeader extends StatelessWidget {
                       ),
                       child: CircleAvatar(
                         radius: kSize(28),
-                        backgroundImage: NetworkImage(image),
+                        backgroundColor: const Color(0xFFF0F0F0),
+                        backgroundImage: image.isNotEmpty && image.startsWith('http')
+                            ? NetworkImage(image)
+                            : null,
+                        child: (!image.startsWith('http') || image.isEmpty)
+                            ? Icon(Icons.person, size: kSize(28), color: Colors.grey[400])
+                            : null,
                       ),
                     ),
                     const SizedBox(width: 12),

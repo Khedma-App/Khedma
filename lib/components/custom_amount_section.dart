@@ -5,11 +5,13 @@ import 'package:khedma/core/constants.dart';
 class CustomAmountSection extends StatefulWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
+  final double agreedAmount;
 
   const CustomAmountSection({
     super.key,
     required this.controller,
     this.validator,
+    this.agreedAmount = 0.0,
   });
 
   @override
@@ -17,9 +19,6 @@ class CustomAmountSection extends StatefulWidget {
 }
 
 class _AmountSectionState extends State<CustomAmountSection> {
-  // المبلغ المتفق عليه ثابت هنا (يمكنك تمريره كـ variable لاحقاً)
-  final double totalAmount = 4000.0;
-
   @override
   void initState() {
     super.initState();
@@ -40,7 +39,8 @@ class _AmountSectionState extends State<CustomAmountSection> {
   Widget build(BuildContext context) {
     // حساب القيمة الحالية المدفوعة
     double currentPaid = double.tryParse(widget.controller.text) ?? 0.0;
-    bool isCompleted = currentPaid >= totalAmount;
+    bool isCompleted =
+        widget.agreedAmount > 0 && currentPaid >= widget.agreedAmount;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: kSize(20)),
@@ -71,38 +71,39 @@ class _AmountSectionState extends State<CustomAmountSection> {
           ),
           SizedBox(height: kHeight(10)),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            textDirection: TextDirection.rtl,
-            children: [
-              Text(
-                'المبلغ المتفق عليه: ${totalAmount.toInt()} ج',
-                style: TextStyle(
-                  fontFamily: 'Cairo',
-                  fontSize: kSize(13),
-                  color: const Color(0xff514534),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(width: kWidth(10)),
-              Expanded(
-                child: Text(
-                  isCompleted
-                      ? '✅ اكتمل المبلغ بالكامل'
-                      : 'المبلغ المدفوع حتى الآن: ${widget.controller.text.isEmpty ? "0" : widget.controller.text} ج',
-                  textAlign: TextAlign.left,
+          if (widget.agreedAmount > 0)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              textDirection: TextDirection.rtl,
+              children: [
+                Text(
+                  'المبلغ المتفق عليه في العقد: ${widget.agreedAmount.toInt()} ج',
                   style: TextStyle(
                     fontFamily: 'Cairo',
                     fontSize: kSize(13),
-                    color: isCompleted
-                        ? Colors.green[700]
-                        : const Color(0xFF00A27A),
+                    color: const Color(0xff514534),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ],
-          ),
+                SizedBox(width: kWidth(10)),
+                Expanded(
+                  child: Text(
+                    isCompleted
+                        ? '✅ اكتمل المبلغ بالكامل'
+                        : '',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: kSize(13),
+                      color: isCompleted
+                          ? Colors.green[700]
+                          : const Color(0xFF00A27A),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );

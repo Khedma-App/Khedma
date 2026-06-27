@@ -26,11 +26,12 @@ import 'package:khedma/screens/service_contract_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:khedma/services/notification_service.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     NotificationService.initialize().catchError((e) {
       debugPrint('Notification init error: $e');
     });

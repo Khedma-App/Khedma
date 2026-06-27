@@ -30,13 +30,18 @@ class CustomBuildOderItem extends StatelessWidget {
                 ),
               ),
 
-              // 2. العنوان (يمين)
-              Text(
-                order.title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: kSize(12),
-                  color: Colors.black,
+              SizedBox(width: kWidth(5)),
+
+              Flexible(
+                child: Text(
+                  order.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: kSize(12),
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ],

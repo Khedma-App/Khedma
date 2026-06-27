@@ -70,7 +70,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -87,7 +87,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/serviceAccountKey.json
+    # - assets/serviceAccountKey.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -117,15 +117,20 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 flutter_native_splash:
   color: "#E19113"
-  image: assets/icons/خِدمة 1.png
+  image: assets/khedma_logo.png
   android_gravity: center
   ios_content_mode: scaleAspectFit
   android_12:
     color: "#E19113"
-    image: assets/icons/خِدمة 1.png
+    image: assets/khedma_logo.png
   web: false
 
-flutter_icons:
+  
+
+flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/logo.png"
+  image_path: "assets/khedma_logo.png"
+  
+  adaptive_icon_background: "#E19113" 
+  adaptive_icon_foreground: "assets/khedma_logo.png"
